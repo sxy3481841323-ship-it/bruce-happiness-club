@@ -30,7 +30,7 @@ export function renderLeaderboardDrawer() {
 
   listEl.innerHTML = board.map((row) => {
     const isMe = me && row.nickname === me.nickname;
-    const avatarSrc = row.owner === "Meya" ? "./assets/img/owner_meya.svg" : "./assets/img/owner_alex.svg";
+    const avatarSrc = row.owner === "Meya" ? "./assets/img/owner_meya.jpg" : "./assets/img/owner_alex.jpg";
     return `
       <div class="lb-row ${isMe ? "me" : ""}">
         <div class="lb-left">

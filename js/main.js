@@ -155,8 +155,8 @@ async function boot() {
       document.getElementById("hud-nickname").textContent = player.nickname;
       document.getElementById("hud-owner-tag").textContent = `${player.owner} & 布鲁斯`;
       document.getElementById("hud-owner-img").src = player.owner === "Meya"
-        ? "./assets/img/owner_meya.svg"
-        : "./assets/img/owner_alex.svg";
+        ? "./assets/img/owner_meya.jpg"
+        : "./assets/img/owner_alex.jpg";
       document.getElementById("hud-bruce-img").src = sulking
         ? "./assets/img/bruce_sulk.jpg"
         : "./assets/img/bruce_happy.jpg";
