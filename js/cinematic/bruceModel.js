@@ -408,6 +408,7 @@ export function createBruceModel(
     phase = 0,
     restPose = 0,
     loadedScarf,
+    collarAnchor = null,
     gazeTarget = null;
   const fringes = [];
   rig.sculpt.traverse((o) => {
@@ -435,7 +436,7 @@ export function createBruceModel(
         loaded = null;
         return mode;
       }
-      const scale = 2.65 / Math.max(size.x, size.y, size.z),
+      const scale = Math.min(2.55 / Math.max(size.x, size.y, size.z), 1.62 / Math.max(0.001, size.y)),
         center = bounds.getCenter(new THREE.Vector3());
       const normalized = new THREE.Group();
       normalized.scale.setScalar(scale);
@@ -458,11 +459,9 @@ export function createBruceModel(
                   : '',
           });
       });
-      let hasScarf = false;
-      loaded.traverse((o) => {
-        if (/scarf|bandana|neckerchief/i.test(o.name)) hasScarf = true;
-      });
-      if (!hasScarf) loadedScarf = createScarf(motion, materials);
+      collarAnchor = new THREE.Object3D();
+      collarAnchor.position.set(0, size.y * scale * 0.52, size.z * scale * 0.24);
+      motion.add(collarAnchor);
       motion.add(normalized);
       rig.sculpt.visible = false;
       if (gltf.animations.length) {
@@ -498,7 +497,7 @@ export function createBruceModel(
       gazeTarget = point?.isVector3 ? point.clone() : null;
     },
     getCollarPosition(target = new THREE.Vector3()) {
-      return (loadedScarf?.root || rig.scarf.root).getWorldPosition(target);
+      return (collarAnchor || loadedScarf?.root || rig.scarf.root).getWorldPosition(target);
     },
     update(
       dt,

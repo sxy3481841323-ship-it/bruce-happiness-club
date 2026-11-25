@@ -1,7 +1,7 @@
 import { store } from "./state.js";
 import { apiGetLeaderboard, apiRegister } from "./api.js";
 import { renderMapView, stopMapLoop } from "./map.js";
-import { renderSceneView } from "./activities.js";
+import { renderSceneView, unmountSceneView } from "./activities.js";
 import { renderShopView } from "./shop.js";
 import { renderLeaderboardDrawer, renderTicker } from "./leaderboard.js";
 import { sfx } from "./audio.js";
@@ -26,6 +26,7 @@ function syncUiFromState(state) {
   const viewShop = document.getElementById("view-shop");
 
   if (state.view !== "map") stopMapLoop();
+  if (state.view !== "home" && state.view !== "street") unmountSceneView();
 
   viewMap.classList.toggle("hidden", state.view !== "map");
   viewScene.classList.toggle("hidden", state.view !== "home" && state.view !== "street");
