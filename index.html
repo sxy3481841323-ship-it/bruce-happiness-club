@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>布鲁斯日常 · 幸福指数俱乐部</title>
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body class="mood-happy">
+  <!-- 顶部悬浮吃瓜滚动条 -->
+  <header class="ticker-bar" aria-label="全服吃瓜公告">
+    <span class="ticker-dot"></span>
+    <span class="ticker-label">吃瓜现场</span>
+    <div class="ticker-viewport">
+      <div class="ticker-track" id="ticker-track">
+        <span class="ticker-item">正在连接布鲁斯的阳光小院……</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 悬浮磨砂胶囊 HUD -->
+  <nav class="hud-bar">
+    <div class="hud-identity">
+      <div class="avatar-pair">
+        <img id="hud-owner-img" class="hud-avatar owner-avatar" src="./assets/img/owner_alex.svg" alt="主人头像" />
+        <img id="hud-bruce-img" class="hud-avatar bruce-avatar" src="./assets/img/bruce_happy.jpg" alt="布鲁斯" />
+      </div>
+      <div class="identity-text">
+        <div class="identity-row">
+          <span id="hud-nickname" class="hud-nickname">新邻居</span>
+          <span id="hud-owner-tag" class="hud-owner-tag">Alex &amp; 布鲁斯</span>
+        </div>
+        <div id="hud-mood-pill" class="mood-pill mood-pill-happy">活力陪玩中</div>
+      </div>
+    </div>
+
+    <div class="hud-score-pill">
+      <span class="score-label">幸福指数</span>
+      <span class="score-value" id="hud-score">100</span>
+      <span class="score-rank" id="hud-rank">#--</span>
+    </div>
+
+    <div class="hud-actions">
+      <button class="btn-pill" id="btn-nav-map" type="button">地图</button>
+      <button class="btn-pill hidden" id="btn-nav-shop" type="button">急救零食</button>
+      <button class="btn-pill btn-primary" id="btn-nav-board" type="button">排行榜</button>
+      <button class="btn-pill" id="btn-sound-toggle" type="button">音效</button>
+    </div>
+  </nav>
+
+  <!-- 全画幅主舞台 -->
+  <main class="stage-wrap" id="stage-wrap">
+    <!-- 低于 80 分冷战柔和提示条 -->
+    <section class="anhedonia-banner hidden" id="anhedonia-banner">
+      <div class="anhedonia-inner">
+        <img src="./assets/img/bruce_sulk.jpg" alt="布鲁斯冷战中" class="anhedonia-thumb" />
+        <div class="anhedonia-copy">
+          <strong>布鲁斯跌破 80 分 · 冷战中</strong>
+          <p>它暂时感受不到陪玩的快乐，请花幸福指数买零食哄回 80 分以上；买不起饼干（5 分）可看小视频拉回 80 分。</p>
+        </div>
+        <button class="btn-pill btn-primary" id="btn-open-shop-banner" type="button">去零食急救柜</button>
+      </div>
+    </section>
+
+    <section class="view-section" id="view-map"></section>
+    <section class="view-section hidden" id="view-scene"></section>
+    <section class="view-section hidden" id="view-shop"></section>
+  </main>
+
+  <!-- 排行榜柔光侧边抽屉 -->
+  <aside class="drawer-backdrop hidden" id="leaderboard-drawer" aria-hidden="true">
+    <div class="drawer-panel">
+      <div class="drawer-head">
+        <div>
+          <span class="modal-pill-tag">实时排行榜</span>
+          <h2>同学幸福指数榜</h2>
+        </div>
+        <button class="btn-pill" id="btn-close-board" type="button">关闭</button>
+      </div>
+      <div class="swap-rule-note" id="swap-pool-note">
+        高位交换规则：只从排在你前面的玩家中抽取，第 1 名概率最低，越往下越容易被翻牌换分。
+      </div>
+      <div class="leaderboard-list" id="leaderboard-list"></div>
+      <div class="drawer-footer">
+        <button class="btn-pill btn-block" id="btn-switch-player" type="button">切换账号 / 重选 Alex 或 Meya</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 开局选角 & 唯一中文昵称弹窗 -->
+  <div class="modal-backdrop" id="onboarding-modal">
+    <div class="modal-card onboarding-card">
+      <div class="onboarding-head">
+        <span class="modal-pill-tag">奶油长毛腊肠 · 布鲁斯</span>
+        <h1>欢迎来到布鲁斯的阳光小院</h1>
+        <p class="sub-copy">初始 100 分幸福指数既是你的排行榜成绩，也是低于 80 分时买零食哄狗的唯一货币。</p>
+      </div>
+
+      <div class="owner-picker">
+        <label class="owner-option selected" data-owner="Alex">
+          <input type="radio" name="owner" value="Alex" checked />
+          <img src="./assets/img/owner_alex.svg" alt="Alex" />
+          <span class="owner-name">Alex</span>
+          <span class="owner-role">男主人</span>
+        </label>
+        <label class="owner-option" data-owner="Meya">
+          <input type="radio" name="owner" value="Meya" />
+          <img src="./assets/img/owner_meya.svg" alt="Meya" />
+          <span class="owner-name">Meya</span>
+          <span class="owner-role">女主人</span>
+        </label>
+      </div>
+
+      <form id="onboarding-form" class="onboarding-form" novalidate>
+        <div class="field-group">
+          <label for="input-nickname">排行榜昵称（全服唯一 · 至少含 1 个汉字）</label>
+          <input id="input-nickname" type="text" maxlength="12" placeholder="例如：早八起不来星人" autocomplete="off" required />
+          <small class="field-hint">不可重名，且不能是纯数字或纯英文字母。</small>
+        </div>
+
+        <div class="field-group">
+          <label for="input-pin">4 位数字暗号（防冒用 / 换设备找回）</label>
+          <input id="input-pin" type="password" inputmode="numeric" maxlength="4" pattern="\d{4}" placeholder="4 位数字，如 2026" required />
+        </div>
+
+        <p class="form-error hidden" id="onboarding-error"></p>
+        <button class="btn-pill btn-primary btn-block" id="btn-enter-game" type="submit">推开门 · 领布鲁斯回家</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 通用柔光弹窗 -->
+  <div class="modal-backdrop hidden" id="generic-modal">
+    <div class="modal-card" id="generic-modal-card"></div>
+  </div>
+
+  <div class="fx-layer" id="fx-layer" aria-hidden="true"></div>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
