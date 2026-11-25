@@ -5,3 +5,5 @@ __pycache__/
 .local_kv.json
 node_modules/
 test-results/
+assets/clips_raw/
+assets/models/

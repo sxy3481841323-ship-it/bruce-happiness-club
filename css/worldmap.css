@@ -1,0 +1,200 @@
+/* 2.5D 活态绘本大地图（wm- 前缀，与旧样式彻底隔离） */
+.wm-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wm-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 28px;
+  overflow: hidden;
+  background: #EFE9DC;
+  box-shadow: var(--shadow-soft);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.wm-scroller {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.wm-camera {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 50%;
+  will-change: transform;
+  transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.wm-camera.is-live-parallax {
+  transition: none;
+}
+
+.wm-camera.is-zooming {
+  transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.wm-base {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  transition: filter 400ms ease;
+}
+
+.wm-stage.is-sulk .wm-base {
+  filter: saturate(0.55) brightness(0.88) hue-rotate(-12deg);
+}
+
+.wm-fx {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.wm-pins {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.wm-pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px 6px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 999px;
+  background: rgba(255, 253, 249, 0.84);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 8px 24px rgba(24, 34, 48, 0.14);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 200ms var(--ease-out), background-color 200ms var(--ease-out), box-shadow 200ms var(--ease-out);
+}
+
+.wm-pin:hover {
+  transform: translate(-50%, -56%) scale(1.04);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 12px 28px rgba(24, 34, 48, 0.2);
+}
+
+.wm-pin-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  background: #8B939D;
+}
+
+.wm-pin.is-playable {
+  border-color: rgba(142, 41, 59, 0.35);
+  background: rgba(255, 252, 248, 0.94);
+}
+
+.wm-pin.is-playable .wm-pin-dot {
+  background: var(--burgundy);
+  box-shadow: 0 0 0 4px rgba(142, 41, 59, 0.2);
+  animation: wmPulse 2.2s ease-in-out infinite;
+}
+
+.wm-stage.is-sulk .wm-pin.is-playable .wm-pin-dot {
+  background: #4B6A88;
+  box-shadow: 0 0 0 4px rgba(75, 106, 136, 0.22);
+}
+
+.wm-pin-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
+.wm-pin-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.wm-pin-sub {
+  font-size: 10.5px;
+  color: var(--ink-muted);
+}
+
+.wm-pin.is-preview .wm-pin-sub {
+  color: #7D858E;
+}
+
+.wm-hint {
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--ink-muted);
+}
+
+.wm-mobile-only {
+  display: none;
+}
+
+@keyframes wmPulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(142, 41, 59, 0.18); }
+  50% { box-shadow: 0 0 0 7px rgba(142, 41, 59, 0.05); }
+}
+
+@media (max-width: 560px) {
+  .wm-stage {
+    height: 62vh;
+    min-height: 360px;
+    aspect-ratio: auto;
+    border-radius: 22px;
+  }
+  .wm-scroller {
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .wm-camera {
+    width: calc(62vh * 1.79);
+    min-width: calc(360px * 1.79);
+    height: 100%;
+  }
+  .wm-pin {
+    padding: 5px 10px 5px 8px;
+    gap: 5px;
+  }
+  .wm-pin-title {
+    font-size: 11.5px;
+  }
+  .wm-pin-sub {
+    display: none;
+  }
+  .wm-mobile-only {
+    display: inline;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wm-pin.is-playable .wm-pin-dot {
+    animation: none;
+  }
+  .wm-camera {
+    transition: none;
+  }
+}

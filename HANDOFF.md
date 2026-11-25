@@ -102,5 +102,27 @@ python3 scripts/dev_server.py --port 8778
 # 3D 大地图独立试映页：http://127.0.0.1:8778/map3d-preview.html
 
 # 4. JS 语法检查
-for f in js/*.js js/cinematic/*.js js/cinematic/scenes/*.js functions/api/*.js; do node --check "$f" || exit 1; done
+for f in js/*.js js/theater/*.js functions/api/*.js; do node --check "$f" || exit 1; done
 ```
+
+---
+
+## 六、2026-11-25 晚 · 路线 A 改造（当前主线架构）
+
+为了彻底摆脱纯代码 3D 的积木感与重复感，主游戏已切换为**路线 A（2.5D 活态绘本大地图 + 全屏交互电影引擎）**，并收拢为 5 幕招牌场景：
+
+1. **2.5D 活态绘本大地图（`js/map.js` + `css/worldmap.css`）**：
+   - 优先加载新版无地域元素底图 `assets/img/world_map_v2.jpg`，缺失时无缝回退第一版手绘图 `assets/img/world_map.jpg`。
+   - Canvas 实时叠加水面波光、飘动云影、阳光微尘与桌面微视差；`<80` 分冷战自动切换冷蓝阴雨滤镜、斜向雨丝与水面涟漪；手机竖屏（`<= 560px`）支持居中横向平滑拖屏。
+2. **全屏交互电影引擎（`js/theater/{clips,player,interactions,stage}.js` + `css/theater.css`）**：
+   - 双缓冲媒体层实现 `450ms` 零黑屏交叉淡化；热插拔读取 `assets/clips/<id>/` 下的 `poster.jpg`、`intro.mp4`、`win.mp4`、`fail_phone.mp4`、`fail_hazard.mp4` 与可选 `swap.mp4`。
+   - 在真实 MP4 放入前，自动使用高清图 + Ken Burns 运镜兜底；5 幕全屏交互（顺毛、雨窗三步、抛球、探店门贴慢动作、水岸点灯）直接叠在全屏画面上，并支持「自动观影」Ghost 光标演示（75% 成功 / 25% 翻车）。
+3. **5 幕招牌场景（`js/activities.js` 选幕大厅）**：
+   - 布鲁斯的小院（3 幕）：`home_brush`、`home_rain_vinyl`、`home_hide_seek`。
+   - 林荫小街（2 幕）：`street_cafe`、`street_bridge`。
+4. **国产模型制片手册 & 一键压缩脚本**：
+   - [`PRODUCTION_BRIEF.md`](./PRODUCTION_BRIEF.md)：含 1 张新版无地域大地图 + 5 幕首帧与分支视频的完整中文提示词与布鲁斯垫图指南。
+   - [`scripts/optimize_clips.py`](./scripts/optimize_clips.py)：将 `assets/clips_raw/<id>/*.mp4` 批量压成 720p/30fps/H.264（`<= 1.2 MB`）输出到 `assets/clips/<id>/`。
+5. **旧模块处置说明**：
+   - `js/cinematic/`、`js/map3d.js`、`js/renderer.js`、`js/bruce3d.js`、`js/materials3d.js`、`cinematic-preview.html`、`map3d-preview.html` 已从主游戏停用，但文件完整保留在仓库中供参考；`assets/models/` 与 `assets/clips_raw/` 已加入 `.gitignore` 不入库。
+
