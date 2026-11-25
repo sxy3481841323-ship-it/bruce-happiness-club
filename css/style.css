@@ -361,6 +361,56 @@ body.mood-sulk .score-value {
   height: 100%;
 }
 
+/* The 3D world fills the viewport underneath the existing floating HUD. */
+.world-stage.world-stage-3d {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  --world-map-safe-top: 150px;
+  --world-map-safe-bottom: 100px;
+  --world-map-control-bottom: 27px;
+}
+
+.world-map-open .anhedonia-banner { display: none !important; }
+.world-map-note {
+  position: absolute;
+  z-index: 10;
+  left: 30px;
+  bottom: 26px;
+  color: #496b59;
+  max-width: calc(100% - 140px);
+}
+.world-map-note strong { font-size: 13px; font-weight: 600; letter-spacing: .08em; }
+.world-map-caption { font-size: 11px; color: #74917d; margin-top: 5px; line-height: 1.8; }
+.world-map-shop { margin-top: 10px; min-height: 44px; background: #f4faf3d9; color: #54705f; }
+.mood-sulk .world-map-note { color: #47697f; }
+.mood-sulk .world-map-caption { color: #648394; }
+body.world-map-open .hud-bar { background: rgba(249,252,247,.76); box-shadow: 0 5px 22px #345e4210; }
+@media (max-width: 640px) {
+  .world-map-note { left: 20px; bottom: 22px; max-width: calc(100% - 115px); }
+  .world-map-note strong { font-size: 11px; }
+  .world-map-caption { font-size: 10px; }
+  body.world-map-open .hud-bar { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 7px 10px; margin: 10px 12px 0; padding: 9px 12px; border-radius: 23px; }
+  body.world-map-open .hud-identity { gap: 6px; min-width: 0; }
+  body.world-map-open .hud-avatar { width: 31px; height: 31px; }
+  body.world-map-open .hud-owner-tag { display: none; }
+  body.world-map-open .hud-nickname { max-width: 96px; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  body.world-map-open .mood-pill { font-size: 9px; padding: 1px 6px; }
+  body.world-map-open .hud-score-pill { width: auto; min-width: 90px; justify-content: center; gap: 7px; padding: 5px 10px; }
+  body.world-map-open .score-label { font-size: 9px; }
+  body.world-map-open .score-value { font-size: 23px; }
+  body.world-map-open .score-rank { display: none; }
+  body.world-map-open .hud-actions { grid-column: 1/-1; gap: 6px; justify-content: space-between; }
+  body.world-map-open .hud-actions .btn-pill { font-size: 10px; min-height: 32px; padding: 5px 12px; }
+}
+
 .world-pins-layer {
   position: absolute;
   inset: 0;

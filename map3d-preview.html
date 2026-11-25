@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#deedf0">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%2716%27 fill=%27%23789374%27/%3E%3Cpath d=%27M9 12Q4 7 6 19L10 17M23 12Q28 7 26 19L22 17M10 11Q16 6 22 11L23 22Q16 28 9 22Z%27 fill=%27none%27 stroke=%27%23fff6dc%27 stroke-width=%271.5%27/%3E%3C/svg%3E">
+  <title>布鲁斯的幸福俱乐部 · 小小世界</title>
+  <style>
+    :root{color-scheme:light;font-family:Inter,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:#345347;background:#deedf0;font-synthesis:none}
+    *{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden}button,input{font:inherit}button{touch-action:manipulation}button:focus-visible,input:focus-visible{outline:3px solid #60846e;outline-offset:5px}
+    #world{position:relative;width:100%;height:100%;height:100dvh;min-height:460px;--world-map-safe-top:120px;--world-map-safe-bottom:116px;--world-map-control-bottom:30px}
+    .brand,.intro,.weather,.affection,.guide{position:absolute;z-index:10}
+    .brand{left:36px;top:27px;display:flex;align-items:center;gap:11px;pointer-events:none}
+    .brand-mark{width:42px;height:42px;display:grid;place-items:center;border:1px solid #759e831f;border-radius:50%;background:#edf5e77a}
+    .brand-mark svg{width:27px;height:27px;fill:none;stroke:#567763;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round}
+    .brand-name{font-size:12px;letter-spacing:.14em;font-weight:600;line-height:1.65}.brand-caption{font-size:9px;letter-spacing:.25em;color:#7a9285}
+    .intro{left:39px;top:111px;pointer-events:none}
+    .intro .eyebrow{display:flex;align-items:center;gap:9px;font-size:10px;letter-spacing:.24em;color:#6e8a7a;margin-bottom:16px}
+    .eyebrow:before{content:"";width:22px;height:1px;background:#789d7b}
+    h1{font-family:"Songti SC","STSong","Noto Serif CJK SC",serif;font-weight:500;font-size:35px;letter-spacing:.04em;line-height:1.48;margin:0;color:#3d5c4b}
+    .intro p{font-size:11px;letter-spacing:.055em;color:#758c7c;margin:15px 0 0;line-height:1.9}
+    .weather{right:33px;top:31px;display:flex;align-items:center;gap:10px;padding:11px 17px;border-radius:28px;background:#f6fbf1b5;border:1px solid #ffffffe0;color:#4d6e59;box-shadow:0 3px 15px #344b3b05;backdrop-filter:blur(16px);cursor:pointer;font-size:11px;letter-spacing:.12em}
+    .weather svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.3;stroke-linecap:round}.weather .rain-icon{display:none}
+    body[data-weather=rain]{color:#405e6b}.weather[aria-pressed=true]{color:#527183;background:#f2f8fbd1}.weather[aria-pressed=true] .sun-icon{display:none}.weather[aria-pressed=true] .rain-icon{display:block}
+    .affection{left:37px;bottom:28px;width:246px;padding:14px 18px 12px;border-radius:19px;background:#f7fcf2c7;border:1px solid #ffffffe6;backdrop-filter:blur(16px);box-shadow:0 4px 22px #3c60420a}
+    .affection-head{display:flex;align-items:baseline;gap:8px;font-size:10px;letter-spacing:.06em}.affection output{font-size:18px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.05em}.mood-copy{margin-left:auto;color:#7b9180;font-size:9px;letter-spacing:.02em}
+    #affection{display:block;width:100%;height:18px;margin:5px 0 0;padding:0;accent-color:#709174;cursor:pointer;appearance:none;-webkit-appearance:none;background:transparent}
+    #affection::-webkit-slider-runnable-track{height:3px;background:#668b6835;border-radius:3px}#affection::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#719274;border:2px solid #f7fcf2;margin-top:-4.5px;box-shadow:0 0 0 1px #779b7155}#affection::-moz-range-track{height:3px;background:#668b6835;border-radius:3px}#affection::-moz-range-thumb{width:9px;height:9px;border-radius:50%;background:#719274;border:2px solid #f7fcf2}
+    .guide{bottom:40px;left:50%;transform:translateX(-50%);text-align:center;pointer-events:none;white-space:nowrap}.guide p{margin:0 0 7px;font-size:11px;letter-spacing:.12em;color:#607e6b}.guide small{font-size:9px;letter-spacing:.08em;color:#8ba18f}
+    .weather-note{display:inline-flex;gap:6px;align-items:center}.weather-note:before{content:"";width:4px;height:4px;border-radius:50%;background:#769d71}
+    body[data-weather=rain] h1{color:#425f6d}body[data-weather=rain] .intro p,body[data-weather=rain] .intro .eyebrow{color:#708a9c}body[data-weather=rain] .affection{background:#f2f7fad9}body[data-weather=rain] .guide p{color:#5a778b}body[data-weather=rain] .weather-note:before{background:#7c9aaf}
+    dialog{position:fixed;margin:auto;max-width:calc(100% - 38px);width:370px;padding:34px 31px 26px;border:1px solid #fff;border-radius:26px;background:#f7faf2f5;color:#3e5c4a;box-shadow:0 24px 100px #25473f29;text-align:center;backdrop-filter:blur(20px)}
+    dialog::backdrop{background:#78999524;backdrop-filter:blur(5px)}.dialog-mark{width:45px;height:45px;margin:0 auto 18px;display:grid;place-items:center;border:1px solid #a5bba33d;border-radius:50%;font-size:21px;color:#809a75}.dialog-kicker{font-size:10px;letter-spacing:.2em;color:#849a7b;margin:0 0 11px}dialog h2{font-family:"Songti SC","STSong",serif;font-size:26px;font-weight:500;letter-spacing:.05em;margin:0 0 17px}dialog p{font-size:12px;line-height:2;color:#81927d;margin:0 0 24px;white-space:pre-line}dialog button{border:0;border-radius:24px;background:#6d8d70;color:#fff;padding:12px 25px;cursor:pointer;font-size:11px;letter-spacing:.08em;min-height:44px}.dialog-close{position:absolute;right:12px;top:11px;background:transparent;color:#879781;width:44px;height:44px;padding:0;font-size:21px}.load-note{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:0;font-size:12px;color:#738f7d}
+    @media(max-width:640px){#world{--world-map-safe-top:184px;--world-map-safe-bottom:152px;--world-map-safe-left:12px;--world-map-safe-right:12px;--world-map-control-bottom:30px}.brand{left:20px;top:max(23px,env(safe-area-inset-top));gap:8px}.brand-mark{width:35px;height:35px}.brand-mark svg{width:24px;height:24px}.brand-name{font-size:10px}.brand-caption{font-size:8px}.weather{right:18px;top:max(25px,env(safe-area-inset-top));padding:10px 13px;font-size:10px;gap:7px}.weather svg{width:15px;height:15px}.intro{left:24px;top:102px}.intro .eyebrow{font-size:8px;margin-bottom:10px}h1{font-size:26px;line-height:1.5}.intro p{display:none}.affection{left:19px;bottom:max(24px,env(safe-area-inset-bottom));width:233px;padding:12px 16px 10px;border-radius:18px}.affection output{font-size:17px}.guide{left:24px;bottom:112px;transform:none;text-align:left}.guide p{font-size:10px;margin:0 0 6px}.guide small{font-size:8px}.mood-copy{font-size:9px}dialog{padding:31px 25px 24px}}
+    @media(max-height:600px) and (min-width:641px){.intro{top:90px}h1{font-size:25px}.intro p{display:none}#world{--world-map-safe-top:94px;--world-map-safe-bottom:100px}}
+  </style>
+</head>
+<body data-weather="sun">
+  <main id="world" aria-label="布鲁斯的小小世界">
+    <span class="load-note" aria-hidden="true">阳光正在照进小院……</span>
+    <header class="brand">
+      <span class="brand-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M10 12c-3-5-7-5-6 2l2 7 4-3m12-6c3-5 7-5 6 2l-2 7-4-3M10 11c3-3 9-3 12 0l1 10c0 5-14 5-14 0zM12 17v1m8-1v1m-6 3h4l-2 2zM16 23v2"/></svg></span>
+      <span><span class="brand-name">布鲁斯的幸福俱乐部</span><br><span class="brand-caption">一 起 把 日 子 过 慢</span></span>
+    </header>
+    <section class="intro" data-world-map-obstacle>
+      <div class="eyebrow">布鲁斯的小小世界</div>
+      <h1 id="greeting">先在小院，<br>晒一会儿太阳。</h1>
+      <p id="intro-copy">沿着水边走，能遇见更多风景。</p>
+    </section>
+    <button class="weather" id="weather" type="button" aria-label="切换到细雨，预览冷战状态" aria-pressed="false">
+      <svg class="sun-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>
+      <svg class="rain-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15a4 4 0 0 1-1-8 6 6 0 0 1 11-2 5 5 0 0 1 2 10M8 18l-1 3m6-3-1 3m6-3-1 3"/></svg>
+      <span id="weather-name">晴日</span>
+    </button>
+    <section class="affection" aria-label="幸福指数预览控制">
+      <div class="affection-head"><label for="affection">幸福指数</label><output id="affection-value" for="affection">92</output><span class="mood-copy" id="mood-copy">想和你一起散步</span></div>
+      <input id="affection" type="range" min="0" max="100" value="92" aria-label="调整幸福指数，低于80分进入冷战雨天模式">
+    </section>
+    <footer class="guide"><p>点一处建筑，陪他去走走。</p><small class="weather-note" id="weather-note">布鲁斯正在草坪上散步</small></footer>
+  </main>
+  <dialog id="destination" aria-labelledby="destination-title" aria-describedby="destination-copy">
+    <button class="dialog-close" id="dialog-close" type="button" aria-label="关闭">×</button>
+    <div class="dialog-mark" aria-hidden="true">⌁</div>
+    <div class="dialog-kicker" id="destination-kicker">下一段散步</div>
+    <h2 id="destination-title"></h2>
+    <p id="destination-copy"></p>
+    <button id="dialog-done" type="button">再逛一会儿</button>
+  </dialog>
+  <script type="importmap">
+    {"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/"}}
+  </script>
+  <script type="module">
+    import { mountWorldMap3D } from './js/map3d.js';
+
+    const range = document.querySelector('#affection');
+    const weatherButton = document.querySelector('#weather');
+    const dialog = document.querySelector('#destination');
+    const titles = { home: '布鲁斯的小院', street: '林荫小街', park: '树影公园', warehouse: '会员仓库', yacht: '白帆码头', nordic: '云端航线', california: '逐光航线', nz_swiss: '山海航线' };
+    const initial = Number(new URLSearchParams(location.search).get('score') ?? 92);
+    let score = Number.isFinite(initial) ? Math.min(100, Math.max(0, initial)) : 92;
+    let selected = null;
+
+    function showDestination(id, preview) {
+      selected = { id, preview };
+      document.querySelector('#destination-title').textContent = titles[id];
+      document.querySelector('#destination-kicker').textContent = preview ? '二期 · 慢慢相见' : '和布鲁斯在一起';
+      document.querySelector('#destination-copy').textContent = preview
+        ? '这段风景，还在慢慢准备。\n下一次散步，我们一起去。'
+        : id === 'home' ? '窗前的阳光刚刚好。\n布鲁斯摇着尾巴，朝你跑过来。' : '沿着树影走到水边，\n陪布鲁斯在咖啡香里歇一会儿。';
+      if (!dialog.open) dialog.showModal();
+      document.querySelector('#world').dispatchEvent(new CustomEvent('worldmap:select', { bubbles: true, detail: selected }));
+    }
+    const map = mountWorldMap3D(document.querySelector('#world'), {
+      sulking: score < 80,
+      onSelectPlayable: id => showDestination(id, false),
+      onSelectPreview: id => showDestination(id, true),
+    });
+
+    function updateMood() {
+      const rain = score < 80;
+      range.value = String(score);
+      document.querySelector('#affection-value').value = String(score);
+      map.setSulking(rain);
+      document.body.dataset.weather = rain ? 'rain' : 'sun';
+      document.querySelector('#weather-name').textContent = rain ? '细雨' : '晴日';
+      weatherButton.setAttribute('aria-pressed', String(rain));
+      weatherButton.setAttribute('aria-label', rain ? '切换到晴日，预览和好状态' : '切换到细雨，预览冷战状态');
+      document.querySelector('#greeting').innerHTML = rain ? '下雨了，<br>先抱抱布鲁斯。' : '先在小院，<br>晒一会儿太阳。';
+      document.querySelector('#intro-copy').textContent = rain ? '窗里留着暖灯，等你回去陪他。' : '沿着水边走，能遇见更多风景。';
+      document.querySelector('#mood-copy').textContent = rain ? '需要你哄一哄' : '想和你一起散步';
+      document.querySelector('#weather-note').textContent = rain ? '先哄好他，再一起出门吧' : '布鲁斯正在草坪上散步';
+    }
+    range.addEventListener('input', () => { score = Number(range.value); updateMood(); });
+    weatherButton.addEventListener('click', () => { score = score < 80 ? 92 : 72; updateMood(); });
+    for (const id of ['dialog-close', 'dialog-done']) document.getElementById(id).addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', e => { if (e.target === dialog) { const r = dialog.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dialog.close(); } });
+    updateMood();
+    addEventListener('pagehide', event => { if (!event.persisted) map.destroy(); });
+  </script>
+</body>
+</html>

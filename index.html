@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>布鲁斯日常 · 幸福指数俱乐部</title>
+  <link rel="icon" href="data:," />
   <link rel="stylesheet" href="./css/style.css" />
 </head>
 <body class="mood-happy">
@@ -22,7 +23,7 @@
   <nav class="hud-bar">
     <div class="hud-identity">
       <div class="avatar-pair">
-        <img id="hud-owner-img" class="hud-avatar owner-avatar" src="./assets/img/owner_alex.svg" alt="主人头像" />
+        <img id="hud-owner-img" class="hud-avatar owner-avatar" src="./assets/img/owner_alex.jpg" alt="主人头像" />
         <img id="hud-bruce-img" class="hud-avatar bruce-avatar" src="./assets/img/bruce_happy.jpg" alt="布鲁斯" />
       </div>
       <div class="identity-text">
@@ -99,13 +100,13 @@
       <div class="owner-picker">
         <label class="owner-option selected" data-owner="Alex">
           <input type="radio" name="owner" value="Alex" checked />
-          <img src="./assets/img/owner_alex.svg" alt="Alex" />
+          <img src="./assets/img/owner_alex.jpg" alt="Alex" />
           <span class="owner-name">Alex</span>
           <span class="owner-role">男主人</span>
         </label>
         <label class="owner-option" data-owner="Meya">
           <input type="radio" name="owner" value="Meya" />
-          <img src="./assets/img/owner_meya.svg" alt="Meya" />
+          <img src="./assets/img/owner_meya.jpg" alt="Meya" />
           <span class="owner-name">Meya</span>
           <span class="owner-role">女主人</span>
         </label>
@@ -136,6 +137,9 @@
 
   <div class="fx-layer" id="fx-layer" aria-hidden="true"></div>
 
+  <script type="importmap">
+    {"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/"}}
+  </script>
   <script type="module" src="./js/main.js"></script>
 </body>
 </html>

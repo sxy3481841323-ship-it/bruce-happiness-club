@@ -3,3 +3,5 @@
 __pycache__/
 *.pyc
 .local_kv.json
+node_modules/
+test-results/

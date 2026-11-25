@@ -1,0 +1,49 @@
+{
+  "base_commit": "dc2da1939ec980c5b6b409211d78fc440f8f161d",
+  "renderer": "local Three.js 0.187.0; Chromium with SwiftShader",
+  "unique_checks_passed": 25,
+  "viewports": [
+    [
+      1280,
+      800
+    ],
+    [
+      390,
+      844
+    ],
+    [
+      360,
+      740
+    ]
+  ],
+  "external_runtime_requests": 0,
+  "uncaught_errors": 0,
+  "required_asset_errors": 0,
+  "checks": [
+    "public mount, setSulking and destroy contract",
+    "1280×800 · eight readable, unclipped, nonoverlapping labels",
+    "canvas raycast selects the residence",
+    "home fly-to completes before playable callback",
+    "street playable callback",
+    "phase-two callback preserves destination ID",
+    "rain blocks playable entrances without replacing canvas",
+    "entering cold state cancels pending playable selection",
+    "idempotent destroy removes DOM",
+    "repeated mounting replaces the previous instance",
+    "390×844 · eight readable, unclipped, nonoverlapping labels",
+    "touch swipe changes view without accidental activation",
+    "touch tap selects home",
+    "360×740 · eight readable, unclipped, nonoverlapping labels",
+    "no-WebGL fallback retains accessible selection",
+    "no uncaught errors, missing required assets or remote/CDN requests",
+    "protected backend, content, state, API and cinematic paths unchanged",
+    "integrated desktop · eight readable, unclipped, nonoverlapping labels",
+    "home opens existing five activities and disposes map",
+    "street opens existing five activities",
+    "existing preview content uses nonregional title and keyboard close",
+    "native 79/80 score updates change weather in-place",
+    "integrated phone · eight readable, unclipped, nonoverlapping labels",
+    "integrated rainy phone · eight readable, unclipped, nonoverlapping labels",
+    "cold-state comfort button opens existing shop"
+  ]
+}
