@@ -10,8 +10,24 @@ import random
 import re
 import threading
 import time
+import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
+
+MIME_OVERRIDES = {
+    ".html": "text/html; charset=utf-8",
+    ".js": "text/javascript; charset=utf-8",
+    ".mjs": "text/javascript; charset=utf-8",
+    ".css": "text/css; charset=utf-8",
+    ".json": "application/json; charset=utf-8",
+    ".glb": "model/gltf-binary",
+    ".gltf": "model/gltf+json",
+    ".svg": "image/svg+xml",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".mp4": "video/mp4",
+}
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 KV_FILE = os.path.join(ROOT_DIR, ".local_kv.json")
@@ -184,7 +200,8 @@ class Handler(BaseHTTPRequestHandler):
         if not target.startswith(ROOT_DIR) or not os.path.isfile(target):
             self.send_error(404, "Not Found")
             return
-        ctype, _ = mimetypes.guess_type(target)
+        ext = os.path.splitext(target)[1].lower()
+        ctype = MIME_OVERRIDES.get(ext) or mimetypes.guess_type(target)[0]
         with open(target, "rb") as f:
             data = f.read()
         self.send_response(200)
@@ -323,10 +340,15 @@ class Handler(BaseHTTPRequestHandler):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--port", type=int, default=8778)
+    parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--port", type=int, default=8781)
+    parser.add_argument("--open", action="store_true", help="Open browser automatically")
     args = parser.parse_args()
-    server = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
-    print(f"Bruce Happiness Club dev server running on http://127.0.0.1:{args.port}")
+    server = ThreadingHTTPServer((args.host, args.port), Handler)
+    url = f"http://127.0.0.1:{args.port}/"
+    print(f"Bruce Happiness Club dev server running on {url} (also http://localhost:{args.port}/)")
+    if args.open:
+        threading.Timer(0.6, lambda: webbrowser.open(url)).start()
     server.serve_forever()
 
 
