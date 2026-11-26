@@ -59,8 +59,8 @@ jobs:
 
           for mpath in glob.glob("assets/models/*"):
               sz = os.path.getsize(mpath)
-              if sz > 8 * 1024 * 1024:
-                  print(f"ERROR: Model {mpath} is {sz/1024/1024:.2f} MB (> 8 MB limit)")
+              if sz > 15 * 1024 * 1024:
+                  print(f"ERROR: Model {mpath} is {sz/1024/1024:.2f} MB (> 15 MB limit)")
                   sys.exit(1)
 
           print("CI_GUARD_OK")

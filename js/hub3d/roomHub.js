@@ -3,42 +3,40 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { createLivingBruce } from "./bruceLiving.js";
 import { mountBruceChatBar } from "./bruceChatUi.js";
+import { FLOOR_PRESETS, computeDuplexCameraPose } from "./duplexCamMath.js";
 import { sfx } from "../audio.js";
 import { feedback } from "../juice.js";
-
-const OVERVIEW_CAM = new THREE.Vector3(5.4, 6.2, 11.8);
-const OVERVIEW_TARGET = new THREE.Vector3(0.4, 2.6, -2.8);
-const FLOOR_Y = 0.835;
-const BRUCE_HOME_POS = new THREE.Vector3(0.9, FLOOR_Y, 2.2);
-const BRUCE_HOME_ROT = 0.36;
 
 const ACTIVITY_DEFS = {
   home_brush: {
     id: "home_brush",
+    floor: "1f",
     title: "露台阳光顺毛",
     win: 11,
     fail: -13,
     swapProb: 0,
-    camPos: new THREE.Vector3(2.4, 3.4, 8.2),
-    camTarget: new THREE.Vector3(0.9, 2.05, 2.2),
+    camPos: new THREE.Vector3(2.8, 2.8, 8.8),
+    camTarget: new THREE.Vector3(1.4, 1.15, 3.8),
   },
   home_rain_vinyl: {
     id: "home_rain_vinyl",
+    floor: "2f",
     title: "雨窗黑胶时光",
     win: 12,
     fail: -12,
     swapProb: 0,
-    camPos: new THREE.Vector3(2.6, 4.4, 6.2),
-    camTarget: new THREE.Vector3(-0.4, 2.6, -4.0),
+    camPos: new THREE.Vector3(-4.4, 12.1, -4.4),
+    camTarget: new THREE.Vector3(-10.8, 10.3, -9.8),
   },
   home_hide_seek: {
     id: "home_hide_seek",
+    floor: "1f",
     title: "客厅抛球寻宝",
     win: 12,
     fail: -14,
     swapProb: 0.12,
-    camPos: new THREE.Vector3(3.8, 4.8, 9.4),
-    camTarget: new THREE.Vector3(0.9, 1.8, 1.0),
+    camPos: new THREE.Vector3(4.8, 4.2, 10.4),
+    camTarget: new THREE.Vector3(1.4, 1.0, 2.4),
   },
 };
 
@@ -48,15 +46,15 @@ const HOTSPOTS = [
     kind: "act",
     title: "阳光顺毛",
     sub: "+11 分 · 丝毛护理",
-    pos: [2.75, 2.7, 2.2],
+    pos: [2.2, 1.6, 3.8],
     icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 19l11-11"/><path d="M13 5l6 6"/><path d="M11 7l5 5"/><path d="M9 9l5 5"/><path d="M18 3v2M21 6h-2"/></svg>`,
   },
   {
     id: "home_rain_vinyl",
     kind: "act",
     title: "雨窗黑胶",
-    sub: "+12 分 · 33RPM",
-    pos: [-3.4, 4.4, -7.8],
+    sub: "+12 分 · 2F 阁楼 33RPM",
+    pos: [-12.0, 11.2, -10.8],
     icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.2"/><path d="M18 5l-3 5" stroke-linecap="round"/></svg>`,
   },
   {
@@ -64,7 +62,7 @@ const HOTSPOTS = [
     kind: "act",
     title: "客厅抛球",
     sub: "+12 分 · 12% 换分",
-    pos: [-2.2, 1.4, 2.4],
+    pos: [5.0, 1.0, 2.8],
     icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M6.5 7.5c3 3 3 6 0 9M17.5 7.5c-3 3-3 6 0 9"/></svg>`,
   },
   {
@@ -73,7 +71,7 @@ const HOTSPOTS = [
     title: "出门 · 海岸咖啡馆",
     sub: "3D 阳光吧台探店",
     code: "OUT·01",
-    pos: [4.8, 3.8, -1.2],
+    pos: [-14.0, 3.6, 2.2],
     icon: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 10l2-5h12l2 5"/><path d="M5 10v9h14v-9"/><path d="M10 19v-5h4v5"/></svg>`,
   },
   {
@@ -82,7 +80,7 @@ const HOTSPOTS = [
     title: "传送 · 会员超市",
     sub: "3D 冷柜与三文鱼试吃",
     code: "CLB·02",
-    pos: [-5.6, 3.3, -2.2],
+    pos: [-14.0, 3.6, -8.8],
     icon: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/><path d="M3 5h3l2.2 10h9.8l2-7H7"/></svg>`,
   },
   {
@@ -91,7 +89,7 @@ const HOTSPOTS = [
     title: "传送 · 环球旅行",
     sub: "北欧 / 海岸 / 游艇",
     code: "FLY·04",
-    pos: [-4.2, 7.6, -6.5],
+    pos: [-14.0, 13.5, -4.6],
     icon: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 2l2.6 7.4L22 12l-7.4 2.6L12 22l-2.6-7.4L2 12l7.4-2.6z"/></svg>`,
   },
 ];
@@ -104,13 +102,29 @@ function pickRandom(arr, fallback = "") {
 const DEFAULT_HUB_COPY = {
   thought_bubbles: {
     idle_happy: [
-      "地毯晒得好暖和，今天打算陪我玩哪一个？",
-      "酒红丝巾刚整理好，随时准备出门巡街。",
-      "听见我的小尾巴在扫地板了吗？",
+      "落地窗外的蓝天白云洒在洞石地毯上，晒得奶油毛暖洋洋的。",
+      "双层挑空大客厅今天风好轻，点右侧按钮还能陪我上二楼阁楼！",
+      "酒红丝巾刚整理好，随时准备出门巡街或者晒露台太阳。",
     ],
     idle_sulk: [
       "哼，幸福指数跌破 80 了，我现在只认零食说话。",
       "把头扭过去十秒钟，除非拿牛肉干来哄我。",
+    ],
+    floor_1f_greet: [
+      "哒哒哒踩着暖光楼梯跑回一楼挑空客厅啦！落地窗外一片蔚蓝！",
+      "羊羔绒沙发和洞石茶几晒得好暖和，今天在一楼陪我丢球吧？",
+    ],
+    floor_2f_greet: [
+      "欢迎登上二楼阳光阁楼！玻璃护栏外面视野超棒，还有我的丝绒窝～",
+      "二楼摆着黑胶唱片机和环球旅行相框墙，靠在这里晒太阳最惬意了。",
+    ],
+    tv_art_swap: [
+      "这幅画配咱们家的卡拉卡塔大理石壁炉墙太高级了！再点一下还能换～",
+      "嘿嘿，超薄画框电视秒变私人美术馆，本少爷很有品味吧？",
+    ],
+    lamp_toggle: [
+      "香槟金钓鱼灯一亮，整个大理石客厅瞬间温柔起来啦。",
+      "啪嗒切换客厅光影模式！你喜欢亮堂日光还是暖灯氛围？",
     ],
     click_poke: [
       "干嘛戳我软乎乎的耳朵，顺毛要从头顶开始！",
@@ -130,21 +144,21 @@ const DEFAULT_HUB_COPY = {
     ],
     rain_cozy: [
       "擦干小爪子裹进毛毯，听着雨声最舒服啦。",
-      "黑胶唱片一转起来，整个客厅都是暖色调。",
+      "黑胶唱片一转起来，整个阁楼都是暖色调。",
     ],
     ball_excited: [
       "看我的短腿冲刺！这颗网球归我了！",
     ],
     walk_call: [
       "听见喊我啦，四条小短腿这就哒哒哒走过来！",
-      "木地板踩起来沙沙响，先过去巡视一下你的脚边。",
+      "橡木地板踩起来沙沙响，先过去巡视一下你的脚边。",
     ],
     walk_sulk: [
       "虽、虽然还在冷战，但我可以勉为其难挪过去几步看看……",
     ],
     roll_over: [
       "原地躺倒晒肚皮！四只小爪子在半空划水表示超开心！",
-      "呼噜翻个 360 度滚一滚，奶油长毛也要均匀晒到阳光。",
+      "呼噜翻个身滚一滚，奶油长毛也要均匀晒到阳光。",
     ],
     lick_paw: [
       "先把右前爪认真舔得干干净净，精致腊肠绝不敷衍！",
@@ -161,7 +175,7 @@ const DEFAULT_HUB_COPY = {
   portal_hover: {
     street: "门外风好舒服，今天去街角巡视一圈吗？",
     warehouse: "听说大超市试吃区有三文鱼，带我坐购物车吧！",
-    global: "相框里藏着好多远方，下一站想带我去哪里？",
+    global: "二楼相框里藏着好多远方，下一站想带我去哪里？",
   },
 };
 
@@ -213,9 +227,19 @@ export function mountLivingRoomHub(container, opts = {}) {
           <span class="vf-corner vf-tr"></span>
           <span class="vf-corner vf-bl"></span>
           <span class="vf-corner vf-br"></span>
-          <span class="vf-stamp">35MM · BRUCE LOFT · F/2.0</span>
+          <span class="vf-stamp">PH·01 · SUNLIT DUPLEX · 1F/2F</span>
         </div>
         <div class="hub3d-pins"></div>
+        <div class="hub3d-floor-switch" role="group" aria-label="楼层视角切换">
+          <button type="button" class="floor-pill" data-floor="2f">
+            <span class="floor-pill-code">2F · LOFT</span>
+            <span class="floor-pill-name">阳光阁楼</span>
+          </button>
+          <button type="button" class="floor-pill is-active" data-floor="1f">
+            <span class="floor-pill-code">1F · SALON</span>
+            <span class="floor-pill-name">挑空客厅</span>
+          </button>
+        </div>
         <div class="hub3d-keyholder">
           <button type="button" class="keyholder-btn" aria-expanded="false">
             <span class="keyholder-fob" aria-hidden="true">🔑</span>
@@ -278,7 +302,7 @@ export function mountLivingRoomHub(container, opts = {}) {
           <span>正在走进布鲁斯的阳光客厅……</span>
         </div>
       </div>
-      <p class="hub3d-hint">轻点地面金点陪玩 · 左下「出门钥匙夹」可前往咖啡馆、超市与远方</p>
+      <p class="hub3d-hint">轻点地面带走布鲁斯 · 右侧可切换 1F/2F · 点击画框电视或钓鱼灯可换画/开灯</p>
     </div>
   `;
 
@@ -287,6 +311,8 @@ export function mountLivingRoomHub(container, opts = {}) {
   const fxCanvas = container.querySelector(".hub3d-fx-canvas");
   const vignetteEl = container.querySelector(".hub3d-vignette");
   const pinsLayer = container.querySelector(".hub3d-pins");
+  const floorSwitchEl = container.querySelector(".hub3d-floor-switch");
+  const floorButtons = Array.from(container.querySelectorAll(".floor-pill[data-floor]"));
   const keyholderEl = container.querySelector(".hub3d-keyholder");
   const keyholderBtn = container.querySelector(".keyholder-btn");
   const keyholderTray = container.querySelector(".keyholder-tray");
@@ -307,6 +333,16 @@ export function mountLivingRoomHub(container, opts = {}) {
   const swapNumEl = container.querySelector(".hub3d-swap-num");
   const swapMsgEl = container.querySelector(".hub3d-swap-msg");
 
+  let activeFloor = "1f";
+  const getFloorOverview = (fl = activeFloor) => {
+    const preset = FLOOR_PRESETS[fl] || FLOOR_PRESETS["1f"];
+    return {
+      preset,
+      cam: new THREE.Vector3(...preset.camPos),
+      target: new THREE.Vector3(...preset.target),
+    };
+  };
+
   // Create Three.js renderer + scene + camera
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -317,21 +353,21 @@ export function mountLivingRoomHub(container, opts = {}) {
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(sulking ? 0x263446 : 0xeaf0f6);
+  scene.background = new THREE.Color(sulking ? 0x2b3b4e : 0xdbeeff);
 
-  // Procedural warm sunlit interior IBL so metallic wood/chrome never renders black
+  // Procedural warm sunlit interior IBL so metallic brass/walnut/chrome gleams naturally
   const pmrem = new THREE.PMREMGenerator(renderer);
   const envScene = new THREE.Scene();
-  envScene.background = new THREE.Color(0xf4efe6);
+  envScene.background = new THREE.Color(0xf6f1e8);
   const envRoom = new THREE.Mesh(
-    new THREE.BoxGeometry(24, 16, 24),
-    new THREE.MeshBasicMaterial({ color: 0xf0e9dc, side: THREE.BackSide }),
+    new THREE.BoxGeometry(26, 18, 26),
+    new THREE.MeshBasicMaterial({ color: 0xf2ebe0, side: THREE.BackSide }),
   );
   const envSky = new THREE.Mesh(
-    new THREE.PlaneGeometry(18, 12),
-    new THREE.MeshBasicMaterial({ color: 0xdcedff }),
+    new THREE.PlaneGeometry(24, 16),
+    new THREE.MeshBasicMaterial({ color: 0xd9ecff }),
   );
-  envSky.position.set(0, 4, -11.5);
+  envSky.position.set(0, 6, -12.5);
   envScene.add(envRoom, envSky);
   const envRT = pmrem.fromScene(envScene, 0.04);
   scene.environment = envRT.texture;
@@ -341,61 +377,77 @@ export function mountLivingRoomHub(container, opts = {}) {
   envSky.geometry.dispose();
   envSky.material.dispose();
 
-  // Exterior sky backdrop tucked right behind the window mullions (z = -19.80) and in front of backing wall (-20.11)
-  const skyPlaneGeo = new THREE.PlaneGeometry(16.6, 17.0);
-  const skyPlaneMat = new THREE.MeshBasicMaterial({ color: sulking ? 0x35495e : 0xe4f1fc });
-  const skyPlane = new THREE.Mesh(skyPlaneGeo, skyPlaneMat);
-  skyPlane.position.set(2.35, 9.75, -19.92);
-  scene.add(skyPlane);
+  // Preload 4K sunny sky, rainy sky, and 3 clickable Gallery Frame Art TV paintings
+  const texLoader = new THREE.TextureLoader();
+  const loadSrgbTex = (url, flipY = false) => {
+    const t = texLoader.load(url);
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.flipY = flipY;
+    return t;
+  };
+  const sunnySkyTex = loadSrgbTex("./assets/textures/sky_sunny.jpg", false);
+  const rainySkyTex = loadSrgbTex("./assets/textures/sky_rainy.jpg", false);
+  const tvArtTexs = [
+    loadSrgbTex("./assets/textures/tv_art_1.jpg", false),
+    loadSrgbTex("./assets/textures/tv_art_2.jpg", false),
+    loadSrgbTex("./assets/textures/tv_art_3.jpg", false),
+  ];
+  let tvArtIdx = 0;
+  let salonLampOn = false;
+  let skyCycloramaMat = null;
+  let tvScreenMesh = null;
+  let tvScreenMat = null;
+  let arcLampMesh = null;
 
-  const camera = new THREE.PerspectiveCamera(48, 16 / 10, 0.2, 160);
-  camera.position.copy(OVERVIEW_CAM);
+  const initOv = getFloorOverview("1f");
+  const camera = new THREE.PerspectiveCamera(48, 16 / 10, 0.2, 180);
+  camera.position.copy(initOv.cam);
 
   const controls = new OrbitControls(camera, canvas);
-  controls.target.copy(OVERVIEW_TARGET);
+  controls.target.copy(initOv.target);
   controls.enableDamping = true;
   controls.dampingFactor = 0.07;
   controls.enablePan = false;
-  controls.minDistance = 5.5;
-  controls.maxDistance = 16.5;
-  controls.minPolarAngle = 0.78;
-  controls.maxPolarAngle = 1.48;
-  controls.minAzimuthAngle = -1.05;
-  controls.maxAzimuthAngle = 1.05;
+  controls.minDistance = 4.5;
+  controls.maxDistance = 24.0;
+  controls.minPolarAngle = 0.65;
+  controls.maxPolarAngle = 1.50;
+  controls.minAzimuthAngle = -1.35;
+  controls.maxAzimuthAngle = 1.35;
   controls.update();
 
-  // Warm sunlit interior lighting
-  const hemiLight = new THREE.HemisphereLight(0xfff9f0, 0xd9d0c5, 1.45);
+  // Warm sunlit penthouse lighting
+  const hemiLight = new THREE.HemisphereLight(0xfffbf2, 0xe2d6c5, 1.5);
   scene.add(hemiLight);
 
-  const ambientLight = new THREE.AmbientLight(0xfffaf2, 0.75);
+  const ambientLight = new THREE.AmbientLight(0xfffaf2, 0.78);
   scene.add(ambientLight);
 
-  const sunLight = new THREE.DirectionalLight(0xffe7bf, 1.75);
-  sunLight.position.set(5, 17, -17);
-  sunLight.target.position.set(0, 1, -4);
+  const sunLight = new THREE.DirectionalLight(0xffe7bf, 2.05);
+  sunLight.position.set(-4, 21, -22);
+  sunLight.target.position.set(2, 0, 2);
   sunLight.castShadow = true;
   sunLight.shadow.mapSize.set(1024, 1024);
   sunLight.shadow.camera.near = 2;
-  sunLight.shadow.camera.far = 45;
-  sunLight.shadow.camera.left = -16;
-  sunLight.shadow.camera.right = 16;
-  sunLight.shadow.camera.top = 16;
-  sunLight.shadow.camera.bottom = -16;
-  sunLight.shadow.bias = -0.0006;
+  sunLight.shadow.camera.far = 52;
+  sunLight.shadow.camera.left = -18;
+  sunLight.shadow.camera.right = 18;
+  sunLight.shadow.camera.top = 18;
+  sunLight.shadow.camera.bottom = -18;
+  sunLight.shadow.bias = -0.0005;
   scene.add(sunLight, sunLight.target);
 
-  const warmLampLight = new THREE.PointLight(0xffb969, 0.0, 22, 1.4);
-  warmLampLight.position.set(-4.5, 4.8, -10.5);
+  const warmLampLight = new THREE.PointLight(0xffb969, 0.0, 24, 1.35);
+  warmLampLight.position.set(10.6, 4.8, 2.8);
   scene.add(warmLampLight);
 
-  // Subtle floating sunlit dust motes
-  const moteCount = 36;
+  // Subtle floating sunlit dust motes in the double-height atrium
+  const moteCount = 42;
   const motePos = new Float32Array(moteCount * 3);
   for (let i = 0; i < moteCount; i++) {
-    motePos[i * 3] = -8 + (i * 1.73 % 18);
-    motePos[i * 3 + 1] = 1.5 + (i * 2.11 % 8);
-    motePos[i * 3 + 2] = -14 + (i * 1.97 % 16);
+    motePos[i * 3] = -10 + ((i * 2.13) % 21);
+    motePos[i * 3 + 1] = 1.2 + ((i * 2.47) % 13.5);
+    motePos[i * 3 + 2] = -13 + ((i * 1.97) % 19);
   }
   const moteGeo = new THREE.BufferGeometry();
   moteGeo.setAttribute("position", new THREE.BufferAttribute(motePos, 3));
@@ -403,25 +455,25 @@ export function mountLivingRoomHub(container, opts = {}) {
     color: 0xfff3cf,
     size: 0.14,
     transparent: true,
-    opacity: 0.55,
+    opacity: 0.52,
     depthWrite: false,
   });
   const motePoints = new THREE.Points(moteGeo, moteMat);
   scene.add(motePoints);
 
-  // Rain streaks near window (for sulking or rainVinyl)
-  const rainCount = 80;
+  // Rain streaks right outside the double-height curtain wall (for <80 sulk or rainVinyl)
+  const rainCount = 96;
   const rainPos = new Float32Array(rainCount * 3);
   for (let i = 0; i < rainCount; i++) {
-    rainPos[i * 3] = -10 + ((i * 2.31) % 20);
-    rainPos[i * 3 + 1] = 1.5 + ((i * 3.17) % 16);
-    rainPos[i * 3 + 2] = -18.5 + ((i * 0.43) % 2.2);
+    rainPos[i * 3] = -14 + ((i * 2.71) % 28);
+    rainPos[i * 3 + 1] = 0.5 + ((i * 3.17) % 17.5);
+    rainPos[i * 3 + 2] = -15.6 + ((i * 0.37) % 1.4);
   }
   const rainGeo = new THREE.BufferGeometry();
   rainGeo.setAttribute("position", new THREE.BufferAttribute(rainPos, 3));
   const rainMat = new THREE.PointsMaterial({
     color: 0xbcd8f8,
-    size: 0.16,
+    size: 0.17,
     transparent: true,
     opacity: 0.68,
     depthWrite: false,
@@ -440,7 +492,7 @@ export function mountLivingRoomHub(container, opts = {}) {
 
   // 3D Golden swap halo rings around Bruce
   const swapRingsGroup = new THREE.Group();
-  swapRingsGroup.position.set(0.9, 1.9, 2.2);
+  swapRingsGroup.position.set(initOv.preset.brucePos[0], initOv.preset.brucePos[1] + 1.1, initOv.preset.brucePos[2]);
   swapRingsGroup.visible = false;
   const swapRingGeos = [];
   const swapRingMats = [];
@@ -455,10 +507,10 @@ export function mountLivingRoomHub(container, opts = {}) {
   }
   scene.add(swapRingsGroup);
 
-  // Living Bruce on the clear sunlit foreground well in front of the coffee table
+  // Living 86-bone Bruce positioned cleanly on 1F sunlit rug
   const bruce = createLivingBruce({ modelUrl: "./assets/models/bruce_rigged.glb", height: 2.55 });
-  bruce.root.position.copy(BRUCE_HOME_POS);
-  bruce.root.rotation.y = BRUCE_HOME_ROT;
+  bruce.root.position.set(...initOv.preset.brucePos);
+  bruce.root.rotation.y = initOv.preset.bruceRot;
   bruce.setMood(sulking ? "sulk" : "happy");
   scene.add(bruce.root);
 
@@ -473,52 +525,74 @@ export function mountLivingRoomHub(container, opts = {}) {
     side: THREE.DoubleSide,
   });
   const rippleMesh = new THREE.Mesh(rippleGeo, rippleMat);
-  rippleMesh.position.set(BRUCE_HOME_POS.x, FLOOR_Y + 0.025, BRUCE_HOME_POS.z);
+  rippleMesh.position.set(initOv.preset.brucePos[0], initOv.preset.floorY + 0.025, initOv.preset.brucePos[2]);
   rippleMesh.visible = false;
   scene.add(rippleMesh);
   let rippleAge = -1;
 
   function triggerFloorRipple(x, z) {
-    rippleMesh.position.set(x, FLOOR_Y + 0.025, z);
+    const fy = getFloorOverview().preset.floorY;
+    rippleMesh.position.set(x, fy + 0.025, z);
     rippleMesh.scale.setScalar(0.6);
     rippleMesh.visible = true;
     rippleAge = 0;
   }
 
-  // Load living room GLB
+  // Load Two-Floor Luxury Penthouse Duplex GLB
   let roomRoot = null;
   const gltfLoader = new GLTFLoader();
   const roomReady = new Promise((resolve) => {
     gltfLoader.load(
-      "./assets/models/living_room.glb",
+      "./assets/models/penthouse_duplex.glb",
       (gltf) => {
         if (destroyed) return;
         roomRoot = gltf.scene;
         roomRoot.traverse((obj) => {
-          if (obj.isMesh) {
-            obj.castShadow = true;
-            obj.receiveShadow = true;
-            const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
-            mats.forEach((m) => {
-              if (!m) return;
-              if (m.map) m.map.colorSpace = THREE.SRGBColorSpace;
-              if (m.emissiveMap) m.emissiveMap.colorSpace = THREE.SRGBColorSpace;
-              // Soften mirror-metallic dark floor material into warm architectural oak/stone
-              if (m.name === "material" || (!m.map && m.metalness > 0.7)) {
-                m.metalness = 0.16;
-                m.roughness = 0.46;
-                m.color.lerp(new THREE.Color(0xbdb1a2), 0.52);
-              }
-              m.needsUpdate = true;
+          if (!obj.isMesh) return;
+          if (obj.name === "SkyCyclorama" || obj.material?.name === "SkyCycloramaSunny") {
+            obj.castShadow = false;
+            obj.receiveShadow = false;
+            skyCycloramaMat = new THREE.MeshBasicMaterial({
+              map: sulking ? rainySkyTex : sunnySkyTex,
+              side: THREE.DoubleSide,
+              toneMapped: false,
             });
+            obj.material?.dispose?.();
+            obj.material = skyCycloramaMat;
+            return;
           }
+          if (obj.name === "GalleryTVScreen") {
+            obj.castShadow = false;
+            obj.receiveShadow = false;
+            tvScreenMesh = obj;
+            tvScreenMat = new THREE.MeshBasicMaterial({
+              map: tvArtTexs[0],
+              toneMapped: false,
+            });
+            obj.material?.dispose?.();
+            obj.material = tvScreenMat;
+            return;
+          }
+          if (obj.name === "ArcLampBulb") {
+            arcLampMesh = obj;
+          }
+          const isGlass = /Glass/i.test(obj.name) || /Glass/i.test(obj.material?.name || "");
+          obj.castShadow = !isGlass;
+          obj.receiveShadow = !isGlass;
+          const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+          mats.forEach((m) => {
+            if (!m) return;
+            if (m.map) m.map.colorSpace = THREE.SRGBColorSpace;
+            if (m.emissiveMap) m.emissiveMap.colorSpace = THREE.SRGBColorSpace;
+            m.needsUpdate = true;
+          });
         });
         scene.add(roomRoot);
         resolve(true);
       },
       undefined,
       (err) => {
-        console.warn("living_room.glb load error:", err);
+        console.warn("penthouse_duplex.glb load error:", err);
         resolve(false);
       },
     );
@@ -536,6 +610,10 @@ export function mountLivingRoomHub(container, opts = {}) {
   const SPEECH_CUES = {
     idle_happy: "BRUCE · 摇尾轻哼",
     idle_sulk: "BRUCE · 背身冷战中",
+    floor_1f_greet: "BRUCE · 一楼阳光厅",
+    floor_2f_greet: "BRUCE · 二楼私享阁楼",
+    tv_art_swap: "BRUCE · 艺术鉴赏",
+    lamp_toggle: "BRUCE · 暖光氛围",
     click_poke: "BRUCE · 歪头看你",
     click_poke_sulk: "BRUCE · 别扭哼声",
     petting_bliss: "BRUCE · 眯眼享受",
@@ -678,9 +756,14 @@ export function mountLivingRoomHub(container, opts = {}) {
     rainPoints.visible = sulking || rainMode;
     motePoints.visible = !sulking && !rainMode;
 
+    if (skyCycloramaMat) {
+      skyCycloramaMat.map = sulking || rainMode ? rainySkyTex : sunnySkyTex;
+      skyCycloramaMat.color.setHex(0xffffff);
+      skyCycloramaMat.needsUpdate = true;
+    }
+
     if (sulking) {
       scene.background.setHex(0x283546);
-      skyPlaneMat.color.setHex(0x35495e);
       hemiLight.color.setHex(0x9ab4d2);
       hemiLight.groundColor.setHex(0x45505e);
       hemiLight.intensity = 0.95;
@@ -688,22 +771,20 @@ export function mountLivingRoomHub(container, opts = {}) {
       ambientLight.intensity = 0.52;
       bruce.setMood("sulk");
     } else if (rainMode) {
-      scene.background.setHex(0x3a4a5e);
-      skyPlaneMat.color.setHex(0x4a5e75);
+      scene.background.setHex(0x36475b);
       hemiLight.color.setHex(0xc4d6ea);
       hemiLight.groundColor.setHex(0x6e6258);
       hemiLight.intensity = 1.1;
       sunLight.intensity = 0.55;
       ambientLight.intensity = 0.62;
     } else {
-      scene.background.setHex(0xeaf0f6);
-      skyPlaneMat.color.setHex(0xe4f1fc);
-      hemiLight.color.setHex(0xfff9f0);
-      hemiLight.groundColor.setHex(0xd9d0c5);
-      hemiLight.intensity = 1.45;
-      sunLight.intensity = 1.75;
-      ambientLight.intensity = 0.75;
-      warmLampLight.intensity = 0.0;
+      scene.background.setHex(0xdbeeff);
+      hemiLight.color.setHex(0xfffbf2);
+      hemiLight.groundColor.setHex(0xe2d6c5);
+      hemiLight.intensity = 1.5;
+      sunLight.intensity = 2.05;
+      ambientLight.intensity = 0.78;
+      if (!salonLampOn) warmLampLight.intensity = 0.0;
       if (!activeActId) bruce.setMood("happy");
     }
     speechEl?.classList.toggle("is-sulk", sulking);
@@ -714,7 +795,7 @@ export function mountLivingRoomHub(container, opts = {}) {
     });
   }
 
-  function flyCamera(toPos, toTarget, durationMs = 680, onDone = null) {
+  function flyCamera(toPos, toTarget, durationMs = 740, onDone = null) {
     camTween = {
       fromPos: camera.position.clone(),
       toPos: toPos.clone(),
@@ -726,9 +807,50 @@ export function mountLivingRoomHub(container, opts = {}) {
     };
   }
 
+  function switchFloor(targetFloor, { animate = true, greet = true } = {}) {
+    const fl = FLOOR_PRESETS[targetFloor] ? targetFloor : "1f";
+    activeFloor = fl;
+    const ov = getFloorOverview(fl);
+    floorButtons.forEach((btn) => btn.classList.toggle("is-active", btn.getAttribute("data-floor") === fl));
+    floorPlane.constant = -ov.preset.floorY;
+    walkSpotCursor = 0;
+    rippleMesh.visible = false;
+    bruce.stopWalk();
+    bruce.root.position.set(...ov.preset.brucePos);
+    bruce.root.rotation.y = ov.preset.bruceRot;
+
+    if (animate) {
+      flyCamera(ov.cam, ov.target, 860);
+    } else {
+      camTween = null;
+      camera.position.copy(ov.cam);
+      controls.target.copy(ov.target);
+      controls.update();
+    }
+
+    if (greet && !activeActId && loadingEl.classList.contains("is-hidden")) {
+      if (!sulking) bruce.triggerHappyHop();
+      sayBruce(fl === "2f" ? "floor_2f_greet" : "floor_1f_greet", 4200);
+    }
+  }
+
+  floorButtons.forEach((btn) => {
+    const onFloorClick = (e) => {
+      e.stopPropagation();
+      if (activeActId) return;
+      const target = btn.getAttribute("data-floor");
+      sfx.playTap();
+      feedback("small", e.clientX, e.clientY);
+      switchFloor(target, { animate: true, greet: true });
+    };
+    btn.addEventListener("click", onFloorClick);
+    cleanups.push(() => btn.removeEventListener("click", onFloorClick));
+  });
+
   resetBtn.addEventListener("click", () => {
     sfx.playTap();
-    flyCamera(OVERVIEW_CAM, OVERVIEW_TARGET, 620);
+    const ov = getFloorOverview(activeFloor);
+    flyCamera(ov.cam, ov.target, 620);
   });
 
   function spawnFxParticles(x, y, kind = "gold", count = 10) {
@@ -765,8 +887,12 @@ export function mountLivingRoomHub(container, opts = {}) {
     controls.enabled = true;
     bruce.stopWalk();
     bruce.setPetting(0);
+    if (!salonLampOn) warmLampLight.intensity = 0.0;
+    const ov = getFloorOverview(activeFloor);
+    bruce.root.position.set(...ov.preset.brucePos);
+    bruce.root.rotation.y = ov.preset.bruceRot;
     applyAtmosphere(sulking, false);
-    flyCamera(OVERVIEW_CAM, OVERVIEW_TARGET, 650);
+    flyCamera(ov.cam, ov.target, 700);
   }
 
   btnActBack.addEventListener("click", () => {
@@ -792,9 +918,21 @@ export function mountLivingRoomHub(container, opts = {}) {
 
     actCleanup?.();
     activeActId = actId;
+    const targetFloor = def.floor || "1f";
+    activeFloor = targetFloor;
+    floorButtons.forEach((btn) => btn.classList.toggle("is-active", btn.getAttribute("data-floor") === targetFloor));
+    const ov = getFloorOverview(targetFloor);
+    floorPlane.constant = -ov.preset.floorY;
+
     bruce.stopWalk();
-    bruce.root.position.copy(BRUCE_HOME_POS);
-    bruce.root.rotation.y = BRUCE_HOME_ROT;
+    if (actId === "home_rain_vinyl") {
+      bruce.root.position.set(-8.4, 9.24, -7.4);
+      bruce.root.rotation.y = 0.72;
+      warmLampLight.position.set(-11.8, 12.0, -10.2);
+    } else {
+      bruce.root.position.set(...ov.preset.brucePos);
+      bruce.root.rotation.y = ov.preset.bruceRot;
+    }
     document.body.classList.add("is-hub3d-act");
     if (speechTimer) {
       clearTimeout(speechTimer);
@@ -1195,15 +1333,15 @@ export function mountLivingRoomHub(container, opts = {}) {
         ballBtn.style.display = "none";
         sfx.playTap();
         tennisBall.visible = true;
-        tennisBall.position.set(3.4, 2.3, 6.4);
+        tennisBall.position.set(3.8, 2.2, 6.6);
         ballAnim = {
           vx: -1.1,
-          vy: 5.0,
+          vy: 4.6,
           vz: -2.0,
           active: true,
         };
         bruce.setMood("excited");
-        bruce.walkTo(-0.35, 2.55, {
+        bruce.walkTo(0.2, 2.4, {
           speedScale: 1.25,
           onArrive: () => bruce.playAction("play_bow"),
         });
@@ -1259,7 +1397,7 @@ export function mountLivingRoomHub(container, opts = {}) {
     }
 
     if (spot.id === "street") {
-      flyCamera(new THREE.Vector3(9.5, 6.2, 4.5), new THREE.Vector3(12.5, 5.5, 0.5), 520, () => {
+      flyCamera(new THREE.Vector3(-8.5, 4.6, 5.8), new THREE.Vector3(-14.6, 3.6, 2.2), 520, () => {
         opts.onTeleportStreet?.();
       });
       return;
@@ -1275,17 +1413,11 @@ export function mountLivingRoomHub(container, opts = {}) {
     }
   }
 
-  // Pointer gaze tracking, raycast click on 3D Bruce, Click-to-Walk floor & Trick Bar
+  // Pointer gaze tracking, raycast click on 3D Bruce / Gallery TV / Arched Lamp, Click-to-Walk floor & Trick Bar
   const raycaster = new THREE.Raycaster();
   const ndc = new THREE.Vector2();
-  const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -FLOOR_Y);
+  const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -initOv.preset.floorY);
   const floorHit = new THREE.Vector3();
-  const WALK_SPOTS = [
-    [0.9, 2.2],
-    [2.15, 3.65],
-    [-0.85, 3.15],
-    [1.65, 5.1],
-  ];
   let walkSpotCursor = 0;
   let pokeCount = 0;
   let canvasDown = null;
@@ -1301,8 +1433,9 @@ export function mountLivingRoomHub(container, opts = {}) {
   }
 
   function walkBruceTo(rawX, rawZ) {
-    const tx = THREE.MathUtils.clamp(rawX, -3.4, 4.3);
-    const tz = THREE.MathUtils.clamp(rawZ, 1.5, 6.6);
+    const b = getFloorOverview(activeFloor).preset.walkBounds;
+    const tx = THREE.MathUtils.clamp(rawX, b.minX, b.maxX);
+    const tz = THREE.MathUtils.clamp(rawZ, b.minZ, b.maxZ);
     triggerFloorRipple(tx, tz);
     bruce.walkTo(tx, tz, { speedScale: sulking ? 0.65 : 1.0 });
     sayBruce(sulking ? "walk_sulk" : "walk_call", 3400);
@@ -1312,8 +1445,9 @@ export function mountLivingRoomHub(container, opts = {}) {
     if (destroyed || activeActId) return;
     highlightTrickBtn(trickId);
     if (trickId === "walk") {
-      walkSpotCursor = (walkSpotCursor + 1) % WALK_SPOTS.length;
-      const [wx, wz] = WALK_SPOTS[walkSpotCursor];
+      const spots = getFloorOverview(activeFloor).preset.walkSpots;
+      walkSpotCursor = (walkSpotCursor + 1) % spots.length;
+      const [wx, wz] = spots[walkSpotCursor];
       sfx.playTap();
       walkBruceTo(wx, wz);
       return;
@@ -1412,9 +1546,43 @@ export function mountLivingRoomHub(container, opts = {}) {
       }
     }
 
-    // Floor raycast -> Click-to-Walk on sunlit rug & oak floor
+    // Tactile luxury appliances: Gallery Art TV & Champagne Arched Floor Lamp
+    const interactiveMeshes = [tvScreenMesh, arcLampMesh].filter(Boolean);
+    if (interactiveMeshes.length > 0) {
+      const propHits = raycaster.intersectObjects(interactiveMeshes, false);
+      if (propHits.length > 0) {
+        const hitObj = propHits[0].object;
+        feedback("small", e.clientX, e.clientY);
+        sfx.playTap();
+        const stageRect = stageEl.getBoundingClientRect();
+        if (hitObj === tvScreenMesh && tvScreenMat) {
+          tvArtIdx = (tvArtIdx + 1) % tvArtTexs.length;
+          tvScreenMat.map = tvArtTexs[tvArtIdx];
+          tvScreenMat.needsUpdate = true;
+          spawnFxParticles(e.clientX - stageRect.left, e.clientY - stageRect.top, "gold", 12);
+          sayBruce("tv_art_swap", 3800);
+          return;
+        }
+        if (hitObj === arcLampMesh) {
+          salonLampOn = !salonLampOn;
+          warmLampLight.position.set(10.6, 4.8, 2.8);
+          warmLampLight.intensity = salonLampOn ? 2.6 : 0.0;
+          spawnFxParticles(e.clientX - stageRect.left, e.clientY - stageRect.top, "warm", 14);
+          sayBruce("lamp_toggle", 3800);
+          return;
+        }
+      }
+    }
+
+    // Floor raycast -> Click-to-Walk on active floor (1F rug or 2F mezzanine rug)
     if (raycaster.ray.direction.y < -0.04 && raycaster.ray.intersectPlane(floorPlane, floorHit)) {
-      if (floorHit.x >= -5.4 && floorHit.x <= 6.2 && floorHit.z >= 0.8 && floorHit.z <= 8.6) {
+      const b = getFloorOverview(activeFloor).preset.walkBounds;
+      if (
+        floorHit.x >= b.minX - 0.8 &&
+        floorHit.x <= b.maxX + 0.8 &&
+        floorHit.z >= b.minZ - 0.8 &&
+        floorHit.z <= b.maxZ + 0.8
+      ) {
         sfx.playTap();
         walkBruceTo(floorHit.x, floorHit.z);
         highlightTrickBtn("walk");
@@ -1440,10 +1608,12 @@ export function mountLivingRoomHub(container, opts = {}) {
 
   const onDoorOpened = () => {
     if (destroyed || activeActId) return;
-    camera.position.set(7.2, 6.45, 13.8);
-    controls.target.set(0.2, 2.2, -1.6);
+    switchFloor("1f", { animate: false, greet: false });
+    camera.position.set(-7.6, 5.2, 13.6);
+    controls.target.set(1.8, 3.0, -1.6);
     controls.update();
-    flyCamera(OVERVIEW_CAM, OVERVIEW_TARGET, 860);
+    const ov = getFloorOverview("1f");
+    flyCamera(ov.cam, ov.target, 900);
     if (!sulking) bruce.triggerHappyHop();
     sayBruce(sulking ? "idle_sulk" : "idle_happy", 4600);
   };
@@ -1461,10 +1631,10 @@ export function mountLivingRoomHub(container, opts = {}) {
     prevNow = now;
     const elapsed = now / 1000;
 
-    // Resize renderer & fx canvas (+ adapt FOV on portrait screens so all 6 pins stay framed)
+    // Resize renderer & fx canvas (+ adapt FOV on portrait iPad screens so all pins stay framed)
     const w = Math.max(300, stageEl.clientWidth);
     const h = Math.max(240, stageEl.clientHeight);
-    const desiredFov = w / h < 0.95 ? 60 : w < 920 ? 54 : 48;
+    const desiredFov = w / h < 0.95 ? 58 : w < 960 ? 52 : 48;
     if (canvas.width !== Math.round(w * renderer.getPixelRatio()) || canvas.height !== Math.round(h * renderer.getPixelRatio()) || camera.fov !== desiredFov) {
       renderer.setSize(w, h, false);
       camera.fov = desiredFov;
@@ -1478,12 +1648,18 @@ export function mountLivingRoomHub(container, opts = {}) {
       fxCanvas.height = Math.round(h * dpr);
     }
 
-    // Camera tween or clamped OrbitControls
+    // Duplex elevator arc tween (via duplexCamMath.js) or clamped OrbitControls
     if (camTween) {
       const p = Math.min(1, (now - camTween.start) / camTween.duration);
-      const eased = 1 - Math.pow(1 - p, 3);
-      camera.position.lerpVectors(camTween.fromPos, camTween.toPos, eased);
-      controls.target.lerpVectors(camTween.fromTarget, camTween.toTarget, eased);
+      const pose = computeDuplexCameraPose(
+        camTween.fromPos,
+        camTween.toPos,
+        camTween.fromTarget,
+        camTween.toTarget,
+        p,
+      );
+      camera.position.set(pose.pos.x, pose.pos.y, pose.pos.z);
+      controls.target.set(pose.target.x, pose.target.y, pose.target.z);
       controls.update();
       if (p >= 1) {
         const cb = camTween.onDone;
@@ -1492,9 +1668,9 @@ export function mountLivingRoomHub(container, opts = {}) {
       }
     } else {
       controls.update();
-      camera.position.x = THREE.MathUtils.clamp(camera.position.x, -12.5, 16.5);
-      camera.position.y = THREE.MathUtils.clamp(camera.position.y, 2.6, 17.5);
-      camera.position.z = THREE.MathUtils.clamp(camera.position.z, -14.5, 11.2);
+      camera.position.x = THREE.MathUtils.clamp(camera.position.x, -14.2, 14.2);
+      camera.position.y = THREE.MathUtils.clamp(camera.position.y, 1.6, 17.6);
+      camera.position.z = THREE.MathUtils.clamp(camera.position.z, -14.2, 14.9);
     }
 
     // Dust motes / rain motion
@@ -1502,27 +1678,27 @@ export function mountLivingRoomHub(container, opts = {}) {
       const arr = moteGeo.attributes.position.array;
       for (let i = 0; i < moteCount; i++) {
         arr[i * 3 + 1] += dt * 0.28;
-        if (arr[i * 3 + 1] > 10.5) arr[i * 3 + 1] = 1.5;
+        if (arr[i * 3 + 1] > 14.5) arr[i * 3 + 1] = 1.2;
       }
       moteGeo.attributes.position.needsUpdate = true;
     }
     if (rainPoints.visible) {
       const arr = rainGeo.attributes.position.array;
       for (let i = 0; i < rainCount; i++) {
-        arr[i * 3 + 1] -= dt * 11.0;
-        if (arr[i * 3 + 1] < 1.2) arr[i * 3 + 1] = 17.0;
+        arr[i * 3 + 1] -= dt * 11.5;
+        if (arr[i * 3 + 1] < 0.5) arr[i * 3 + 1] = 17.8;
       }
       rainGeo.attributes.position.needsUpdate = true;
     }
 
-    // 3D Tennis ball physics bounce on y=1.21
+    // 3D Tennis ball physics bounce on 1F rug (y=0.42)
     if (ballAnim && ballAnim.active) {
       ballAnim.vy -= 14.0 * dt;
       tennisBall.position.x += ballAnim.vx * dt;
       tennisBall.position.y += ballAnim.vy * dt;
       tennisBall.position.z += ballAnim.vz * dt;
-      if (tennisBall.position.y <= 1.21) {
-        tennisBall.position.y = 1.21;
+      if (tennisBall.position.y <= 0.42) {
+        tennisBall.position.y = 0.42;
         ballAnim.vy = Math.abs(ballAnim.vy) * 0.56;
         ballAnim.vx *= 0.78;
         ballAnim.vz *= 0.78;
@@ -1556,7 +1732,7 @@ export function mountLivingRoomHub(container, opts = {}) {
     renderer.render(scene, camera);
 
     // Hide cinema subtitle when settle modal or swap celebration banner is shown
-    const minPinTop = w < 640 ? 158 : 116;
+    const minPinTop = w < 640 ? 158 : 138;
     if (speechEl) {
       const hideForSettle = settleEl.classList.contains("is-visible") || swapBanner.classList.contains("is-visible");
       speechEl.style.display = hideForSettle ? "none" : "";
@@ -1578,7 +1754,7 @@ export function mountLivingRoomHub(container, opts = {}) {
         }
         btn.style.display = "";
         const halfW = Math.max(52, (btn.offsetWidth || 120) * 0.5 + 12);
-        btn.style.left = `${THREE.MathUtils.clamp(sx, halfW, Math.max(halfW, w - halfW))}px`;
+        btn.style.left = `${THREE.MathUtils.clamp(sx, halfW, Math.max(halfW, w - halfW - 110))}px`;
         btn.style.top = `${THREE.MathUtils.clamp(sy, minPinTop, h - 54)}px`;
       });
     }
@@ -1644,8 +1820,11 @@ export function mountLivingRoomHub(container, opts = {}) {
       cleanups.length = 0;
       bruce.destroy();
       controls.dispose();
-      skyPlaneGeo.dispose();
-      skyPlaneMat.dispose();
+      sunnySkyTex.dispose();
+      rainySkyTex.dispose();
+      tvArtTexs.forEach((t) => t.dispose());
+      skyCycloramaMat?.dispose?.();
+      tvScreenMat?.dispose?.();
       envRT.dispose();
       moteGeo.dispose();
       moteMat.dispose();

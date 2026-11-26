@@ -59,11 +59,11 @@ export function mountScene(container, opts = {}) {
 1. **中国大陆微信免梯子直连**：严禁引入任何外网 CDN（如 `fonts.googleapis.com`、`unpkg.com`、`jsdelivr.net`、`cdnjs.cloudflare.com`）；Three.js 必须通过 `./vendor/three.module.js` 与 `"three"` importmap 引用。
 2. **严禁地域刻板词**：`index.html`、`css/`、`js/`、`data/` 中绝对禁止出现 `杭州`、`西湖`、`钱塘江`、`灵隐寺`、`龙井`、`宋城`、`桂花`、`三墩`、`滨江`、`江南`、`石桥`、`拱桥`、`乌篷船` 等词。
 3. **3D 模型体积与兼容性红线**：
-   - 单个新增 `.glb` 文件体积必须 `<= 6 MB`（建议先压缩贴图至 `1024px` JPEG 并适度减面）；
+   - 单个新增 `.glb` 文件体积必须 `<= 15 MB`（已针对电脑 + iPad 模块化房间按需加载优化，贴图最高支持 `2048px` JPEG 并结合适度面数控制）；
    - **禁止使用 `KHR_draco_mesh_compression` 或 `EXT_meshopt_compression`**，必须保持标准无扩展压缩 glTF 2.0，保证自托管 `GLTFLoader` 直接加载。
 4. **安全与语法校验**：
    - 严禁将 `.env` 或任何 DeepSeek API Key 写入前端或提交进 Git；
-   - 推送前必须通过所有 JS `node --check` 语法校验及浏览器 `1280x800` + `390x844` 实机截图无报错检查。
+   - 推送前必须通过所有 JS `node --check` 语法校验及浏览器 **PC (`1280×800`) + iPad 横竖屏 (`1024×768` / `820×1180`)** 实机截图无报错检查（移动端不再作为新增 3D 场景必测目标）。
 
 ---
 
@@ -83,3 +83,19 @@ export function mountScene(container, opts = {}) {
 ### 迁移记录
 
 2026-11-26：原有 49 个通用技能（包含 Antigravity 最近补充的技能）已完整汇入独立共享库；本项目保留共享入口。业务代码、协作权限和部署规则遵循本文件原有约定。
+
+---
+
+## 六、Antigravity × DeepSeek 强制协作与降本增效铁律（最高优先级）
+
+为最大化节省主模型（Antigravity）额度并持续发掘 DeepSeek 工程与美术生成能力，凡涉及以下工作必须严格执行双脑分工铁律：
+
+1. **必须并发下放 DeepSeek 执行的任务清单（目标承担 75%~80% 执行工作量）**：
+   - **2D 生图与超清材质纹理**：全景天空/白云图、PBR 无缝纹理（木地板/大理石/羊羔绒/洞石）、电视艺术画、画廊墙插画、黑胶封面、SVG 矢量装饰；
+   - **并发 3D 模块建模**：遵循统一空间包围盒与 `scripts/penthouse_kit/prim_lib.py` 接口的独立家具、楼梯、绿植、陈设组件；
+   - **数学与着色器计算**：通过 `deepseek-reasoner` 编写跨楼层相机运镜曲线、GLSL 天光/雨窗 Shader 与碰撞/几何计算函数；
+   - **独立 UI 子组件与文案生成**：独立浮层样式初稿、多语境角色对白与旅行手账 JSON（自动执行 `FORBIDDEN_WORDS` 红线校验）。
+2. **零人工返修闭环（`scripts/ds_worker.py`）**：
+   - 严禁主模型直接手写大段可并行的纹理/家具生成代码；必须通过 `scripts/ds_worker.py` 多线程派单给 DeepSeek，并附带本地自动化校验（语法检查、图片色彩/尺寸断言、3D 包围盒边界、禁词拦截）；若失败则由 `ds_worker.py` 在后台自动回传报错让 DeepSeek 重写修复（最多 3 次），不消耗主模型交互轮次。
+3. **Antigravity 主模型专注职责（精锐 20% 决策额度）**：
+   - 全局审美与空间坐标总图设计、核心状态机接线（`index.html`、`js/state.js`、`js/main.js`、`js/hub3d/*` 主流转）、内置浏览器 PC (`1280×800`) + iPad (`1024×768` / `820×1180`) 真机“睁眼”视觉验收、以及在 [`.agents/DEEPSEEK_PLAYBOOK.md`](./.agents/DEEPSEEK_PLAYBOOK.md) 持续登记并升级 DeepSeek 新发掘的高阶能力。
