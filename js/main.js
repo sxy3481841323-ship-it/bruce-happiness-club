@@ -39,11 +39,102 @@ function syncUiFromState(state) {
   else if (state.view === "shop") renderShopView(viewShop);
 }
 
-function setupOnboarding() {
+function setupPrologueStage() {
   const modal = document.getElementById("onboarding-modal");
+  const elevator = document.getElementById("prologue-elevator");
+  const floorNumEl = document.getElementById("prologue-floor-num");
+  const skipBtn = document.getElementById("btn-prologue-skip");
+  const registerPanel = document.getElementById("prologue-register-panel");
+  const welcomePanel = document.getElementById("prologue-welcome-panel");
+  const whisperEl = document.getElementById("prologue-paw-whisper");
+  const welcomeOwnerImg = document.getElementById("welcome-owner-img");
+  const welcomeNameEl = document.getElementById("welcome-resident-name");
+  const welcomeScoreEl = document.getElementById("welcome-score-tag");
+  const unlockBtn = document.getElementById("btn-unlock-home");
+  const switchBtn = document.getElementById("btn-prologue-switch");
   const form = document.getElementById("onboarding-form");
   const errEl = document.getElementById("onboarding-error");
   const ownerOptions = document.querySelectorAll(".owner-option");
+
+  let doorAnimating = false;
+  let pawCuePlayed = false;
+
+  const setPrologueMode = (mode, playerData = null) => {
+    const isWelcome = mode === "welcome" && Boolean(playerData);
+    registerPanel?.classList.toggle("hidden", isWelcome);
+    welcomePanel?.classList.toggle("hidden", !isWelcome);
+    skipBtn?.classList.toggle("hidden", !isWelcome);
+    if (isWelcome && playerData) {
+      if (welcomeOwnerImg) {
+        welcomeOwnerImg.src = playerData.owner === "Meya"
+          ? "./assets/img/owner_meya.jpg"
+          : "./assets/img/owner_alex.jpg";
+      }
+      if (welcomeNameEl) {
+        welcomeNameEl.textContent = `${playerData.owner} & ${playerData.nickname}`;
+      }
+      if (welcomeScoreEl) {
+        const scoreVal = Number.isFinite(playerData.happiness) ? playerData.happiness : 100;
+        welcomeScoreEl.textContent = scoreVal < 80
+          ? `当前幸福指数 ${scoreVal} · 布鲁斯在门后等你哄`
+          : `当前幸福指数 ${scoreVal} · 布鲁斯已叼好丝巾`;
+      }
+      if (whisperEl) {
+        whisperEl.lastChild.textContent = `门缝溢出暖光，${playerData.nickname}，布鲁斯正摇着尾巴贴在门后等你！`;
+      }
+    } else if (whisperEl) {
+      whisperEl.lastChild.textContent = "门缝透出阳光客厅的暖光，门后隐约传来布鲁斯轻快踏近的小爪子声……";
+    }
+  };
+
+  const openDoorAndEnter = (immediate = false) => {
+    if (!modal || doorAnimating) return;
+    doorAnimating = true;
+    elevator?.classList.add("is-arrived");
+    sfx.playDoorUnlock();
+
+    const finish = () => {
+      modal.classList.add("hidden");
+      modal.classList.remove("is-opening");
+      doorAnimating = false;
+      window.dispatchEvent(new CustomEvent("bruce:door-opened"));
+    };
+
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    if (immediate || reduceMotion) {
+      finish();
+      return;
+    }
+
+    modal.classList.add("is-opening");
+    setTimeout(finish, 680);
+  };
+
+  // Penthouse elevator arrival choreography on boot
+  const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  if (reduceMotion) {
+    if (floorNumEl) floorNumEl.textContent = "PH";
+    elevator?.classList.add("is-arrived");
+  } else {
+    setTimeout(() => {
+      if (floorNumEl) floorNumEl.textContent = "26";
+    }, 210);
+    setTimeout(() => {
+      if (floorNumEl) floorNumEl.textContent = "PH";
+      sfx.playElevatorChime();
+    }, 440);
+    setTimeout(() => {
+      elevator?.classList.add("is-arrived");
+    }, 640);
+  }
+
+  // First pointer interaction in foyer plays soft muffled paw taps behind the walnut door
+  modal?.addEventListener("pointerdown", () => {
+    if (!pawCuePlayed && !doorAnimating) {
+      pawCuePlayed = true;
+      sfx.playDoorPaws();
+    }
+  }, { passive: true });
 
   ownerOptions.forEach((opt) => {
     opt.addEventListener("click", () => {
@@ -53,7 +144,7 @@ function setupOnboarding() {
     });
   });
 
-  form.addEventListener("submit", async (e) => {
+  form?.addEventListener("submit", async (e) => {
     e.preventDefault();
     errEl.classList.add("hidden");
 
@@ -74,26 +165,55 @@ function setupOnboarding() {
     }
 
     const submitBtn = document.getElementById("btn-enter-game");
+    const labelEl = submitBtn?.querySelector(".lock-btn-label");
     submitBtn.disabled = true;
-    submitBtn.textContent = "正在搬进阳光小院……";
+    if (labelEl) labelEl.textContent = "正在刻制黄铜门牌……";
 
     try {
       const res = await apiRegister(owner, check.nickname, pinRaw);
       store.setPlayer({ ...res.player, pin: pinRaw });
       store.setLeaderboardAndTicker(res.leaderboard, res.ticker);
-      modal.classList.add("hidden");
-      sfx.playSuccess();
+      openDoorAndEnter(false);
     } catch (err) {
       errEl.textContent = err.message || "进入失败，请重试";
       errEl.classList.remove("hidden");
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = "推开门 · 领布鲁斯回家";
+      if (labelEl) labelEl.textContent = "拧开黄铜门锁 · 推门归家";
     }
   });
+
+  unlockBtn?.addEventListener("click", () => {
+    openDoorAndEnter(false);
+  });
+
+  skipBtn?.addEventListener("click", () => {
+    openDoorAndEnter(true);
+  });
+
+  switchBtn?.addEventListener("click", () => {
+    localStorage.removeItem("bruce_club_session_v1");
+    document.getElementById("input-nickname").value = "";
+    document.getElementById("input-pin").value = "";
+    errEl?.classList.add("hidden");
+    elevator?.classList.add("is-arrived");
+    modal?.classList.remove("is-opening");
+    setPrologueMode("register");
+  });
+
+  return {
+    showWelcome(playerData) {
+      setPrologueMode("welcome", playerData);
+    },
+    showRegister() {
+      elevator?.classList.add("is-arrived");
+      modal?.classList.remove("is-opening", "hidden");
+      setPrologueMode("register");
+    },
+  };
 }
 
-function setupGlobalNav() {
+function setupGlobalNav(prologueCtrl) {
   document.getElementById("btn-nav-map")?.addEventListener("click", () => store.setView("map"));
   document.getElementById("btn-nav-shop")?.addEventListener("click", () => store.setView("shop"));
   document.getElementById("btn-open-shop-banner")?.addEventListener("click", () => store.setView("shop"));
@@ -131,13 +251,13 @@ function setupGlobalNav() {
     document.getElementById("input-nickname").value = "";
     document.getElementById("input-pin").value = "";
     document.getElementById("onboarding-error").classList.add("hidden");
-    document.getElementById("onboarding-modal")?.classList.remove("hidden");
+    prologueCtrl?.showRegister();
   });
 }
 
 async function boot() {
-  setupOnboarding();
-  setupGlobalNav();
+  const prologueCtrl = setupPrologueStage();
+  setupGlobalNav(prologueCtrl);
 
   let lastView = "";
   let lastAct = "";
@@ -200,9 +320,10 @@ async function boot() {
   if (saved && saved.nickname && saved.pin) {
     try {
       const res = await apiRegister(saved.owner || "Alex", saved.nickname, saved.pin);
-      store.setPlayer({ ...res.player, pin: saved.pin });
+      const restored = { ...res.player, pin: saved.pin };
+      store.setPlayer(restored);
       store.setLeaderboardAndTicker(res.leaderboard, res.ticker);
-      document.getElementById("onboarding-modal").classList.add("hidden");
+      prologueCtrl?.showWelcome(restored);
     } catch (_) {}
   }
 

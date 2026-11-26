@@ -65,6 +65,27 @@ class SoundEngine {
       this._tone(f, 0.25, "triangle", 0.08, idx * 0.08);
     });
   }
+
+  playElevatorChime() {
+    this._tone(783.99, 0.28, "sine", 0.06, 0);
+    this._tone(1567.98, 0.22, "triangle", 0.02, 0);
+    this._tone(659.25, 0.42, "sine", 0.065, 0.19);
+    this._tone(1318.5, 0.34, "triangle", 0.02, 0.19);
+  }
+
+  playDoorPaws() {
+    [172, 198, 165, 206].forEach((f, idx) => {
+      this._tone(f, 0.055, "triangle", 0.036, idx * 0.095);
+    });
+  }
+
+  playDoorUnlock() {
+    this._tone(920, 0.045, "triangle", 0.05, 0);
+    this._tone(420, 0.06, "triangle", 0.045, 0.045);
+    [523.25, 659.25, 783.99, 987.77].forEach((f, idx) => {
+      this._tone(f, 0.36, "sine", 0.055, 0.12 + idx * 0.045);
+    });
+  }
 }
 
 export const sfx = new SoundEngine();

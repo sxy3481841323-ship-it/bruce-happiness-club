@@ -180,7 +180,23 @@ export function mountCoastalCafeHub(container, opts = {}) {
           <span class="vf-stamp">35MM · COASTAL CAFÉ · F/1.8</span>
         </div>
         <div class="hub3d-pins"></div>
-        <div class="hub3d-speech" aria-live="polite"></div>
+        <div class="hub3d-keyholder">
+          <button type="button" class="keyholder-btn" aria-expanded="false">
+            <span class="keyholder-fob" aria-hidden="true">🔑</span>
+            <span>通行钥匙夹</span>
+            <span class="keyholder-count">2</span>
+          </button>
+          <div class="keyholder-tray" role="menu" aria-label="前往其他场景">
+            <div class="keyholder-tray-head">
+              <span>CAFÉ PASS HOLDER</span>
+              <span>点击传送</span>
+            </div>
+          </div>
+        </div>
+        <div class="hub3d-speech" aria-live="polite">
+          <span class="speech-cue"></span>
+          <span class="speech-line"></span>
+        </div>
         <button type="button" class="hub3d-reset-btn">⌖ 归中视角</button>
 
         <div class="hub3d-act-overlay">
@@ -215,7 +231,7 @@ export function mountCoastalCafeHub(container, opts = {}) {
           <span>正在推开海岸咖啡馆玻璃门……</span>
         </div>
       </div>
-      <p class="hub3d-hint">拖动环视海岸咖啡馆 · 点布鲁斯互动、体验吧台特调或点存根回阳光客厅</p>
+      <p class="hub3d-hint">拖动环视海岸咖啡馆 · 点黄铜光点体验吧台，左下「通行钥匙夹」可返回客厅</p>
     </div>
   `;
 
@@ -224,7 +240,12 @@ export function mountCoastalCafeHub(container, opts = {}) {
   const fxCanvas = container.querySelector(".hub3d-fx-canvas");
   const vignetteEl = container.querySelector(".hub3d-vignette");
   const pinsLayer = container.querySelector(".hub3d-pins");
+  const keyholderEl = container.querySelector(".hub3d-keyholder");
+  const keyholderBtn = container.querySelector(".keyholder-btn");
+  const keyholderTray = container.querySelector(".keyholder-tray");
   const speechEl = container.querySelector(".hub3d-speech");
+  const speechCueEl = speechEl?.querySelector(".speech-cue");
+  const speechLineEl = speechEl?.querySelector(".speech-line");
   const resetBtn = container.querySelector(".hub3d-reset-btn");
   const loadingEl = container.querySelector(".hub3d-loading");
   const actOverlay = container.querySelector(".hub3d-act-overlay");
@@ -564,10 +585,19 @@ export function mountCoastalCafeHub(container, opts = {}) {
     }
   });
 
+  const CAFE_SPEECH_CUES = {
+    idle_happy: "BRUCE · 海风絮语",
+    idle_sulk: "BRUCE · 雨窗冷战中",
+    click_poke: "BRUCE · 丝巾晃动",
+    click_poke_sulk: "BRUCE · 别扭哼声",
+    bar_bliss: "BRUCE · 舔奶泡中",
+    ear_warn: "BRUCE · 飞机耳预警",
+  };
+
   let speechTimer = null;
   let lastSpeechText = "";
-  function sayBruce(categoryOrText, durationMs = 3800) {
-    if (!speechEl || destroyed) return;
+  function sayBruce(categoryOrText, durationMs = 3800, customCue = "") {
+    if (!speechEl || !speechLineEl || destroyed) return;
     const pool = cafeCopy?.[categoryOrText];
     let text = "";
     if (Array.isArray(pool) && pool.length) {
@@ -580,7 +610,10 @@ export function mountCoastalCafeHub(container, opts = {}) {
     }
     if (!text) return;
     lastSpeechText = text;
-    speechEl.textContent = text;
+    if (speechCueEl) {
+      speechCueEl.textContent = customCue || CAFE_SPEECH_CUES[categoryOrText] || (sulking ? "BRUCE · 雨窗冷战中" : "BRUCE · 吧台轻哼");
+    }
+    speechLineEl.textContent = text;
     speechEl.classList.toggle("is-sulk", Boolean(sulking));
     speechEl.classList.add("is-visible");
     if (speechTimer) {
@@ -600,52 +633,82 @@ export function mountCoastalCafeHub(container, opts = {}) {
   }, 7500);
   cleanups.push(() => clearInterval(idleTimerId));
 
-  // Build 3D hotspot artifacts (charms & boarding stubs)
-  const pinItems = HOTSPOTS.map((spot) => {
+  // Folding keyholder toggle
+  const setKeyholderOpen = (open) => {
+    keyholderEl?.classList.toggle("is-open", open);
+    keyholderBtn?.setAttribute("aria-expanded", open ? "true" : "false");
+  };
+  keyholderBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    sfx.playTap();
+    setKeyholderOpen(!keyholderEl?.classList.contains("is-open"));
+  });
+  const onDocClickCloseKey = (e) => {
+    if (keyholderEl && !keyholderEl.contains(e.target)) {
+      setKeyholderOpen(false);
+    }
+  };
+  document.addEventListener("click", onDocClickCloseKey);
+  cleanups.push(() => document.removeEventListener("click", onDocClickCloseKey));
+
+  // Build breathing brass dots (in-scene activities) & keyholder passes (teleports)
+  const pinItems = HOTSPOTS.filter((s) => s.kind === "act").map((spot) => {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = `hub3d-pin ${spot.kind === "teleport" ? "hub3d-stub" : "hub3d-charm"}`;
+    btn.className = "hub3d-pin hub3d-dot";
     btn.setAttribute("data-spot", spot.id);
-    if (spot.kind === "teleport") {
-      btn.innerHTML = `
-        <span class="stub-main">
-          <span class="stub-icon">${spot.icon}</span>
-          <span class="stub-text">
-            <span class="stub-title">${spot.title}</span>
-            <span class="stub-sub">${spot.sub}</span>
-          </span>
-        </span>
-        <span class="stub-code">${spot.code}</span>
-      `;
-    } else {
-      btn.innerHTML = `
-        <span class="charm-eyelet"></span>
-        <span class="charm-icon">${spot.icon}</span>
-        <span class="charm-body">
-          <span class="charm-title">${spot.title}</span>
-          <span class="charm-sub">${spot.sub}</span>
-        </span>
-      `;
-    }
+    btn.setAttribute("aria-label", `${spot.title}（${spot.sub}）`);
+    btn.innerHTML = `
+      <span class="dot-core">${spot.icon}</span>
+      <span class="dot-popover">
+        <span class="dot-title">${spot.title}</span>
+        <span class="dot-sub">${spot.sub}</span>
+      </span>
+    `;
     pinsLayer.appendChild(btn);
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
+      setKeyholderOpen(false);
       feedback("small", e.clientX, e.clientY);
       sfx.playTap();
       handleHotspotClick(spot);
     });
-    if (spot.kind === "teleport") {
-      btn.addEventListener("pointerenter", () => {
-        if (activeActId) return;
-        if (spot.id === "home_return") {
-          sayBruce("玩够了就点这里回阳光客厅的毛毯上打盹吧！", 3200);
-        } else {
-          const line = hubCopy?.portal_hover?.[spot.id];
-          if (line) sayBruce(line, 3400);
-        }
-      });
-    }
     return { spot, btn, world: new THREE.Vector3(...spot.pos) };
+  });
+
+  HOTSPOTS.filter((s) => s.kind === "teleport").forEach((spot) => {
+    if (!keyholderTray) return;
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "keyholder-item";
+    item.setAttribute("data-spot", spot.id);
+    item.innerHTML = `
+      <span class="stub-main">
+        <span class="stub-icon">${spot.icon}</span>
+        <span class="stub-text">
+          <span class="stub-title">${spot.title}</span>
+          <span class="stub-sub">${spot.sub}</span>
+        </span>
+      </span>
+      <span class="stub-code">${spot.code}</span>
+    `;
+    keyholderTray.appendChild(item);
+    item.addEventListener("click", (e) => {
+      e.stopPropagation();
+      setKeyholderOpen(false);
+      feedback("small", e.clientX, e.clientY);
+      sfx.playTap();
+      handleHotspotClick(spot);
+    });
+    item.addEventListener("pointerenter", () => {
+      if (activeActId) return;
+      if (spot.id === "home_return") {
+        sayBruce("玩够了就点这里回阳光客厅的毛毯上打盹吧！", 3200, "BRUCE · 门边张望");
+      } else {
+        const line = hubCopy?.portal_hover?.[spot.id];
+        if (line) sayBruce(line, 3400, "BRUCE · 门边张望");
+      }
+    });
   });
 
   function applyAtmosphere(sulkMode) {
@@ -688,10 +751,8 @@ export function mountCoastalCafeHub(container, opts = {}) {
 
     speechEl?.classList.toggle("is-sulk", sulking);
     pinItems.forEach(({ spot, btn }) => {
-      if (spot.kind === "act") {
-        const subEl = btn.querySelector(".charm-sub");
-        if (subEl) subEl.textContent = sulking ? "先哄好布鲁斯" : spot.sub;
-      }
+      const subEl = btn.querySelector(".dot-sub");
+      if (subEl) subEl.textContent = sulking ? "先哄好布鲁斯" : spot.sub;
     });
   }
 
@@ -1295,7 +1356,6 @@ export function mountCoastalCafeHub(container, opts = {}) {
   // Main render loop
   let prevNow = performance.now();
   const projVec = new THREE.Vector3();
-  const speechVec = new THREE.Vector3();
   const fxCtx = fxCanvas.getContext("2d");
 
   const tick = (now) => {
@@ -1387,21 +1447,11 @@ export function mountCoastalCafeHub(container, opts = {}) {
       stageEl.dataset.diag = JSON.stringify(diagObj);
     }
 
-    // Project Bruce speech bubble above head (clamped safely below HUD)
+    // Hide cinema subtitle when settle modal or swap celebration banner is shown
     const minPinTop = w < 640 ? 158 : 116;
     if (speechEl) {
       const hideForSettle = settleEl.classList.contains("is-visible") || swapBanner.classList.contains("is-visible");
-      speechVec.set(bruce.root.position.x, bruce.root.position.y + 2.75, bruce.root.position.z).project(camera);
-      if (hideForSettle || speechVec.z > 1 || speechVec.z < -1) {
-        speechEl.style.display = "none";
-      } else {
-        const bx = (speechVec.x * 0.5 + 0.5) * w;
-        const by = (-speechVec.y * 0.5 + 0.5) * h;
-        const halfSpeechW = Math.max(96, (speechEl.offsetWidth || 220) * 0.5 + 12);
-        speechEl.style.display = "";
-        speechEl.style.left = `${THREE.MathUtils.clamp(bx, halfSpeechW, Math.max(halfSpeechW, w - halfSpeechW))}px`;
-        speechEl.style.top = `${THREE.MathUtils.clamp(by, minPinTop + 26, h - 28)}px`;
-      }
+      speechEl.style.display = hideForSettle ? "none" : "";
     }
 
     // Project 3D hotspots to 2D overlay

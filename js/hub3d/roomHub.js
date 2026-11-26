@@ -190,7 +190,23 @@ export function mountLivingRoomHub(container, opts = {}) {
           <span class="vf-stamp">35MM · BRUCE LOFT · F/2.0</span>
         </div>
         <div class="hub3d-pins"></div>
-        <div class="hub3d-speech" aria-live="polite"></div>
+        <div class="hub3d-keyholder">
+          <button type="button" class="keyholder-btn" aria-expanded="false">
+            <span class="keyholder-fob" aria-hidden="true">🔑</span>
+            <span>出门钥匙夹</span>
+            <span class="keyholder-count">3</span>
+          </button>
+          <div class="keyholder-tray" role="menu" aria-label="出门传送目的地">
+            <div class="keyholder-tray-head">
+              <span>OUTING KEY HOLDER</span>
+              <span>点击传送</span>
+            </div>
+          </div>
+        </div>
+        <div class="hub3d-speech" aria-live="polite">
+          <span class="speech-cue"></span>
+          <span class="speech-line"></span>
+        </div>
         <button type="button" class="hub3d-reset-btn">⌖ 归中视角</button>
 
         <div class="hub3d-act-overlay">
@@ -225,7 +241,7 @@ export function mountLivingRoomHub(container, opts = {}) {
           <span>正在走进布鲁斯的阳光客厅……</span>
         </div>
       </div>
-      <p class="hub3d-hint">拖动画面环视 3D 客厅 · 点布鲁斯互动或点传送门去街区、超市与远方</p>
+      <p class="hub3d-hint">轻点地面金点陪玩 · 左下「出门钥匙夹」可前往咖啡馆、超市与远方</p>
     </div>
   `;
 
@@ -234,7 +250,12 @@ export function mountLivingRoomHub(container, opts = {}) {
   const fxCanvas = container.querySelector(".hub3d-fx-canvas");
   const vignetteEl = container.querySelector(".hub3d-vignette");
   const pinsLayer = container.querySelector(".hub3d-pins");
+  const keyholderEl = container.querySelector(".hub3d-keyholder");
+  const keyholderBtn = container.querySelector(".keyholder-btn");
+  const keyholderTray = container.querySelector(".keyholder-tray");
   const speechEl = container.querySelector(".hub3d-speech");
+  const speechCueEl = speechEl?.querySelector(".speech-cue");
+  const speechLineEl = speechEl?.querySelector(".speech-line");
   const resetBtn = container.querySelector(".hub3d-reset-btn");
   const loadingEl = container.querySelector(".hub3d-loading");
   const actOverlay = container.querySelector(".hub3d-act-overlay");
@@ -452,10 +473,21 @@ export function mountLivingRoomHub(container, opts = {}) {
     }
   });
 
+  const SPEECH_CUES = {
+    idle_happy: "BRUCE · 摇尾轻哼",
+    idle_sulk: "BRUCE · 背身冷战中",
+    click_poke: "BRUCE · 歪头看你",
+    click_poke_sulk: "BRUCE · 别扭哼声",
+    petting_bliss: "BRUCE · 眯眼享受",
+    ear_warn: "BRUCE · 飞机耳预警",
+    rain_cozy: "BRUCE · 雨窗暖灯",
+    ball_excited: "BRUCE · 短腿蓄力",
+  };
+
   let speechTimer = null;
   let lastSpeechText = "";
-  function sayBruce(categoryOrText, durationMs = 3800) {
-    if (!speechEl || destroyed) return;
+  function sayBruce(categoryOrText, durationMs = 3800, customCue = "") {
+    if (!speechEl || !speechLineEl || destroyed) return;
     const pool = hubCopy?.thought_bubbles?.[categoryOrText];
     let text = "";
     if (Array.isArray(pool) && pool.length) {
@@ -469,7 +501,10 @@ export function mountLivingRoomHub(container, opts = {}) {
     }
     if (!text) return;
     lastSpeechText = text;
-    speechEl.textContent = text;
+    if (speechCueEl) {
+      speechCueEl.textContent = customCue || SPEECH_CUES[categoryOrText] || (sulking ? "BRUCE · 冷战低气压" : "BRUCE · 阳光低语");
+    }
+    speechLineEl.textContent = text;
     speechEl.classList.toggle("is-sulk", Boolean(sulking));
     speechEl.classList.add("is-visible");
     if (speechTimer) {
@@ -489,47 +524,77 @@ export function mountLivingRoomHub(container, opts = {}) {
   }, 7000);
   cleanups.push(() => clearInterval(idleTimerId));
 
-  // 3D hotspot artifacts (charms & boarding stubs)
-  const pinItems = HOTSPOTS.map((spot) => {
+  // Folding keyholder toggle
+  const setKeyholderOpen = (open) => {
+    keyholderEl?.classList.toggle("is-open", open);
+    keyholderBtn?.setAttribute("aria-expanded", open ? "true" : "false");
+  };
+  keyholderBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    sfx.playTap();
+    setKeyholderOpen(!keyholderEl?.classList.contains("is-open"));
+  });
+  const onDocClickCloseKey = (e) => {
+    if (keyholderEl && !keyholderEl.contains(e.target)) {
+      setKeyholderOpen(false);
+    }
+  };
+  document.addEventListener("click", onDocClickCloseKey);
+  cleanups.push(() => document.removeEventListener("click", onDocClickCloseKey));
+
+  // Build breathing brass dots (in-scene activities) & keyholder passes (teleports)
+  const pinItems = HOTSPOTS.filter((s) => s.kind === "act").map((spot) => {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = `hub3d-pin ${spot.kind === "teleport" ? "hub3d-stub" : "hub3d-charm"}`;
+    btn.className = "hub3d-pin hub3d-dot";
     btn.setAttribute("data-spot", spot.id);
-    if (spot.kind === "teleport") {
-      btn.innerHTML = `
-        <span class="stub-main">
-          <span class="stub-icon">${spot.icon}</span>
-          <span class="stub-text">
-            <span class="stub-title">${spot.title}</span>
-            <span class="stub-sub">${spot.sub}</span>
-          </span>
-        </span>
-        <span class="stub-code">${spot.code}</span>
-      `;
-    } else {
-      btn.innerHTML = `
-        <span class="charm-eyelet"></span>
-        <span class="charm-icon">${spot.icon}</span>
-        <span class="charm-body">
-          <span class="charm-title">${spot.title}</span>
-          <span class="charm-sub">${spot.sub}</span>
-        </span>
-      `;
-    }
+    btn.setAttribute("aria-label", `${spot.title}（${spot.sub}）`);
+    btn.innerHTML = `
+      <span class="dot-core">${spot.icon}</span>
+      <span class="dot-popover">
+        <span class="dot-title">${spot.title}</span>
+        <span class="dot-sub">${spot.sub}</span>
+      </span>
+    `;
     pinsLayer.appendChild(btn);
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
+      setKeyholderOpen(false);
       feedback("small", e.clientX, e.clientY);
       sfx.playTap();
       handleHotspotClick(spot);
     });
-    if (spot.kind === "teleport") {
-      btn.addEventListener("pointerenter", () => {
-        const hoverLine = hubCopy?.portal_hover?.[spot.id];
-        if (hoverLine && !activeActId) sayBruce(hoverLine, 3400);
-      });
-    }
     return { spot, btn, world: new THREE.Vector3(...spot.pos) };
+  });
+
+  HOTSPOTS.filter((s) => s.kind === "teleport").forEach((spot) => {
+    if (!keyholderTray) return;
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "keyholder-item";
+    item.setAttribute("data-spot", spot.id);
+    item.innerHTML = `
+      <span class="stub-main">
+        <span class="stub-icon">${spot.icon}</span>
+        <span class="stub-text">
+          <span class="stub-title">${spot.title}</span>
+          <span class="stub-sub">${spot.sub}</span>
+        </span>
+      </span>
+      <span class="stub-code">${spot.code}</span>
+    `;
+    keyholderTray.appendChild(item);
+    item.addEventListener("click", (e) => {
+      e.stopPropagation();
+      setKeyholderOpen(false);
+      feedback("small", e.clientX, e.clientY);
+      sfx.playTap();
+      handleHotspotClick(spot);
+    });
+    item.addEventListener("pointerenter", () => {
+      const hoverLine = hubCopy?.portal_hover?.[spot.id];
+      if (hoverLine && !activeActId) sayBruce(hoverLine, 3400, "BRUCE · 门边张望");
+    });
   });
 
   function applyAtmosphere(sulkMode, rainMode = false) {
@@ -569,10 +634,8 @@ export function mountLivingRoomHub(container, opts = {}) {
     speechEl?.classList.toggle("is-sulk", sulking);
 
     pinItems.forEach(({ spot, btn }) => {
-      if (spot.kind === "act") {
-        const subEl = btn.querySelector(".charm-sub");
-        if (subEl) subEl.textContent = sulking ? "先哄好布鲁斯" : spot.sub;
-      }
+      const subEl = btn.querySelector(".dot-sub");
+      if (subEl) subEl.textContent = sulking ? "先哄好布鲁斯" : spot.sub;
     });
   }
 
@@ -1173,10 +1236,21 @@ export function mountLivingRoomHub(container, opts = {}) {
   stageEl.addEventListener("pointermove", onPointerMove);
   cleanups.push(() => stageEl.removeEventListener("pointermove", onPointerMove));
 
+  const onDoorOpened = () => {
+    if (destroyed || activeActId) return;
+    camera.position.set(7.2, 6.45, 13.8);
+    controls.target.set(0.2, 2.2, -1.6);
+    controls.update();
+    flyCamera(OVERVIEW_CAM, OVERVIEW_TARGET, 860);
+    if (!sulking) bruce.triggerHappyHop();
+    sayBruce(sulking ? "idle_sulk" : "idle_happy", 4600);
+  };
+  window.addEventListener("bruce:door-opened", onDoorOpened);
+  cleanups.push(() => window.removeEventListener("bruce:door-opened", onDoorOpened));
+
   // Main render loop
   let prevNow = performance.now();
   const projVec = new THREE.Vector3();
-  const speechVec = new THREE.Vector3();
   const fxCtx = fxCanvas.getContext("2d");
 
   const tick = (now) => {
@@ -1264,21 +1338,11 @@ export function mountLivingRoomHub(container, opts = {}) {
     bruce.update(dt, elapsed);
     renderer.render(scene, camera);
 
-    // Project Bruce speech bubble above head (clamped safely below HUD)
+    // Hide cinema subtitle when settle modal or swap celebration banner is shown
     const minPinTop = w < 640 ? 158 : 116;
     if (speechEl) {
       const hideForSettle = settleEl.classList.contains("is-visible") || swapBanner.classList.contains("is-visible");
-      speechVec.set(bruce.root.position.x, bruce.root.position.y + 3.05, bruce.root.position.z).project(camera);
-      if (hideForSettle || speechVec.z > 1 || speechVec.z < -1) {
-        speechEl.style.display = "none";
-      } else {
-        const bx = (speechVec.x * 0.5 + 0.5) * w;
-        const by = (-speechVec.y * 0.5 + 0.5) * h;
-        const halfSpeechW = Math.max(96, (speechEl.offsetWidth || 220) * 0.5 + 12);
-        speechEl.style.display = "";
-        speechEl.style.left = `${THREE.MathUtils.clamp(bx, halfSpeechW, Math.max(halfSpeechW, w - halfSpeechW))}px`;
-        speechEl.style.top = `${THREE.MathUtils.clamp(by, minPinTop + 26, h - 28)}px`;
-      }
+      speechEl.style.display = hideForSettle ? "none" : "";
     }
 
     // Project 3D hotspots to 2D overlay (clamped safely away from floating HUD)

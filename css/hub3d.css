@@ -58,8 +58,8 @@
 .vf-stamp {
   position: absolute;
   left: 4px;
-  bottom: 42px;
-  font-size: 10px;
+  top: 98px;
+  font-size: 9.5px;
   font-weight: 800;
   letter-spacing: 0.14em;
   color: rgba(21, 20, 23, 0.56);
@@ -149,85 +149,280 @@
   }
 }
 
-/* 形态 A：布鲁斯黄铜真丝项圈铭牌（客厅内陪伴互动） */
-.hub3d-charm {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 11px 6px 8px;
-  border-radius: 4px 11px 11px 4px;
-  border: 1.5px solid #151417;
-  border-left: 5px solid #7D1E2E;
-  background: linear-gradient(145deg, #FCF7EC 0%, #EFE1BE 100%);
-  color: #151417;
-  box-shadow: 0 3px 0 #151417, 0 10px 22px rgba(20, 16, 12, 0.24);
-}
-
-.hub3d-charm:active {
-  box-shadow: 0 1px 0 #151417, 0 4px 10px rgba(20, 16, 12, 0.2);
-}
-
-.charm-eyelet {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #DFBE7D;
-  border: 1.5px solid #151417;
-  flex: 0 0 auto;
-}
-
-.charm-icon {
+/* 形态 A：极简呼吸小黄铜点（默认零遮挡 · 悬停/聚焦展开微胶囊标签） */
+.hub3d-dot {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
+/* 44x44px 无感触控热区 */
+.hub3d-dot::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+}
+
+/* 外圈呼吸香槟金光环（仅合成器 transform + opacity） */
+.hub3d-dot::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(223, 190, 125, 0.85);
+  box-shadow: 0 0 10px rgba(223, 190, 125, 0.48);
+  animation: brassDotBreath 2.6s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes brassDotBreath {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.88;
+  }
+  70% {
+    transform: scale(1.42);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.42);
+    opacity: 0;
+  }
+}
+
+.dot-core {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid #151417;
+  background: radial-gradient(circle at 32% 28%, #FFF6DB 0%, #DFBE7D 58%, #9E7831 100%);
+  color: #4A121C;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 2px 0 #151417,
+    0 6px 14px rgba(18, 14, 10, 0.34);
+  transition: transform 140ms var(--ease-out);
+}
+
+.dot-core svg {
+  width: 13px;
+  height: 13px;
+}
+
+.dot-popover {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 9px);
+  transform: translate(-50%, 5px) scale(0.94);
+  transform-origin: bottom center;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
   border-radius: 6px;
-  background: rgba(125, 30, 46, 0.12);
-  color: #7D1E2E;
-  flex: 0 0 auto;
+  border: 1px solid rgba(223, 190, 125, 0.55);
+  background: rgba(21, 20, 23, 0.92);
+  color: #FFF8EC;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.34);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms var(--ease-out), transform 170ms var(--ease-out);
+  z-index: 4;
 }
 
-.charm-body {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  line-height: 1.18;
+.dot-popover::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -4px;
+  width: 7px;
+  height: 7px;
+  background: rgba(21, 20, 23, 0.92);
+  border-right: 1px solid rgba(223, 190, 125, 0.55);
+  border-bottom: 1px solid rgba(223, 190, 125, 0.55);
+  transform: translateX(-50%) rotate(45deg);
 }
 
-.charm-title {
-  font-size: 12.5px;
+.dot-title {
+  font-size: 11.5px;
   font-weight: 800;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
 }
 
-.charm-sub {
+.dot-sub {
   font-size: 10px;
   font-weight: 700;
-  color: #6B5326;
+  color: #DFBE7D;
 }
 
-/* 形态 B：打孔撕裂感登机/通行存根牌（点击传送门） */
-.hub3d-stub {
+.hub3d-dot:focus-visible .dot-popover {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hub3d-dot:hover {
+    z-index: 12;
+  }
+  .hub3d-dot:hover .dot-core {
+    transform: scale(1.1);
+  }
+  .hub3d-dot:hover .dot-popover {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+/* 形态 B：左下角折叠式「出门钥匙夹 / 通行钥匙夹」 */
+.hub3d-keyholder {
+  position: absolute;
+  left: 18px;
+  bottom: 18px;
+  z-index: 12;
+  pointer-events: auto;
+}
+
+body.is-hub3d-act .hub3d-keyholder {
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.mood-sulk.is-hub3d-view .anhedonia-banner {
+  bottom: 68px;
+}
+
+.keyholder-btn {
   display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px 7px 10px;
+  border-radius: 8px;
+  border: 1.5px solid #DFBE7D;
+  background:
+    repeating-linear-gradient(-45deg, rgba(255, 224, 178, 0.03) 0 2px, transparent 2px 7px),
+    linear-gradient(180deg, #271A15 0%, #170F0C 100%);
+  color: #FAF2E1;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #0B0706, 0 10px 22px rgba(0, 0, 0, 0.34);
+  transition: transform 130ms var(--ease-out), box-shadow 130ms var(--ease-out);
+}
+
+.keyholder-btn:active {
+  transform: translateY(2px) scale(0.97);
+  box-shadow: 0 1px 0 #0B0706;
+}
+
+.keyholder-fob {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 30%, #FCEBB6, #B88B3A);
+  color: #211408;
+  font-size: 11px;
+  border: 1px solid #151417;
+}
+
+.keyholder-count {
+  font-size: 10px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(223, 190, 125, 0.2);
+  color: #F4D891;
+  border: 1px solid rgba(223, 190, 125, 0.4);
+}
+
+.keyholder-tray {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 10px);
+  width: min(300px, calc(100vw - 36px));
+  padding: 10px;
+  border-radius: 10px;
+  border: 1.5px solid #DFBE7D;
+  background: linear-gradient(170deg, #221612 0%, #140D0B 100%);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.52);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  transform-origin: bottom left;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.95) translateY(6px);
+  transition: opacity 180ms var(--ease-out), transform 190ms var(--ease-out);
+}
+
+.hub3d-keyholder.is-open .keyholder-tray {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1) translateY(0);
+}
+
+.keyholder-tray-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: rgba(244, 216, 145, 0.78);
+  padding: 0 2px 4px;
+  border-bottom: 1px dashed rgba(223, 190, 125, 0.28);
+}
+
+.keyholder-item {
+  width: 100%;
+  display: flex;
   align-items: stretch;
+  justify-content: space-between;
   border-radius: 7px;
-  border: 1.5px solid #151417;
+  border: 1px solid rgba(223, 190, 125, 0.35);
   background: #16231D;
   color: #F6F1E5;
   overflow: hidden;
-  box-shadow: 0 3px 0 #151417, 0 12px 26px rgba(10, 14, 12, 0.34);
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  font-family: var(--font-sans);
+  transition: transform 130ms var(--ease-out), border-color 140ms ease;
 }
 
-.hub3d-stub:active {
-  box-shadow: 0 1px 0 #151417;
+.keyholder-item:active {
+  transform: scale(0.98);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .keyholder-item:hover {
+    border-color: #DFBE7D;
+    transform: translateX(2px);
+  }
 }
 
 .stub-main {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 6px 10px 6px 9px;
+  gap: 8px;
+  padding: 8px 10px;
+  min-width: 0;
+  flex: 1;
 }
 
 .stub-icon {
@@ -242,7 +437,8 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  line-height: 1.15;
+  line-height: 1.2;
+  min-width: 0;
 }
 
 .stub-title {
@@ -252,8 +448,8 @@
 }
 
 .stub-sub {
-  font-size: 9.5px;
-  color: rgba(246, 241, 229, 0.72);
+  font-size: 10px;
+  color: rgba(246, 241, 229, 0.7);
 }
 
 .stub-code {
@@ -267,58 +463,75 @@
   font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.06em;
+  flex-shrink: 0;
 }
 
-/* 布鲁斯头顶台词铭牌（接触印相旁白条） */
+/* 电影胶片底部柔光对白字幕（零黑框、无硬边缘、完全不挡布鲁斯面部） */
 .hub3d-speech {
   position: absolute;
+  left: 50%;
+  bottom: 44px;
   z-index: 10;
-  transform: translate(-50%, -100%) scale(0.94);
-  max-width: min(76vw, 276px);
-  padding: 8px 13px;
-  border-radius: 8px;
-  border: 1.5px solid #151417;
-  background: #FAF5E8;
-  box-shadow: 3px 3px 0 #151417, 0 12px 24px rgba(0, 0, 0, 0.22);
-  color: #151417;
-  font-size: 12.5px;
-  font-weight: 700;
-  line-height: 1.45;
+  transform: translate(-50%, 6px);
+  width: min(92vw, 600px);
+  padding: 16px 38px 14px;
+  border: 0;
+  background: radial-gradient(
+    closest-side,
+    rgba(12, 10, 9, 0.56) 0%,
+    rgba(12, 10, 9, 0.24) 58%,
+    rgba(12, 10, 9, 0) 100%
+  );
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
   text-align: center;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 210ms ease, transform 220ms var(--ease-out);
-}
-
-.hub3d-speech::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: -6px;
-  width: 9px;
-  height: 9px;
-  background: #FAF5E8;
-  border-right: 1.5px solid #151417;
-  border-bottom: 1.5px solid #151417;
-  transform: translateX(-50%) rotate(45deg);
+  filter: blur(2px);
+  transition: opacity 240ms var(--ease-out), transform 260ms var(--ease-out), filter 220ms ease;
 }
 
 .hub3d-speech.is-visible {
   opacity: 1;
-  transform: translate(-50%, -100%) scale(1);
+  transform: translate(-50%, 0);
+  filter: blur(0);
 }
 
-.hub3d-speech.is-sulk {
-  background: #1C2634;
-  border-color: #93B5DB;
-  color: #EDF4FC;
-  box-shadow: 3px 3px 0 #0B111A;
+.speech-cue {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: rgba(244, 212, 140, 0.9);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
 }
 
-.hub3d-speech.is-sulk::after {
-  background: #1C2634;
-  border-right-color: #93B5DB;
-  border-bottom-color: #93B5DB;
+.speech-line {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  color: #FFF8EB;
+  text-shadow:
+    0 1.5px 3px rgba(0, 0, 0, 0.96),
+    0 0 16px rgba(0, 0, 0, 0.72);
+}
+
+.hub3d-speech.is-sulk .speech-cue {
+  color: rgba(164, 202, 245, 0.92);
+}
+
+.hub3d-speech.is-sulk .speech-line {
+  color: #EAF3FF;
+}
+
+body.mood-sulk.is-hub3d-view:not(.is-hub3d-act) .hub3d-speech {
+  bottom: 148px;
+}
+
+body.is-hub3d-act .hub3d-speech {
+  bottom: 84px;
 }
 
 /* 右下角镜头归中物理按键 + 底部操作条 */
@@ -733,45 +946,31 @@ body.is-hub3d-act .hub3d-viewfinder .vf-stamp {
   .vf-stamp {
     display: none;
   }
-  .hub3d-charm {
-    padding: 5px 8px 5px 6px;
-    gap: 5px;
+  .hub3d-keyholder {
+    left: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   }
-  .charm-icon {
-    width: 20px;
-    height: 20px;
-  }
-  .charm-title {
-    font-size: 11px;
-  }
-  .charm-sub {
-    display: none;
-  }
-  .stub-main {
-    padding: 5px 7px;
-    gap: 5px;
-  }
-  .stub-title {
-    font-size: 11px;
-  }
-  .stub-sub {
-    display: none;
-  }
-  .stub-code {
-    padding: 0 6px;
-    font-size: 9px;
+  .keyholder-btn {
+    padding: 6px 10px 6px 8px;
+    font-size: 11.5px;
   }
   .hub3d-speech {
-    font-size: 11.5px;
-    padding: 6px 10px;
-    max-width: min(72vw, 224px);
+    bottom: calc(58px + env(safe-area-inset-bottom, 0px));
+    width: min(92vw, 360px);
+    padding: 9px 14px;
+  }
+  body.mood-sulk.is-hub3d-view:not(.is-hub3d-act) .hub3d-speech {
+    bottom: 158px;
+  }
+  .speech-line {
+    font-size: 13px;
   }
   .hub3d-hint {
     display: none;
   }
   .hub3d-reset-btn {
     right: 12px;
-    bottom: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     padding: 6px 10px;
     font-size: 11px;
   }

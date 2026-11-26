@@ -182,3 +182,26 @@ for f in js/*.js js/theater/*.js functions/api/*.js; do node --check "$f" || exi
    使用 `THREE.InstancedMesh` 批量摆放零食/饮料/牛乳/三文鱼礼盒商品（控制 Draw Calls `<= 150`），让布鲁斯坐在红色手推车内巡逛试吃。
 3. **接入路由**：在 [js/map.js](./js/map.js) 中把 `onTeleportWarehouse` 替换为 `() => store.setView("warehouse")`，并在 [js/main.js](./js/main.js) 中增加 `warehouse` 视图分支挂载 `renderWarehouseView(viewScene)` 即可无缝上线。
 
+---
+
+## 九、2026-11-26 晚 · 主线 2 高定 UI/UX 精修（归家序幕 + 空间去膏药化 + 电影字幕 + 荣誉挂牌墙）
+
+本次精修**保持现有 3D 布鲁斯模型与渲染器不动**，专注重构全局首屏体验与四项高定界面质感：
+
+1. **① 归家序幕（AB 结合 · 私人电梯 → 胡桃木黄铜门廊 → 推门进客厅）**：
+   - [index.html](./index.html)、[css/style.css](./css/style.css)、[js/main.js](./js/main.js)、[js/audio.js](./js/audio.js)：
+     - 首屏升级为全屏顶层 `PH` 私人电梯抵达 (`18 → 26 → PH` + Web Audio 双音叮声 `playElevatorChime()`)，拉丝深铜电梯门对开后进入静谧冷调胡桃木寓所门廊；
+     - 门底缝隙透出客厅暖阳（`.door-light-seam`），首次交互播放门后布鲁斯轻快小爪子声（`playDoorPaws()`）；
+     - 新住户在门廊深胡桃木黄铜牌上刻制入籍（支持 `16px` 移动端防缩放输入）；老住户刷新进入自动切为**专属拉丝黄铜名牌（`#prologue-welcome-panel` + `跳过序幕`）**，点击「拧开黄铜门锁 · 推门进客厅」触发门锁脆响（`playDoorUnlock()`）、门扇 `3D rotateY` 向内推开与日光柔光晕开，并在 [js/hub3d/roomHub.js](./js/hub3d/roomHub.js) 联动 `bruce:door-opened` 缓推归位运镜。
+2. **② 空间去膏药化（折叠钥匙夹 + `28px` 呼吸小黄铜点）**：
+   - [css/hub3d.css](./css/hub3d.css)、[js/hub3d/roomHub.js](./js/hub3d/roomHub.js)、[js/scenes3d/cafeHub.js](./js/scenes3d/cafeHub.js)：
+     - 所有传送存根从 3D 场景抽离，收纳进左下角深咖皮质黄铜扣 **「出门钥匙夹 / 通行钥匙夹」**（`.hub3d-keyholder`），点开弹出带打孔码存根卡（`OUT·01` / `CLB·02` / `FLY·04` / `HOME·00`）；
+     - 3D 场景内 3 个互动热区彻底瘦身为 **`28px` 呼吸小黄铜点（`.hub3d-dot`）**（带 `44px` 隐形触控热区、GPU 合成层呼吸金圈，默认零文字遮挡，仅在悬停或键盘聚焦时展开微胶囊标签）。
+3. **③ 电影胶片底部柔光对白字幕**：
+   - 移除 3D 头顶黑框投影，将 `.hub3d-speech` 固定于画面底部中央，零边框零尖角，使用 `closest-side` 无边界柔光羽化阴影衬底 + 香槟金状态提示条（`BRUCE · 摇尾轻哼` / `BRUCE · 海风絮语` / `BRUCE · 背身冷战中`），彻底不遮挡布鲁斯面部。
+4. **④ 深胡桃木 & 酒红丝绒 · 私人俱乐部荣誉挂牌墙**：
+   - [js/leaderboard.js](./js/leaderboard.js)、[css/style.css](./css/style.css)：抽屉重构为深色油润胡桃木展柜内嵌酒红天鹅绒展板；第 1 名授**宽幅拉丝黄铜主荣誉铭牌**配四角黄铜铆钉，`#2`/`#3` 为银/青铜饰边，`#4+` 为胡桃木嵌铜牌；
+   - 与后端 `selectMeaningATarget` 算法同源计算排在你上方每位高分住户的 **`⌖ 换分猎物 · 约 X%`** 权重标识，低于 80 分玩家佩戴 **`🌧️ 冷战哄狗中`** 黛蓝铭签，并对昵称做 HTML 转义、省略号溢出防护与 `tabular-nums` 等宽数字加固。
+5. **待接力 · 主线 1（四足站立动态布鲁斯，已暂缓）**：用户已在 `~/Downloads/动态.glb` 生成 Tripo 四足站立带骨骼原模（暂按指令搁置），后续如重启直接减面压缩至 `<= 4 MB` 无扩展 glTF 2.0 即可接入。
+
+
