@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>3D 传送场景独立调试台 · 布鲁斯俱乐部</title>
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="./css/scenes3d.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; background: #151417; color: #F5EFE2; }
+    .wb-bar {
+      height: 46px; padding: 0 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      background: #100F13; border-bottom: 1px solid rgba(223, 190, 125, 0.3); font-size: 12.5px;
+    }
+    .wb-tools { display: flex; align-items: center; gap: 8px; }
+    .wb-stage { width: 100%; height: calc(100dvh - 46px); }
+  </style>
+</head>
+<body>
+  <header class="wb-bar">
+    <strong>3D 新场景隔离调试台 <span id="wb-mod-name"></span></strong>
+    <div class="wb-tools">
+      <button class="sc3d-btn" id="wb-toggle-sulk" type="button">切换 &lt;80 冷战态</button>
+      <span id="wb-log" style="color:#DFBE7D;font-weight:700;"></span>
+    </div>
+  </header>
+  <main class="wb-stage" id="wb-stage"></main>
+
+  <script type="importmap">
+    {"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/"}}
+  </script>
+  <script type="module">
+    const params = new URLSearchParams(location.search);
+    const modName = (params.get("module") || "street3d").replace(/[^a-zA-Z0-9_-]/g, "");
+    document.getElementById("wb-mod-name").textContent = `(${modName}.js)`;
+
+    const stage = document.getElementById("wb-stage");
+    const logEl = document.getElementById("wb-log");
+    let sulking = false;
+
+    const mod = await import(`./js/scenes3d/${modName}.js`);
+    const ctrl = mod.mountScene(stage, {
+      sulking,
+      happiness: 100,
+      content: {},
+      onSettle(res) {
+        logEl.textContent = `模拟结算: ${res.title} (${res.delta >= 0 ? "+" : ""}${res.delta})`;
+      },
+      onBackToHub() {
+        logEl.textContent = "触发：返回 3D 客厅";
+      },
+    });
+
+    document.getElementById("wb-toggle-sulk").addEventListener("click", () => {
+      sulking = !sulking;
+      ctrl.setSulking?.(sulking);
+    });
+  </script>
+</body>
+</html>

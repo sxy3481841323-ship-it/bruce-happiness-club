@@ -1,0 +1,81 @@
+name: CI Guard
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, "feat/**"]
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: JS syntax check
+        run: |
+          for f in js/*.js js/hub3d/*.js js/scenes3d/*.js js/theater/*.js functions/api/*.js; do
+            [ -f "$f" ] || continue
+            node --check "$f"
+          done
+
+      - name: Validate JSON files & check forbidden copy / CDNs / secrets / model limits
+        run: |
+          python3 - <<'PY'
+          import glob, json, os, re, sys
+
+          for path in glob.glob("data/*.json"):
+              with open(path, "r", encoding="utf-8") as f:
+                  json.load(f)
+
+          forbidden = (
+              "\u676d\u5dde|\u897f\u6e56|\u94b1\u5858\u6c5f|\u7075\u9690\u5bfa|\u9f99\u4e95|"
+              "\u5b8b\u57ce|\u6842\u82b1|\u4e09\u58a9|\u6ee8\u6c5f|\u6c5f\u5357|\u77f3\u6865|\u62f1\u6865|\u4e4c\u7bf7\u8239"
+          )
+          cdn_re = re.compile(r"https?://(fonts\.googleapis|unpkg\.com|cdn\.jsdelivr|cdnjs\.cloudflare)", re.I)
+
+          for pattern in ("index.html", "scene-preview.html", "css/*.css", "js/**/*.js", "data/*.json"):
+              for path in glob.glob(pattern, recursive=True):
+                  with open(path, "r", encoding="utf-8", errors="ignore") as f:
+                      txt = f.read()
+                  m = re.search(forbidden, txt)
+                  if m:
+                      print(f"ERROR: Forbidden term '{m.group(0)}' in {path}")
+                      sys.exit(1)
+                  cm = cdn_re.search(txt)
+                  if cm:
+                      print(f"ERROR: External CDN '{cm.group(0)}' in {path}")
+                      sys.exit(1)
+
+          if os.path.exists(".env"):
+              print("ERROR: .env must never be committed!")
+              sys.exit(1)
+
+          for mpath in glob.glob("assets/models/*"):
+              sz = os.path.getsize(mpath)
+              if sz > 8 * 1024 * 1024:
+                  print(f"ERROR: Model {mpath} is {sz/1024/1024:.2f} MB (> 8 MB limit)")
+                  sys.exit(1)
+
+          print("CI_GUARD_OK")
+          PY
+
+      - name: Protected file notice for collaborator PRs
+        if: github.event_name == 'pull_request' && github.actor != 'sxy3481841323-ship-it'
+        run: |
+          CHANGED=$(git diff --name-only origin/main...HEAD)
+          echo "### Changed files in this PR" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo "$CHANGED" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          PROTECTED=$(echo "$CHANGED" | grep -E '^(index\.html|AGENTS\.md|\.agents/|\.github/|css/style\.css|css/hub3d\.css|js/main\.js|js/map\.js|js/state\.js|js/api\.js|js/shop\.js|js/leaderboard\.js|js/hub3d/|functions/api/|scripts/dev_server\.py|assets/models/(living_room|bruce)\.glb)' || true)
+          if [ -n "$PROTECTED" ]; then
+            echo "::warning::PR modifies Lead-protected core files — Alex must explicitly review before merging:"
+            echo "$PROTECTED"
+          fi

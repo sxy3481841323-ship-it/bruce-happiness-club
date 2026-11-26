@@ -146,3 +146,39 @@ for f in js/*.js js/theater/*.js functions/api/*.js; do node --check "$f" || exi
    - [index.html](./index.html)、[css/style.css](./css/style.css)、[css/hub3d.css](./css/hub3d.css)：在 `is-hub3d-view` 下升级为 `100vw × 100dvh` 35mm 取景器全画幅 3D 客厅，配备左上方**酒红斜纹真丝领巾身份牌**、中上方**黑底翻牌幸福计分器**、**带物理按压行程的机械按键**；
    - 客厅 3D 热区彻底抛弃白胶囊，替换为**黄铜眼孔+酒红竖边项圈铭牌**（陪伴互动）与**深林黑金撕裂虚线打孔登机存根**（街区/超市/环球传送门），并适配移动端宽视场（`FOV 64°`）同屏显示全 6 个热区与零 `404` 街区海报回退。
 
+---
+
+## 八、双人 Antigravity 协作与主导权保障（`AGENTS.md`）
+
+1. **项目自动规则**：根目录 [AGENTS.md](./AGENTS.md) 与 `.agents/rules/team-governance.md` 会被所有协作者的 Antigravity 自动加载。
+2. **主分支决策锁**：`.github/CODEOWNERS` 指定 `* @sxy3481841323-ship-it`；[ci-guard.yml](./.github/workflows/ci-guard.yml) 自动校验 JS 语法、JSON、禁词、CDN 与模型体积；协作者必须先运行 `bash scripts/setup_collab.sh` 启用 `.githooks/pre-push`，并在 `feat/*` 分支开发、提 PR 给 Alex 审阅合入 `main`。
+3. **无冲突新 3D 场景调试**：协作者可直接在 `js/scenes3d/` 编写新 3D 传送场景，并通过 `scene-preview.html?module=street3d` 独立预览测试，无需修改 `index.html`、`js/map.js` 或 `js/hub3d/*`。
+
+---
+
+## 八、2026-11-26 · 1:1 海岸阳光咖啡馆 3D 场景（`OUT·01` 已接通）与超市接力蓝图
+
+### 1. 本次已完成并上线的海岸咖啡馆（`Stylish and Open Café` 1:1 自建还原）
+- **轻量化资产与离线构建器**：
+  - [scripts/build_cafe_glb.py](./scripts/build_cafe_glb.py) → 生成标准无压缩 glTF 2.0 资产 [assets/models/coastal_cafe.glb](./assets/models/coastal_cafe.glb)（**`3.60 MB`**、`32,132` 三角面、`37` 网格、`36` 材质、`8` 张内嵌程序化 PBR 贴图）。
+  - 严格还原参考建筑与软装：浅薄荷灰方砖地面（`SageTileFloor`）、左侧与尽头通顶黑框落地玻璃幕墙（外接海岸木栈道、红粉花丛、细沙碧海与摇曳椰子树 `PalmFronds`）、右侧白灰文化砖墙 + 黑铁几何酒水架 + 现代几何挂画、深炭黑竖向木格栅弧形吧台 + Calacatta 白大理石台面 + 台底暖光 LED + 弧形玻璃甜品展示柜 + 意式咖啡机磨豆机 + 7 张焦糖棕高脚凳、橡木吊顶与白色圆球吊灯、米色布艺沙发（青蓝/深咖抱枕）+ 原木圆桌 + 白盆阔叶绿植。
+- **3D 交互场景与导航接通**：
+  - [js/scenes3d/cafeHub.js](./js/scenes3d/cafeHub.js) 导出 `mountCoastalCafeHub(container, opts)`，复用全画幅 `35MM · COASTAL CAFÉ · F/1.8` 取景器壳、海岸定制 PMREM 环境光、点击布鲁斯触发气泡独白（[data/hub_deepseek.json](./data/hub_deepseek.json) `cafe_thought_bubbles`）、`<80` 冷战窗外雨景与暖光切换。
+  - **3 项吧台/窗畔近景 3D 互动**（已接入 [js/map.js](./js/map.js) `settleScoreAndSwap` 与 [js/main.js](./js/main.js) `state.view === "street"`）：
+    - `street_cafe`（吧台爪爪奶泡，`+13 / -14`，`15%` 高位换分，含 3D `Pup Cup` 动画）；
+    - `street_window`（甜品橱窗品鉴，`+12 / -13`，`12%` 换分，含玻璃轻划与 `1s` 飞机耳预警）；
+    - `street_walk`（海风窗畔晒毛，`+12 / -13`，`10%` 换分）。
+  - **2 枚传送存根**：`HOME·00`（平滑退镜返回 3D 阳光客厅）与 `CLB·02`（预留衔接会员大超市）。
+- **真机浏览器实测指标**：
+  - 桌面 `1280×800` 与手机 `390×844` 均实现 **`5 / 5` 热区同屏显示、零碰撞、零横向溢出、0 控制台/网络报错**；
+  - WebGL 渲染诊断：`calls: 80`、`triangles: 198,174`（含高精度 `bruce.glb`）、`geometries: 44`、`textures: 16`、`dpr: 2`。
+
+### 2. 下一站接力施工接口：`CLB·02` 会员制大超市（朋友或后续接力指南）
+1. **离线建模脚本**：参考 [scripts/build_cafe_glb.py](./scripts/build_cafe_glb.py) 新建 `scripts/build_warehouse_glb.py`，输出标准无压缩 `assets/models/supermarket.glb`（建议 `<= 4.5 MB`、`<= 55,000` 三角面），还原参考图的绿植生态墙、多排商品货架/生鲜木筐、发光冷风柜、标牌与亮红色手推车。
+2. **场景挂载模块**：新建 `js/scenes3d/warehouseHub.js`，导出同构接口：
+   ```js
+   export function mountWarehouseHub(container, { sulking, happiness, content, getHappiness, onSettle, onOpenShop, onBackToHub, onBackToCafe })
+   ```
+   使用 `THREE.InstancedMesh` 批量摆放零食/饮料/牛乳/三文鱼礼盒商品（控制 Draw Calls `<= 150`），让布鲁斯坐在红色手推车内巡逛试吃。
+3. **接入路由**：在 [js/map.js](./js/map.js) 中把 `onTeleportWarehouse` 替换为 `() => store.setView("warehouse")`，并在 [js/main.js](./js/main.js) 中增加 `warehouse` 视图分支挂载 `renderWarehouseView(viewScene)` 即可无缝上线。
+

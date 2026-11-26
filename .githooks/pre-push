@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+
+# 1. JS 语法与禁词本地预检
+for f in js/*.js js/hub3d/*.js js/scenes3d/*.js js/theater/*.js functions/api/*.js; do
+  [ -f "$f" ] || continue
+  node --check "$f" >/dev/null
+done
+
+if grep -rnE "杭州|西湖|钱塘江|灵隐寺|龙井|宋城|桂花|三墩|滨江|江南|石桥|拱桥|乌篷船" index.html scene-preview.html css/ js/ data/ >/dev/null 2>&1; then
+  echo "❌ 推送已拦截：检测到禁止出现的地域词，请先清理后再推。"
+  exit 1
+fi
+
+# 2. 协作者保护：防止意外直接推送到 main（需走 feat/* 分支与 PR 给 Alex 审阅）
+EMAIL="$(git config user.email || true)"
+ROLE="${BRUCE_ROLE:-}"
+IS_COLLAB=0
+if [ "$EMAIL" = "shanmufu888@gmail.com" ] || [ "$ROLE" = "collaborator" ]; then
+  IS_COLLAB=1
+fi
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  if [ "$IS_COLLAB" -eq 1 ] && [ "$remote_ref" = "refs/heads/main" ]; then
+    echo "❌ 为保障主分支安全与冲突隔离，协作者不可直接 push 到 main。"
+    echo "👉 请改推功能分支：git checkout -b feat/my-scene && git push -u origin feat/my-scene"
+    echo "   然后在 GitHub 提交 Pull Request 给 Alex 审阅合入。"
+    exit 1
+  fi
+done
+
+echo "✅ 本地 pre-push 校验通过"

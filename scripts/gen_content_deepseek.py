@@ -7,8 +7,10 @@ import re
 import urllib.error
 import urllib.request
 
-ENV_PATH = "/Users/alex/.gemini/antigravity/scratch/ai-pulse-radar/.env"
-OUT_PATH = "/Users/alex/.gemini/antigravity/scratch/bruce-happiness-club/data/content.json"
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LOCAL_ENV_PATH = os.path.join(REPO_ROOT, ".env")
+FALLBACK_ENV_PATH = "/Users/alex/.gemini/antigravity/scratch/ai-pulse-radar/.env"
+OUT_PATH = os.path.join(REPO_ROOT, "data", "content.json")
 
 FORBIDDEN_WORDS = (
     "杭州",
@@ -29,14 +31,15 @@ FORBIDDEN_WORDS = (
 
 def load_keys():
     env_map = {}
-    if os.path.exists(ENV_PATH):
-        with open(ENV_PATH, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith("#") or "=" not in line:
-                    continue
-                k, v = line.split("=", 1)
-                env_map[k.strip()] = v.strip().strip('"').strip("'")
+    for env_path in (FALLBACK_ENV_PATH, LOCAL_ENV_PATH):
+        if os.path.exists(env_path):
+            with open(env_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#") or "=" not in line:
+                        continue
+                    k, v = line.split("=", 1)
+                    env_map[k.strip()] = v.strip().strip('"').strip("'")
     keys = []
     for name in ("DEEPSEEK_API_KEY", "DEEPSEEK_API_KEY_FALLBACK"):
         val = os.environ.get(name) or env_map.get(name, "")
