@@ -58,7 +58,7 @@
 .vf-stamp {
   position: absolute;
   left: 4px;
-  bottom: 2px;
+  bottom: 42px;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -472,11 +472,11 @@ body.is-hub3d-act .hub3d-viewfinder .vf-stamp {
   transition: width 70ms linear;
 }
 
-/* 警戒拉环条纹开关（DRYER / SPEAKER） */
+/* 警戒拉环条纹开关（DRYER / SPEAKER / ESPRESSO） */
 .hub3d-hazard-btn {
   position: absolute;
   right: 18px;
-  bottom: 54px;
+  bottom: 84px;
   padding: 12px 14px 8px;
   border-radius: 7px;
   border: 1.5px solid #151417;

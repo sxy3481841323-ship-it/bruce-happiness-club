@@ -1,6 +1,6 @@
 import { store } from "./state.js";
 import { apiGetLeaderboard, apiRegister } from "./api.js";
-import { renderMapView, stopMapLoop } from "./map.js";
+import { renderMapView, stopMapLoop, renderCafeView, stopCafeLoop } from "./map.js";
 import { renderSceneView, unmountSceneView } from "./activities.js";
 import { renderShopView } from "./shop.js";
 import { renderLeaderboardDrawer, renderTicker } from "./leaderboard.js";
@@ -26,14 +26,16 @@ function syncUiFromState(state) {
   const viewShop = document.getElementById("view-shop");
 
   if (state.view !== "map") stopMapLoop();
-  if (state.view !== "home" && state.view !== "street") unmountSceneView();
+  if (state.view !== "street") stopCafeLoop();
+  if (state.view !== "home") unmountSceneView();
 
   viewMap.classList.toggle("hidden", state.view !== "map");
   viewScene.classList.toggle("hidden", state.view !== "home" && state.view !== "street");
   viewShop.classList.toggle("hidden", state.view !== "shop");
 
   if (state.view === "map") renderMapView(viewMap);
-  else if (state.view === "home" || state.view === "street") renderSceneView(viewScene, state.view);
+  else if (state.view === "street") renderCafeView(viewScene);
+  else if (state.view === "home") renderSceneView(viewScene, "home");
   else if (state.view === "shop") renderShopView(viewShop);
 }
 
@@ -174,7 +176,7 @@ async function boot() {
     renderTicker(state.ticker);
     renderLeaderboardDrawer();
 
-    if (viewChanged || playerChanged || (scoreChanged && (state.view === "shop" || state.view === "map"))) {
+    if (viewChanged || playerChanged || (scoreChanged && (state.view === "shop" || state.view === "map" || state.view === "street"))) {
       lastView = state.view;
       lastAct = state.activeActivityId;
       lastNick = state.player?.nickname || "";

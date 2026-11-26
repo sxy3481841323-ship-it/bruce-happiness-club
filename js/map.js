@@ -1,6 +1,7 @@
 import { store } from "./state.js";
 import { apiTriggerSwap, apiUpdateScore } from "./api.js";
 import { mountLivingRoomHub } from "./hub3d/roomHub.js";
+import { mountCoastalCafeHub } from "./scenes3d/cafeHub.js";
 
 const PREVIEW_TITLES = {
   park: "树影公园",
@@ -20,6 +21,8 @@ const GLOBAL_DESTINATIONS = [
 
 let activeHub = null;
 let activeContainer = null;
+let activeCafe = null;
+let activeCafeContainer = null;
 let closeModalFn = null;
 let cachedHubCopy = null;
 let hubCopyPromise = null;
@@ -187,6 +190,61 @@ export function stopMapLoop() {
   activeContainer = null;
 }
 
+export function stopCafeLoop() {
+  closeModalFn?.();
+  if (activeCafe) {
+    activeCafe.destroy();
+    activeCafe = null;
+  }
+  activeCafeContainer = null;
+}
+
+async function settleScoreAndSwap(result, fallbackReason) {
+  const latestPlayer = store.state.player;
+  if (!latestPlayer) return null;
+
+  const prevScore = latestPlayer.happiness;
+  const delta = Number.isFinite(result?.delta) ? result.delta : 0;
+  const nextScore = Math.max(0, Math.min(9999, Math.round(prevScore + delta)));
+
+  let tickerMsg = "";
+  if (prevScore >= 80 && nextScore < 80) {
+    const templates = store.state.content?.ticker_templates?.collapse || [];
+    tickerMsg = formatTemplate(pickRandom(templates), {
+      player: latestPlayer.nickname,
+      old_score: prevScore,
+      new_score: nextScore,
+    });
+  }
+
+  const res = await apiUpdateScore(
+    latestPlayer.nickname,
+    latestPlayer.pin,
+    latestPlayer.owner,
+    nextScore,
+    tickerMsg,
+  );
+  store.setPlayer({ ...res.player, pin: latestPlayer.pin });
+  store.setLeaderboardAndTicker(res.leaderboard, res.ticker);
+
+  if (result?.outcome === "win" && result?.triggerSwapCandidate) {
+    const swap = await apiTriggerSwap(latestPlayer.nickname, latestPlayer.pin, result.title || fallbackReason);
+    if (Number.isFinite(swap?.newScore)) {
+      store.setHappiness(swap.newScore);
+    }
+    if (swap?.leaderboard || swap?.ticker) {
+      store.setLeaderboardAndTicker(swap.leaderboard, swap.ticker);
+    }
+    return {
+      oldScore: swap.oldScore,
+      newScore: swap.newScore,
+      targetNickname: swap.targetNickname,
+      topBonus: Boolean(swap.topBonus),
+    };
+  }
+  return null;
+}
+
 export function renderMapView(container) {
   if (!container) return;
   const sulking = store.isSulking();
@@ -206,54 +264,36 @@ export function renderMapView(container) {
     happiness: player?.happiness ?? 100,
     content: store.state.content || {},
     getHappiness: () => store.state.player?.happiness ?? 100,
-    async onSettle(result) {
-      const latestPlayer = store.state.player;
-      if (!latestPlayer) return null;
-
-      const prevScore = latestPlayer.happiness;
-      const delta = Number.isFinite(result?.delta) ? result.delta : 0;
-      const nextScore = Math.max(0, Math.min(9999, Math.round(prevScore + delta)));
-
-      let tickerMsg = "";
-      if (prevScore >= 80 && nextScore < 80) {
-        const templates = store.state.content?.ticker_templates?.collapse || [];
-        tickerMsg = formatTemplate(pickRandom(templates), {
-          player: latestPlayer.nickname,
-          old_score: prevScore,
-          new_score: nextScore,
-        });
-      }
-
-      const res = await apiUpdateScore(
-        latestPlayer.nickname,
-        latestPlayer.pin,
-        latestPlayer.owner,
-        nextScore,
-        tickerMsg,
-      );
-      store.setPlayer({ ...res.player, pin: latestPlayer.pin });
-      store.setLeaderboardAndTicker(res.leaderboard, res.ticker);
-
-      if (result?.outcome === "win" && result?.triggerSwapCandidate) {
-        const swap = await apiTriggerSwap(latestPlayer.nickname, latestPlayer.pin, result.title || "客厅陪玩");
-        if (Number.isFinite(swap?.newScore)) {
-          store.setHappiness(swap.newScore);
-        }
-        if (swap?.leaderboard || swap?.ticker) {
-          store.setLeaderboardAndTicker(swap.leaderboard, swap.ticker);
-        }
-        return {
-          oldScore: swap.oldScore,
-          newScore: swap.newScore,
-          targetNickname: swap.targetNickname,
-          topBonus: Boolean(swap.topBonus),
-        };
-      }
-      return null;
-    },
+    onSettle: (result) => settleScoreAndSwap(result, "客厅陪玩"),
     onOpenShop: () => store.setView("shop"),
     onTeleportStreet: () => store.setView("street"),
     onTeleportWarehouse: () => openPreviewModal("warehouse"),
     onTeleportGlobal: () => openGlobalTeleportModal(),
+  });
+}
+
+export function renderCafeView(container) {
+  if (!container) return;
+  const sulking = store.isSulking();
+  const player = store.state.player;
+
+  if (activeCafe && activeCafeContainer === container && container.querySelector(".hub3d-stage")) {
+    activeCafe.setContext({ happiness: player?.happiness ?? 100, content: store.state.content });
+    activeCafe.setSulking(sulking);
+    return;
+  }
+
+  stopCafeLoop();
+  activeCafeContainer = container;
+
+  activeCafe = mountCoastalCafeHub(container, {
+    sulking,
+    happiness: player?.happiness ?? 100,
+    content: store.state.content || {},
+    getHappiness: () => store.state.player?.happiness ?? 100,
+    onSettle: (result) => settleScoreAndSwap(result, "海岸咖啡馆探店"),
+    onOpenShop: () => store.setView("shop"),
+    onBackToHub: () => store.setView("map"),
+    onTeleportWarehouse: () => openPreviewModal("warehouse"),
   });
 }

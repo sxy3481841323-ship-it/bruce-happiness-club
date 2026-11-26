@@ -66,8 +66,8 @@ const HOTSPOTS = [
   {
     id: "street",
     kind: "teleport",
-    title: "出门 · 林荫小街",
-    sub: "双幕剧场探索",
+    title: "出门 · 海岸咖啡馆",
+    sub: "3D 阳光吧台探店",
     code: "OUT·01",
     pos: [4.8, 3.8, -1.2],
     icon: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 10l2-5h12l2 5"/><path d="M5 10v9h14v-9"/><path d="M10 19v-5h4v5"/></svg>`,

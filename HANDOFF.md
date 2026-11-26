@@ -160,8 +160,8 @@ for f in js/*.js js/theater/*.js functions/api/*.js; do node --check "$f" || exi
 
 ### 1. 本次已完成并上线的海岸咖啡馆（`Stylish and Open Café` 1:1 自建还原）
 - **轻量化资产与离线构建器**：
-  - [scripts/build_cafe_glb.py](./scripts/build_cafe_glb.py) → 生成标准无压缩 glTF 2.0 资产 [assets/models/coastal_cafe.glb](./assets/models/coastal_cafe.glb)（**`3.60 MB`**、`32,132` 三角面、`37` 网格、`36` 材质、`8` 张内嵌程序化 PBR 贴图）。
-  - 严格还原参考建筑与软装：浅薄荷灰方砖地面（`SageTileFloor`）、左侧与尽头通顶黑框落地玻璃幕墙（外接海岸木栈道、红粉花丛、细沙碧海与摇曳椰子树 `PalmFronds`）、右侧白灰文化砖墙 + 黑铁几何酒水架 + 现代几何挂画、深炭黑竖向木格栅弧形吧台 + Calacatta 白大理石台面 + 台底暖光 LED + 弧形玻璃甜品展示柜 + 意式咖啡机磨豆机 + 7 张焦糖棕高脚凳、橡木吊顶与白色圆球吊灯、米色布艺沙发（青蓝/深咖抱枕）+ 原木圆桌 + 白盆阔叶绿植。
+  - [scripts/build_cafe_glb.py](./scripts/build_cafe_glb.py) → 生成标准无压缩 glTF 2.0 资产 [assets/models/coastal_cafe.glb](./assets/models/coastal_cafe.glb)（**`4.01 MB`**、`36,182` 三角面、`40` 网格、`36` 材质、`8` 张内嵌程序化 PBR 贴图）。
+  - 严格还原参考建筑与软装：浅薄荷灰方砖地面（`SageTileFloor`）、左侧与尽头通顶黑框落地玻璃幕墙（外接海岸木栈道、红粉花丛、细沙碧海与摇曳带纹理椰子树 `PalmFronds`）、右侧白灰文化砖墙 + 镂空方管铁艺酒水架 + 现代几何挂画、深炭黑竖向木格栅弧形吧台 + 宽幅 Calacatta 白大理石台面 + 台底暖光 LED + 倾角弧形玻璃甜品展示柜 + 核桃木双头意式咖啡机与磨豆机 + 7 张焦糖棕高脚凳、橡木吊顶与白色圆球吊灯、圆润靠垫米色布艺沙发 + 原木圆桌 + 白盆阔叶绿植。
 - **3D 交互场景与导航接通**：
   - [js/scenes3d/cafeHub.js](./js/scenes3d/cafeHub.js) 导出 `mountCoastalCafeHub(container, opts)`，复用全画幅 `35MM · COASTAL CAFÉ · F/1.8` 取景器壳、海岸定制 PMREM 环境光、点击布鲁斯触发气泡独白（[data/hub_deepseek.json](./data/hub_deepseek.json) `cafe_thought_bubbles`）、`<80` 冷战窗外雨景与暖光切换。
   - **3 项吧台/窗畔近景 3D 互动**（已接入 [js/map.js](./js/map.js) `settleScoreAndSwap` 与 [js/main.js](./js/main.js) `state.view === "street"`）：
@@ -171,7 +171,7 @@ for f in js/*.js js/theater/*.js functions/api/*.js; do node --check "$f" || exi
   - **2 枚传送存根**：`HOME·00`（平滑退镜返回 3D 阳光客厅）与 `CLB·02`（预留衔接会员大超市）。
 - **真机浏览器实测指标**：
   - 桌面 `1280×800` 与手机 `390×844` 均实现 **`5 / 5` 热区同屏显示、零碰撞、零横向溢出、0 控制台/网络报错**；
-  - WebGL 渲染诊断：`calls: 80`、`triangles: 198,174`（含高精度 `bruce.glb`）、`geometries: 44`、`textures: 16`、`dpr: 2`。
+  - WebGL 渲染诊断：桌面 `calls: 86`、`triangles: 206,274`、`geometries: 47–50`、`textures: 16`、`dpr: 2`（手机 `calls: 83`、`triangles: 206,062`）。
 
 ### 2. 下一站接力施工接口：`CLB·02` 会员制大超市（朋友或后续接力指南）
 1. **离线建模脚本**：参考 [scripts/build_cafe_glb.py](./scripts/build_cafe_glb.py) 新建 `scripts/build_warehouse_glb.py`，输出标准无压缩 `assets/models/supermarket.glb`（建议 `<= 4.5 MB`、`<= 55,000` 三角面），还原参考图的绿植生态墙、多排商品货架/生鲜木筐、发光冷风柜、标牌与亮红色手推车。
