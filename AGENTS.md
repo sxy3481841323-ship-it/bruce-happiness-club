@@ -64,3 +64,18 @@ export function mountScene(container, opts = {}) {
 4. **安全与语法校验**：
    - 严禁将 `.env` 或任何 DeepSeek API Key 写入前端或提交进 Git；
    - 推送前必须通过所有 JS `node --check` 语法校验及浏览器 `1280x800` + `390x844` 实机截图无报错检查。
+
+---
+
+## 五、云端共享技能库（`.agents/skills/` · 自动挂载与跨主体调用）
+
+本仓库已内置完整的 **3D / 游戏 / 高定 UI 技能体系**，供本项目协作者及外部 Agent 工具直接读取与下载调用：
+
+1. **目录与索引**：
+   - 技能总览与跨项目拉取指南：[`.agents/skills/README.md`](./.agents/skills/README.md)
+   - 程序化元数据索引：[`.agents/skills/registry.json`](./.agents/skills/registry.json)
+   - Antigravity 团队自动挂载清单：[`.agents/skills.json`](./.agents/skills.json)
+2. **核心任务建议挂载**：
+   - **3D 场景与四足骨骼布鲁斯**：`threejs-aaa-graphics-builder`、`threejs-animation`、`threejs-loaders`、`threejs-interaction`、`camera-systems`、`threejs-lighting`、`threejs-materials`、`threejs-shaders`
+   - **高定界面、微交互与字幕**：`antialgorithm`、`frontend-design`、`emil-design-eng`、`choreograph`、`animate`、`mobile-native`、`break-ui`、`dialogue-systems`
+   - **质检与声效**：`threejs-debug-profiler`、`threejs-qa-release`、`threejs-audio-generator`、`audio-design`、`game-feel`、`game-ui-ux`
