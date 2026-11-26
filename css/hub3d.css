@@ -1,20 +1,18 @@
-/* 3D 客厅主基地与场景内互动 + 传送点（hub3d- 前缀） */
+/* 35mm 全画幅 3D 客厅取景器 · 黄铜项圈牌 & 打孔登机存根按钮（hub3d- 前缀） */
 .hub3d-wrap {
   width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 10px;
 }
 
 .hub3d-stage {
   position: relative;
   width: 100%;
-  height: min(74vh, 660px);
+  height: 100%;
   min-height: 440px;
-  border-radius: 28px;
   overflow: hidden;
-  background: linear-gradient(180deg, #E8EEF4 0%, #F5F1E8 100%);
-  box-shadow: var(--shadow-soft);
+  background: radial-gradient(circle at 55% 42%, #EAE5DA 0%, #D4CFC3 100%);
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
@@ -35,21 +33,56 @@
   z-index: 6;
 }
 
+/* 35mm 相机取景器四角标线 */
+.hub3d-viewfinder {
+  position: absolute;
+  inset: 14px;
+  z-index: 7;
+  pointer-events: none;
+}
+
+.vf-corner {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-color: rgba(21, 20, 23, 0.34);
+  border-style: solid;
+  border-width: 0;
+}
+
+.vf-tl { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px; }
+.vf-tr { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; }
+.vf-bl { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px; }
+.vf-br { bottom: 0; right: 0; border-bottom-width: 2px; border-right-width: 2px; }
+
+.vf-stamp {
+  position: absolute;
+  left: 4px;
+  bottom: 2px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: rgba(21, 20, 23, 0.56);
+  background: rgba(245, 239, 226, 0.72);
+  padding: 2px 7px;
+  border-radius: 3px;
+}
+
 .hub3d-vignette {
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 5;
-  transition: box-shadow 320ms ease, background 320ms ease;
+  transition: box-shadow 300ms ease, background 300ms ease;
 }
 
 .hub3d-vignette.is-warn {
-  box-shadow: inset 0 0 110px rgba(214, 66, 52, 0.72);
-  animation: hubWarnPulse 680ms ease-in-out infinite;
+  box-shadow: inset 0 0 110px rgba(201, 59, 43, 0.72);
+  animation: hubWarnPulse 640ms ease-in-out infinite;
 }
 
 .hub3d-vignette.is-sulk {
-  background: radial-gradient(circle at 50% 45%, rgba(74, 108, 148, 0.08), rgba(22, 36, 56, 0.34));
+  background: radial-gradient(circle at 50% 45%, rgba(44, 72, 108, 0.1), rgba(14, 22, 34, 0.42));
 }
 
 @keyframes hubWarnPulse {
@@ -66,12 +99,13 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background: rgba(249, 247, 242, 0.84);
+  background: rgba(24, 23, 27, 0.88);
   backdrop-filter: blur(12px);
-  color: var(--ink);
+  color: #F5EFE2;
   font-size: 14px;
-  font-weight: 600;
-  transition: opacity 320ms ease;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  transition: opacity 280ms ease;
 }
 
 .hub3d-loading.is-hidden {
@@ -83,96 +117,177 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 8;
-  transition: opacity 260ms ease;
+  z-index: 9;
+  transition: opacity 240ms ease;
 }
 
 .hub3d-pins.is-hidden {
   opacity: 0;
 }
 
+/* 共同空间热区基础定位 */
 .hub3d-pin {
   position: absolute;
-  transform: translate(-50%, -50%);
   pointer-events: auto;
+  cursor: pointer;
+  border: 0;
+  background: none;
+  padding: 0;
+  font-family: var(--font-sans);
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+  transition: transform 130ms var(--ease-out), filter 150ms ease;
+}
+
+.hub3d-pin:active {
+  transform: translate(-50%, calc(-50% + 2px)) scale(0.97);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hub3d-pin:hover {
+    transform: translate(-50%, calc(-50% - 3px));
+  }
+}
+
+/* 形态 A：布鲁斯黄铜真丝项圈铭牌（客厅内陪伴互动） */
+.hub3d-charm {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 6px 12px 6px 9px;
-  border: 1px solid rgba(255, 255, 255, 0.78);
-  border-radius: 999px;
-  background: rgba(255, 253, 249, 0.88);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 8px 24px rgba(24, 34, 48, 0.16);
-  color: var(--ink);
-  font-family: var(--font-sans);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: transform 180ms var(--ease-out), background-color 180ms ease;
+  gap: 8px;
+  padding: 6px 11px 6px 8px;
+  border-radius: 4px 11px 11px 4px;
+  border: 1.5px solid #151417;
+  border-left: 5px solid #7D1E2E;
+  background: linear-gradient(145deg, #FCF7EC 0%, #EFE1BE 100%);
+  color: #151417;
+  box-shadow: 0 3px 0 #151417, 0 10px 22px rgba(20, 16, 12, 0.24);
 }
 
-.hub3d-pin:hover {
-  transform: translate(-50%, -56%) scale(1.04);
-  background: #FFFFFF;
+.hub3d-charm:active {
+  box-shadow: 0 1px 0 #151417, 0 4px 10px rgba(20, 16, 12, 0.2);
 }
 
-.hub3d-pin-dot {
-  width: 9px;
-  height: 9px;
+.charm-eyelet {
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
+  background: #DFBE7D;
+  border: 1.5px solid #151417;
   flex: 0 0 auto;
-  background: var(--burgundy);
-  box-shadow: 0 0 0 4px rgba(142, 41, 59, 0.18);
 }
 
-.hub3d-pin.is-teleport {
-  border-color: rgba(58, 107, 82, 0.35);
+.charm-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: rgba(125, 30, 46, 0.12);
+  color: #7D1E2E;
+  flex: 0 0 auto;
 }
 
-.hub3d-pin.is-teleport .hub3d-pin-dot {
-  background: var(--cypress);
-  box-shadow: 0 0 0 4px rgba(58, 107, 82, 0.18);
-}
-
-.hub3d-pin-text {
+.charm-body {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  line-height: 1.2;
+  line-height: 1.18;
 }
 
-.hub3d-pin-title {
+.charm-title {
   font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.charm-sub {
+  font-size: 10px;
   font-weight: 700;
+  color: #6B5326;
 }
 
-.hub3d-pin-sub {
-  font-size: 10.5px;
-  color: var(--ink-muted);
+/* 形态 B：打孔撕裂感登机/通行存根牌（点击传送门） */
+.hub3d-stub {
+  display: inline-flex;
+  align-items: stretch;
+  border-radius: 7px;
+  border: 1.5px solid #151417;
+  background: #16231D;
+  color: #F6F1E5;
+  overflow: hidden;
+  box-shadow: 0 3px 0 #151417, 0 12px 26px rgba(10, 14, 12, 0.34);
 }
 
-/* 布鲁斯 3D 头顶气泡独白（DeepSeek 文案驱动） */
+.hub3d-stub:active {
+  box-shadow: 0 1px 0 #151417;
+}
+
+.stub-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px 6px 9px;
+}
+
+.stub-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #DFBE7D;
+  flex: 0 0 auto;
+}
+
+.stub-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.15;
+}
+
+.stub-title {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.stub-sub {
+  font-size: 9.5px;
+  color: rgba(246, 241, 229, 0.72);
+}
+
+.stub-code {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  background: #DFBE7D;
+  color: #151417;
+  border-left: 1.5px dashed #151417;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+/* 布鲁斯头顶台词铭牌（接触印相旁白条） */
 .hub3d-speech {
   position: absolute;
   z-index: 10;
-  transform: translate(-50%, -100%) scale(0.92);
-  max-width: min(76vw, 270px);
-  padding: 8px 14px;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  background: rgba(255, 252, 245, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 10px 26px rgba(24, 34, 48, 0.16);
-  color: var(--ink);
+  transform: translate(-50%, -100%) scale(0.94);
+  max-width: min(76vw, 276px);
+  padding: 8px 13px;
+  border-radius: 8px;
+  border: 1.5px solid #151417;
+  background: #FAF5E8;
+  box-shadow: 3px 3px 0 #151417, 0 12px 24px rgba(0, 0, 0, 0.22);
+  color: #151417;
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.45;
   text-align: center;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 240ms ease, transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 210ms ease, transform 220ms var(--ease-out);
 }
 
 .hub3d-speech::after {
@@ -180,11 +295,11 @@
   position: absolute;
   left: 50%;
   bottom: -6px;
-  width: 10px;
-  height: 10px;
-  background: rgba(255, 252, 245, 0.92);
-  border-right: 1px solid rgba(255, 255, 255, 0.85);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.85);
+  width: 9px;
+  height: 9px;
+  background: #FAF5E8;
+  border-right: 1.5px solid #151417;
+  border-bottom: 1.5px solid #151417;
   transform: translateX(-50%) rotate(45deg);
 }
 
@@ -194,46 +309,73 @@
 }
 
 .hub3d-speech.is-sulk {
-  background: rgba(26, 36, 52, 0.88);
-  border-color: rgba(180, 206, 238, 0.36);
-  color: #EAF2FC;
+  background: #1C2634;
+  border-color: #93B5DB;
+  color: #EDF4FC;
+  box-shadow: 3px 3px 0 #0B111A;
 }
 
 .hub3d-speech.is-sulk::after {
-  background: rgba(26, 36, 52, 0.88);
-  border-right-color: rgba(180, 206, 238, 0.36);
-  border-bottom-color: rgba(180, 206, 238, 0.36);
+  background: #1C2634;
+  border-right-color: #93B5DB;
+  border-bottom-color: #93B5DB;
 }
 
-/* 右下角视角复位与左上角状态 */
+/* 右下角镜头归中物理按键 + 底部操作条 */
 .hub3d-reset-btn {
   position: absolute;
-  right: 14px;
-  bottom: 14px;
-  z-index: 9;
-  padding: 7px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.65);
-  background: rgba(255, 253, 249, 0.85);
-  backdrop-filter: blur(14px);
-  color: var(--ink);
-  font-size: 12.5px;
-  font-weight: 600;
+  right: 18px;
+  bottom: 18px;
+  z-index: 11;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 7px;
+  border: 1.5px solid #151417;
+  background: #F5EFE2;
+  color: #151417;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 800;
   cursor: pointer;
-  box-shadow: var(--shadow-pill);
+  box-shadow: 0 3px 0 #151417, 0 8px 18px rgba(0, 0, 0, 0.22);
+  transition: transform 110ms var(--ease-out), box-shadow 110ms var(--ease-out);
+}
+
+.hub3d-reset-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #151417;
 }
 
 .hub3d-hint {
-  text-align: center;
-  font-size: 12.5px;
-  color: var(--ink-muted);
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 10;
+  padding: 4px 12px;
+  border-radius: 5px;
+  background: rgba(21, 20, 23, 0.72);
+  color: #F5EFE2;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+body.is-hub3d-act .hub3d-hint,
+body.is-hub3d-act .hub3d-viewfinder .vf-stamp {
+  opacity: 0;
 }
 
 /* 客厅内 3D 近景互动 UI 叠层 */
 .hub3d-act-overlay {
   position: absolute;
   inset: 0;
-  z-index: 12;
+  z-index: 25;
   display: none;
   pointer-events: auto;
   touch-action: none;
@@ -260,29 +402,38 @@
 }
 
 .hub3d-glass-pill {
-  border: 1px solid rgba(255, 255, 255, 0.36);
-  border-radius: 999px;
-  background: rgba(22, 26, 32, 0.64);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  color: #FFFDF8;
-  font-size: 12.5px;
-  font-weight: 600;
-  padding: 7px 14px;
+  border: 1.5px solid #151417;
+  border-radius: 7px;
+  background: #F5EFE2;
+  color: #151417;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 800;
+  padding: 7px 13px;
   cursor: pointer;
+  box-shadow: 0 3px 0 #151417;
+  transition: transform 110ms var(--ease-out), box-shadow 110ms var(--ease-out);
+}
+
+.hub3d-glass-pill:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #151417;
 }
 
 .hub3d-act-prompt {
   position: absolute;
-  top: 62px;
+  top: 14px;
   left: 50%;
   transform: translateX(-50%);
-  width: min(88vw, 480px);
+  width: min(56vw, 420px);
   text-align: center;
-  font-size: 14.5px;
-  font-weight: 700;
-  color: #FFFFFF;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.75);
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #FFFDF8;
+  padding: 6px 14px;
+  border-radius: 6px;
+  background: rgba(21, 20, 23, 0.8);
+  border: 1px solid rgba(223, 190, 125, 0.52);
   pointer-events: none;
 }
 
@@ -295,20 +446,21 @@
   height: 50%;
   max-width: 400px;
   border-radius: 50%;
-  border: 1.5px dashed rgba(255, 240, 200, 0.45);
-  background: radial-gradient(circle, rgba(255, 232, 180, 0.08), transparent 70%);
+  border: 1.5px dashed rgba(223, 190, 125, 0.65);
+  background: radial-gradient(circle, rgba(223, 190, 125, 0.08), transparent 70%);
   pointer-events: none;
 }
 
 .hub3d-progress {
   position: absolute;
-  bottom: 26px;
+  bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
   width: min(64%, 280px);
-  height: 6px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.28);
+  height: 10px;
+  border-radius: 4px;
+  border: 1.5px solid #151417;
+  background: rgba(21, 20, 23, 0.68);
   overflow: hidden;
   pointer-events: none;
 }
@@ -316,25 +468,36 @@
 .hub3d-progress-fill {
   width: 0%;
   height: 100%;
-  background: linear-gradient(90deg, #F4C86A, #FFE8AF);
+  background: linear-gradient(90deg, #D99B3B, #F8DC94);
   transition: width 70ms linear;
 }
 
+/* 警戒拉环条纹开关（DRYER / SPEAKER） */
 .hub3d-hazard-btn {
   position: absolute;
-  right: 16px;
-  bottom: 56px;
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 190, 180, 0.5);
-  background: rgba(132, 34, 28, 0.72);
-  backdrop-filter: blur(14px);
-  color: #FFEAE6;
+  right: 18px;
+  bottom: 54px;
+  padding: 12px 14px 8px;
+  border-radius: 7px;
+  border: 1.5px solid #151417;
+  background:
+    repeating-linear-gradient(-45deg, #E8553F 0 6px, #241918 6px 12px) top / 100% 7px no-repeat,
+    #8C221A;
+  color: #FFF3EE;
+  font-family: var(--font-sans);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
+  box-shadow: 0 3px 0 #151417, 0 8px 18px rgba(0, 0, 0, 0.3);
+  transition: transform 110ms var(--ease-out), box-shadow 110ms var(--ease-out);
 }
 
+.hub3d-hazard-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #151417;
+}
+
+/* 黑胶台琴键按钮（TOWEL / BLANKET / VINYL） */
 .hub3d-props-row {
   position: absolute;
   bottom: 22px;
@@ -344,44 +507,57 @@
   gap: 10px;
   flex-wrap: wrap;
   justify-content: center;
-  width: min(94%, 460px);
+  width: min(94%, 480px);
 }
 
 .hub3d-prop-btn {
-  padding: 9px 16px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.36);
-  background: rgba(22, 26, 32, 0.68);
-  backdrop-filter: blur(14px);
-  color: #FFFDF8;
-  font-size: 12.5px;
-  font-weight: 700;
+  padding: 12px 15px 9px;
+  border-radius: 7px;
+  border: 1.5px solid #09080A;
+  background:
+    linear-gradient(90deg, #DFBE7D, #DFBE7D) top / 100% 4px no-repeat,
+    #1B1A20;
+  color: #F6F1E5;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
   cursor: pointer;
+  box-shadow: 0 4px 0 #09080A, 0 10px 20px rgba(0, 0, 0, 0.32);
+  transition: transform 110ms var(--ease-out), box-shadow 110ms var(--ease-out), opacity 160ms ease;
+}
+
+.hub3d-prop-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #09080A;
 }
 
 .hub3d-prop-btn.is-done {
   opacity: 0.35;
   pointer-events: none;
+  box-shadow: 0 1px 0 #09080A;
+  transform: translateY(3px);
 }
 
 .hub3d-ball-btn {
   position: absolute;
   left: 50%;
-  bottom: 30px;
+  bottom: 28px;
   transform: translateX(-50%);
-  width: 62px;
-  height: 62px;
+  width: 66px;
+  height: 66px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  background: radial-gradient(circle at 35% 30%, #EEFF8C, #A6C82B);
-  color: #243210;
+  border: 2px solid #151417;
+  background:
+    radial-gradient(circle at 35% 28%, #F3FF96, #9EC422);
+  color: #1F2B0B;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 900;
   display: grid;
   place-items: center;
   cursor: grab;
   touch-action: none;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.38);
+  box-shadow: 0 4px 0 #151417, 0 12px 24px rgba(0, 0, 0, 0.38);
 }
 
 .hub3d-phone-banner {
@@ -389,20 +565,20 @@
   top: 10px;
   left: 50%;
   transform: translate(-50%, -140%);
-  z-index: 18;
+  z-index: 28;
   width: min(56%, 290px);
   padding: 9px 13px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background: rgba(24, 27, 32, 0.88);
-  backdrop-filter: blur(20px);
+  border-radius: 10px;
+  border: 1.5px solid #DFBE7D;
+  background: #161519;
   color: #FFFFFF;
   display: flex;
   align-items: center;
   gap: 10px;
   text-align: left;
   cursor: pointer;
-  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42);
+  transition: transform 300ms var(--ease-out);
 }
 
 .hub3d-phone-banner.is-shown {
@@ -412,7 +588,7 @@
 .hub3d-phone-app {
   width: 32px;
   height: 32px;
-  border-radius: 9px;
+  border-radius: 7px;
   background: linear-gradient(135deg, #3D7EFF, #2856D6);
   display: grid;
   place-items: center;
@@ -428,13 +604,13 @@
 }
 
 .hub3d-phone-title {
-  font-size: 10.5px;
-  color: rgba(255, 255, 255, 0.72);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.68);
 }
 
 .hub3d-phone-text {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12.5px;
+  font-weight: 700;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -443,20 +619,19 @@
 .hub3d-settle {
   position: absolute;
   left: 50%;
-  bottom: 16px;
+  bottom: 20px;
   transform: translate(-50%, 16px);
-  z-index: 20;
+  z-index: 30;
   width: min(92%, 440px);
   padding: 16px 18px;
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.32);
-  background: rgba(22, 26, 30, 0.84);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  color: #FFFDF8;
+  border-radius: 12px;
+  border: 1.5px solid #DFBE7D;
+  background: #17161B;
+  color: #F6F1E5;
+  box-shadow: 0 6px 0 #0A090B, 0 22px 48px rgba(0, 0, 0, 0.45);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 280ms ease, transform 280ms ease;
+  transition: opacity 240ms ease, transform 240ms var(--ease-out);
 }
 
 .hub3d-settle.is-visible {
@@ -473,13 +648,13 @@
 }
 
 .hub3d-settle-delta {
-  font-size: 22px;
-  font-weight: 800;
-  color: #F6D892;
+  font-size: 26px;
+  font-weight: 900;
+  color: #DFBE7D;
 }
 
 .hub3d-settle-delta.is-neg {
-  color: #FF8E82;
+  color: #FF7B6B;
 }
 
 .hub3d-settle-line {
@@ -490,7 +665,7 @@
 
 .hub3d-settle-status {
   font-size: 12px;
-  color: rgba(255, 248, 232, 0.74);
+  color: rgba(246, 241, 229, 0.72);
   margin-bottom: 12px;
 }
 
@@ -505,13 +680,13 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 22;
+  z-index: 32;
   padding: 18px 26px;
-  border-radius: 24px;
-  background: rgba(22, 26, 30, 0.82);
-  border: 1.5px solid rgba(246, 216, 146, 0.7);
-  backdrop-filter: blur(20px);
-  color: #FFFDF8;
+  border-radius: 12px;
+  background: #17161B;
+  border: 2px solid #DFBE7D;
+  box-shadow: 0 6px 0 #09080A, 0 24px 60px rgba(0, 0, 0, 0.55);
+  color: #F6F1E5;
   text-align: center;
   display: none;
 }
@@ -521,9 +696,9 @@
 }
 
 .hub3d-swap-num {
-  font-size: 42px;
-  font-weight: 800;
-  color: #FFE7A8;
+  font-size: 44px;
+  font-weight: 900;
+  color: #DFBE7D;
 }
 
 /* 环球旅行传送弹窗标签页 */
@@ -536,40 +711,73 @@
 
 .tp-tab {
   padding: 7px 13px;
-  border-radius: 999px;
-  border: 1px solid var(--hairline);
-  background: var(--bg-soft);
-  color: var(--ink);
+  border-radius: 6px;
+  border: 1.5px solid #151417;
+  background: #EDE4D1;
+  color: #151417;
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
+  box-shadow: 0 2px 0 #151417;
 }
 
 .tp-tab.is-active {
-  background: var(--burgundy);
-  color: #FFFFFF;
-  border-color: var(--burgundy);
+  background: #7D1E2E;
+  color: #FFF8EC;
 }
 
-@media (max-width: 560px) {
-  .hub3d-stage {
-    height: 66vh;
-    min-height: 400px;
-    border-radius: 22px;
+@media (max-width: 640px) {
+  .hub3d-viewfinder {
+    inset: 8px;
   }
-  .hub3d-pin {
-    padding: 4px 9px 4px 7px;
+  .vf-stamp {
+    display: none;
+  }
+  .hub3d-charm {
+    padding: 5px 8px 5px 6px;
     gap: 5px;
   }
-  .hub3d-pin-title {
+  .charm-icon {
+    width: 20px;
+    height: 20px;
+  }
+  .charm-title {
     font-size: 11px;
   }
-  .hub3d-pin-sub {
+  .charm-sub {
     display: none;
+  }
+  .stub-main {
+    padding: 5px 7px;
+    gap: 5px;
+  }
+  .stub-title {
+    font-size: 11px;
+  }
+  .stub-sub {
+    display: none;
+  }
+  .stub-code {
+    padding: 0 6px;
+    font-size: 9px;
   }
   .hub3d-speech {
     font-size: 11.5px;
-    padding: 6px 11px;
-    max-width: min(72vw, 220px);
+    padding: 6px 10px;
+    max-width: min(72vw, 224px);
+  }
+  .hub3d-hint {
+    display: none;
+  }
+  .hub3d-reset-btn {
+    right: 12px;
+    bottom: 12px;
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+  .hub3d-act-prompt {
+    top: 56px;
+    width: min(88vw, 340px);
+    font-size: 12.5px;
   }
 }

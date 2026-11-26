@@ -139,7 +139,10 @@ for f in js/*.js js/theater/*.js functions/api/*.js; do node --check "$f" || exi
    - **客厅内 3 项近景陪伴**（无需切屏，直接在 3D 客厅拉近运镜游玩）：`home_brush`（阳光顺毛）、`home_rain_vinyl`（雨窗擦爪盖毯听黑胶）、`home_hide_seek`（3D 网球物理弹跳抛球寻宝），统一结算幸福指数、冷战氛围切换与高位换分金色光环。
    - **3 处点击传送热区**：`出门 · 林荫小街`（跳至街区双幕剧场，支持一键`返回 3D 客厅`）、`传送 · 会员超市`（二期预留弹窗）、`传送 · 环球旅行`（北欧峡湾 / 阳光海岸 / 雪山牧场 / 白帆游艇四标签弹窗）。
    - **后续扩充新 3D 场景指南**：只需将轻量 `.glb` 放入 `assets/models/` 并在 `js/map.js` 的 `onTeleportWarehouse` / `onTeleportGlobal` / `street` 中挂载对应新场景模块即可平滑替换。
-3. **DeepSeek API 实时角色内心戏工厂（`scripts/gen_hub_deepseek.py` → `data/hub_deepseek.json`）**：
-   - 构建期离线读取本地 `.env` 调用 `deepseek-chat`（前端零暴露 Key，且经过禁词正则校对），产出 `thought_bubbles`（开心发呆、冷战哼唧、戳一戳互动、顺毛享受、飞机耳、雨窗、追球 8 组场景气泡）、`portal_hover`（传送门悬停感应词）和 `destination_wishes`（5 个远方目的地第一人称心愿单）。
-   - 在 3D 客厅中可直接**点击布鲁斯本体**触发实时头顶气泡独白，并在传送弹窗内查看布鲁斯的第一人称心愿。
+3. **DeepSeek API 实时角色内心戏与全量文案工厂（`gen_hub_deepseek.py` / `gen_content_deepseek.py`）**：
+   - [scripts/gen_hub_deepseek.py](./scripts/gen_hub_deepseek.py) 生成 [data/hub_deepseek.json](./data/hub_deepseek.json)，负责 3D 客厅头顶投影气泡独白（8 组心情/动作）、传送门悬停感应台词及 5 个远方目的地第一人称心愿单；
+   - [scripts/gen_content_deepseek.py](./scripts/gen_content_deepseek.py) 已升级为分模块三段调用并产出 `v3` 版 [data/content.json](./data/content.json)（10 个活动共 60 条胜利台词 + 80 条分心/踩雷台词、24 条英文手机弹窗、32 条吃瓜模板、17 条哄狗台词），全量经过禁词校验且前端零暴露 Key。
+4. **35mm 全画幅取景器与实物质感 UI（已推翻旧胶囊壳重构）**：
+   - [index.html](./index.html)、[css/style.css](./css/style.css)、[css/hub3d.css](./css/hub3d.css)：在 `is-hub3d-view` 下升级为 `100vw × 100dvh` 35mm 取景器全画幅 3D 客厅，配备左上方**酒红斜纹真丝领巾身份牌**、中上方**黑底翻牌幸福计分器**、**带物理按压行程的机械按键**；
+   - 客厅 3D 热区彻底抛弃白胶囊，替换为**黄铜眼孔+酒红竖边项圈铭牌**（陪伴互动）与**深林黑金撕裂虚线打孔登机存根**（街区/超市/环球传送门），并适配移动端宽视场（`FOV 64°`）同屏显示全 6 个热区与零 `404` 街区海报回退。
 

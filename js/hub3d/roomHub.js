@@ -39,12 +39,57 @@ const ACTIVITY_DEFS = {
 };
 
 const HOTSPOTS = [
-  { id: "home_brush", kind: "act", title: "阳光顺毛", sub: "+11 分", pos: [2.75, 2.7, 2.2] },
-  { id: "home_rain_vinyl", kind: "act", title: "雨窗黑胶", sub: "+12 分", pos: [-3.4, 4.4, -7.8] },
-  { id: "home_hide_seek", kind: "act", title: "客厅抛球", sub: "+12 分 · 12% 换分", pos: [-2.2, 1.4, 2.4] },
-  { id: "street", kind: "teleport", title: "出门 · 林荫小街", sub: "点击传送", pos: [5.4, 3.8, -1.2] },
-  { id: "warehouse", kind: "teleport", title: "传送 · 会员超市", sub: "二期区域", pos: [-4.4, 3.3, -2.0] },
-  { id: "global", kind: "teleport", title: "传送 · 环球旅行", sub: "北欧 / 海岸 / 雪山 / 游艇", pos: [-4.2, 7.6, -6.5] },
+  {
+    id: "home_brush",
+    kind: "act",
+    title: "阳光顺毛",
+    sub: "+11 分 · 丝毛护理",
+    pos: [2.75, 2.7, 2.2],
+    icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 19l11-11"/><path d="M13 5l6 6"/><path d="M11 7l5 5"/><path d="M9 9l5 5"/><path d="M18 3v2M21 6h-2"/></svg>`,
+  },
+  {
+    id: "home_rain_vinyl",
+    kind: "act",
+    title: "雨窗黑胶",
+    sub: "+12 分 · 33RPM",
+    pos: [-3.4, 4.4, -7.8],
+    icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.2"/><path d="M18 5l-3 5" stroke-linecap="round"/></svg>`,
+  },
+  {
+    id: "home_hide_seek",
+    kind: "act",
+    title: "客厅抛球",
+    sub: "+12 分 · 12% 换分",
+    pos: [-2.2, 1.4, 2.4],
+    icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M6.5 7.5c3 3 3 6 0 9M17.5 7.5c-3 3-3 6 0 9"/></svg>`,
+  },
+  {
+    id: "street",
+    kind: "teleport",
+    title: "出门 · 林荫小街",
+    sub: "双幕剧场探索",
+    code: "OUT·01",
+    pos: [4.8, 3.8, -1.2],
+    icon: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 10l2-5h12l2 5"/><path d="M5 10v9h14v-9"/><path d="M10 19v-5h4v5"/></svg>`,
+  },
+  {
+    id: "warehouse",
+    kind: "teleport",
+    title: "传送 · 会员超市",
+    sub: "二期冷柜试吃",
+    code: "CLB·02",
+    pos: [-5.6, 3.3, -2.2],
+    icon: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/><path d="M3 5h3l2.2 10h9.8l2-7H7"/></svg>`,
+  },
+  {
+    id: "global",
+    kind: "teleport",
+    title: "传送 · 环球旅行",
+    sub: "北欧 / 海岸 / 游艇",
+    code: "FLY·04",
+    pos: [-4.2, 7.6, -6.5],
+    icon: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 2l2.6 7.4L22 12l-7.4 2.6L12 22l-2.6-7.4L2 12l7.4-2.6z"/></svg>`,
+  },
 ];
 
 function pickRandom(arr, fallback = "") {
@@ -100,6 +145,9 @@ export function mountLivingRoomHub(container, opts = {}) {
   let happiness = opts.happiness ?? 100;
   let hubCopy = DEFAULT_HUB_COPY;
 
+  document.body.classList.add("is-hub3d-view");
+  document.body.classList.remove("is-hub3d-act");
+
   fetch("./data/hub_deepseek.json")
     .then((r) => (r.ok ? r.json() : null))
     .then((json) => {
@@ -134,9 +182,16 @@ export function mountLivingRoomHub(container, opts = {}) {
         <canvas class="hub3d-canvas"></canvas>
         <div class="hub3d-vignette ${sulking ? "is-sulk" : ""}"></div>
         <canvas class="hub3d-fx-canvas" aria-hidden="true"></canvas>
+        <div class="hub3d-viewfinder" aria-hidden="true">
+          <span class="vf-corner vf-tl"></span>
+          <span class="vf-corner vf-tr"></span>
+          <span class="vf-corner vf-bl"></span>
+          <span class="vf-corner vf-br"></span>
+          <span class="vf-stamp">35MM · BRUCE LOFT · F/2.0</span>
+        </div>
         <div class="hub3d-pins"></div>
         <div class="hub3d-speech" aria-live="polite"></div>
-        <button type="button" class="hub3d-reset-btn">复位视角</button>
+        <button type="button" class="hub3d-reset-btn">⌖ 归中视角</button>
 
         <div class="hub3d-act-overlay">
           <div class="hub3d-act-top">
@@ -434,19 +489,33 @@ export function mountLivingRoomHub(container, opts = {}) {
   }, 7000);
   cleanups.push(() => clearInterval(idleTimerId));
 
-  // 3D hotspot pill DOM elements
+  // 3D hotspot artifacts (charms & boarding stubs)
   const pinItems = HOTSPOTS.map((spot) => {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = `hub3d-pin ${spot.kind === "teleport" ? "is-teleport" : "is-act"}`;
+    btn.className = `hub3d-pin ${spot.kind === "teleport" ? "hub3d-stub" : "hub3d-charm"}`;
     btn.setAttribute("data-spot", spot.id);
-    btn.innerHTML = `
-      <span class="hub3d-pin-dot"></span>
-      <span class="hub3d-pin-text">
-        <span class="hub3d-pin-title">${spot.title}</span>
-        <span class="hub3d-pin-sub">${spot.sub}</span>
-      </span>
-    `;
+    if (spot.kind === "teleport") {
+      btn.innerHTML = `
+        <span class="stub-main">
+          <span class="stub-icon">${spot.icon}</span>
+          <span class="stub-text">
+            <span class="stub-title">${spot.title}</span>
+            <span class="stub-sub">${spot.sub}</span>
+          </span>
+        </span>
+        <span class="stub-code">${spot.code}</span>
+      `;
+    } else {
+      btn.innerHTML = `
+        <span class="charm-eyelet"></span>
+        <span class="charm-icon">${spot.icon}</span>
+        <span class="charm-body">
+          <span class="charm-title">${spot.title}</span>
+          <span class="charm-sub">${spot.sub}</span>
+        </span>
+      `;
+    }
     pinsLayer.appendChild(btn);
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -501,7 +570,8 @@ export function mountLivingRoomHub(container, opts = {}) {
 
     pinItems.forEach(({ spot, btn }) => {
       if (spot.kind === "act") {
-        btn.querySelector(".hub3d-pin-sub").textContent = sulking ? "先哄好布鲁斯" : spot.sub;
+        const subEl = btn.querySelector(".charm-sub");
+        if (subEl) subEl.textContent = sulking ? "先哄好布鲁斯" : spot.sub;
       }
     });
   }
@@ -544,6 +614,7 @@ export function mountLivingRoomHub(container, opts = {}) {
     actCleanup?.();
     actCleanup = null;
     activeActId = null;
+    document.body.classList.remove("is-hub3d-act");
     tennisBall.visible = false;
     swapRingsGroup.visible = false;
     swapBanner.classList.remove("is-visible");
@@ -582,6 +653,7 @@ export function mountLivingRoomHub(container, opts = {}) {
 
     actCleanup?.();
     activeActId = actId;
+    document.body.classList.add("is-hub3d-act");
     if (speechTimer) {
       clearTimeout(speechTimer);
       timers.delete(speechTimer);
@@ -1113,11 +1185,13 @@ export function mountLivingRoomHub(container, opts = {}) {
     prevNow = now;
     const elapsed = now / 1000;
 
-    // Resize renderer & fx canvas
+    // Resize renderer & fx canvas (+ adapt FOV on portrait screens so all 6 pins stay framed)
     const w = Math.max(300, stageEl.clientWidth);
     const h = Math.max(240, stageEl.clientHeight);
-    if (canvas.width !== Math.round(w * renderer.getPixelRatio()) || canvas.height !== Math.round(h * renderer.getPixelRatio())) {
+    const desiredFov = w < 640 ? 64 : 48;
+    if (canvas.width !== Math.round(w * renderer.getPixelRatio()) || canvas.height !== Math.round(h * renderer.getPixelRatio()) || camera.fov !== desiredFov) {
       renderer.setSize(w, h, false);
+      camera.fov = desiredFov;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
     }
@@ -1190,7 +1264,8 @@ export function mountLivingRoomHub(container, opts = {}) {
     bruce.update(dt, elapsed);
     renderer.render(scene, camera);
 
-    // Project Bruce speech bubble above head
+    // Project Bruce speech bubble above head (clamped safely below HUD)
+    const minPinTop = w < 640 ? 158 : 116;
     if (speechEl) {
       const hideForSettle = settleEl.classList.contains("is-visible") || swapBanner.classList.contains("is-visible");
       speechVec.set(bruce.root.position.x, bruce.root.position.y + 3.05, bruce.root.position.z).project(camera);
@@ -1199,14 +1274,14 @@ export function mountLivingRoomHub(container, opts = {}) {
       } else {
         const bx = (speechVec.x * 0.5 + 0.5) * w;
         const by = (-speechVec.y * 0.5 + 0.5) * h;
-        const halfSpeechW = Math.max(96, (speechEl.offsetWidth || 220) * 0.5 + 10);
+        const halfSpeechW = Math.max(96, (speechEl.offsetWidth || 220) * 0.5 + 12);
         speechEl.style.display = "";
         speechEl.style.left = `${THREE.MathUtils.clamp(bx, halfSpeechW, Math.max(halfSpeechW, w - halfSpeechW))}px`;
-        speechEl.style.top = `${THREE.MathUtils.clamp(by, 68, h - 24)}px`;
+        speechEl.style.top = `${THREE.MathUtils.clamp(by, minPinTop + 26, h - 28)}px`;
       }
     }
 
-    // Project 3D hotspots to 2D overlay
+    // Project 3D hotspots to 2D overlay (clamped safely away from floating HUD)
     if (!activeActId) {
       pinItems.forEach(({ world, btn }) => {
         projVec.copy(world).project(camera);
@@ -1221,9 +1296,9 @@ export function mountLivingRoomHub(container, opts = {}) {
           return;
         }
         btn.style.display = "";
-        const halfW = Math.max(48, (btn.offsetWidth || 120) * 0.5 + 10);
+        const halfW = Math.max(52, (btn.offsetWidth || 120) * 0.5 + 12);
         btn.style.left = `${THREE.MathUtils.clamp(sx, halfW, Math.max(halfW, w - halfW))}px`;
-        btn.style.top = `${THREE.MathUtils.clamp(sy, 28, h - 28)}px`;
+        btn.style.top = `${THREE.MathUtils.clamp(sy, minPinTop, h - 54)}px`;
       });
     }
 
@@ -1279,6 +1354,7 @@ export function mountLivingRoomHub(container, opts = {}) {
     destroy() {
       if (destroyed) return;
       destroyed = true;
+      document.body.classList.remove("is-hub3d-view", "is-hub3d-act");
       if (rafId) cancelAnimationFrame(rafId);
       actCleanup?.();
       timers.forEach((t) => clearTimeout(t));

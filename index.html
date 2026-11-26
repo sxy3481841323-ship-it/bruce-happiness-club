@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="布鲁斯日常 · 3D 阳光客厅互动与全服幸福指数俱乐部" />
+  <meta name="theme-color" content="#151417" />
   <title>布鲁斯日常 · 幸福指数俱乐部</title>
   <link rel="icon" href="data:," />
   <link rel="stylesheet" href="./css/style.css" />
@@ -11,18 +13,18 @@
   <link rel="stylesheet" href="./css/hub3d.css" />
 </head>
 <body class="mood-happy">
-  <!-- 顶部悬浮吃瓜滚动条 -->
+  <!-- 顶部俱乐部实况滚动条 -->
   <header class="ticker-bar" aria-label="全服吃瓜公告">
     <span class="ticker-dot"></span>
-    <span class="ticker-label">吃瓜现场</span>
+    <span class="ticker-label">CLUB · 实况</span>
     <div class="ticker-viewport">
       <div class="ticker-track" id="ticker-track">
-        <span class="ticker-item">正在连接布鲁斯的阳光小院……</span>
+        <span class="ticker-item">正在连接布鲁斯的 3D 阳光客厅……</span>
       </div>
     </div>
   </header>
 
-  <!-- 悬浮磨砂胶囊 HUD -->
+  <!-- 解耦式物理手感 HUD（丝巾身份签 · 翻牌计分器 · 机械按键） -->
   <nav class="hud-bar">
     <div class="hud-identity">
       <div class="avatar-pair">
@@ -38,31 +40,33 @@
       </div>
     </div>
 
-    <div class="hud-score-pill">
-      <span class="score-label">幸福指数</span>
+    <div class="hud-score-pill" title="幸福指数 = 排行榜分数 = 冷战期唯一消费货币">
+      <div class="score-flap-head">
+        <span class="score-label">HAPPINESS · 幸福指数</span>
+        <span class="score-rank" id="hud-rank">#--</span>
+      </div>
       <span class="score-value" id="hud-score">100</span>
-      <span class="score-rank" id="hud-rank">#--</span>
     </div>
 
     <div class="hud-actions">
-      <button class="btn-pill" id="btn-nav-map" type="button">客厅</button>
-      <button class="btn-pill hidden" id="btn-nav-shop" type="button">急救零食</button>
-      <button class="btn-pill btn-primary" id="btn-nav-board" type="button">排行榜</button>
-      <button class="btn-pill" id="btn-sound-toggle" type="button">音效</button>
+      <button class="btn-pill keycap" id="btn-nav-map" type="button">客厅</button>
+      <button class="btn-pill keycap hidden" id="btn-nav-shop" type="button">急救零食</button>
+      <button class="btn-pill keycap btn-primary" id="btn-nav-board" type="button">排行榜</button>
+      <button class="btn-pill keycap" id="btn-sound-toggle" type="button">音效</button>
     </div>
   </nav>
 
-  <!-- 全画幅主舞台 -->
+  <!-- 主舞台 -->
   <main class="stage-wrap" id="stage-wrap">
-    <!-- 低于 80 分冷战柔和提示条 -->
+    <!-- 低于 80 分冷战提示牌 -->
     <section class="anhedonia-banner hidden" id="anhedonia-banner">
       <div class="anhedonia-inner">
         <img src="./assets/img/bruce_sulk.jpg" alt="布鲁斯冷战中" class="anhedonia-thumb" />
         <div class="anhedonia-copy">
-          <strong>布鲁斯跌破 80 分 · 冷战中</strong>
-          <p>它暂时感受不到陪玩的快乐，请花幸福指数买零食哄回 80 分以上；买不起饼干（5 分）可看小视频拉回 80 分。</p>
+          <strong>布鲁斯跌破 80 分 · 冷战锁死</strong>
+          <p>它暂时感受不到陪玩的快乐，请去急救柜花幸福指数买零食哄回 80 分；不足 5 分可看小视频救命。</p>
         </div>
-        <button class="btn-pill btn-primary" id="btn-open-shop-banner" type="button">去零食急救柜</button>
+        <button class="btn-pill btn-primary" id="btn-open-shop-banner" type="button">开零食急救柜</button>
       </div>
     </section>
 
@@ -71,15 +75,15 @@
     <section class="view-section hidden" id="view-shop"></section>
   </main>
 
-  <!-- 排行榜柔光侧边抽屉 -->
+  <!-- 排行榜档案侧栏 -->
   <aside class="drawer-backdrop hidden" id="leaderboard-drawer" aria-hidden="true">
     <div class="drawer-panel">
       <div class="drawer-head">
         <div>
-          <span class="modal-pill-tag">实时排行榜</span>
-          <h2>同学幸福指数榜</h2>
+          <span class="modal-pill-tag">BOARD · 实时排名</span>
+          <h2>幸福指数俱乐部榜</h2>
         </div>
-        <button class="btn-pill" id="btn-close-board" type="button">关闭</button>
+        <button class="btn-pill" id="btn-close-board" type="button">收起</button>
       </div>
       <div class="swap-rule-note" id="swap-pool-note">
         高位交换规则：只从排在你前面的玩家中抽取，第 1 名概率最低，越往下越容易被翻牌换分。
@@ -91,13 +95,13 @@
     </div>
   </aside>
 
-  <!-- 开局选角 & 唯一中文昵称弹窗 -->
+  <!-- 开局登记卡片 -->
   <div class="modal-backdrop" id="onboarding-modal">
     <div class="modal-card onboarding-card">
       <div class="onboarding-head">
-        <span class="modal-pill-tag">奶油长毛腊肠 · 布鲁斯</span>
-        <h1>欢迎来到布鲁斯的阳光小院</h1>
-        <p class="sub-copy">初始 100 分幸福指数既是你的排行榜成绩，也是低于 80 分时买零食哄狗的唯一货币。</p>
+        <span class="modal-pill-tag">NO.01 · 领巾入籍卡</span>
+        <h1>推开 3D 客厅大门，领布鲁斯回家</h1>
+        <p class="sub-copy">初始 100 分幸福指数既是你的排名分数，也是低于 80 分冷战时买零食哄狗的唯一货币。</p>
       </div>
 
       <div class="owner-picker">
@@ -117,23 +121,23 @@
 
       <form id="onboarding-form" class="onboarding-form" novalidate>
         <div class="field-group">
-          <label for="input-nickname">排行榜昵称（全服唯一 · 至少含 1 个汉字）</label>
-          <input id="input-nickname" type="text" maxlength="12" placeholder="例如：早八起不来星人" autocomplete="off" required />
+          <label for="input-nickname">俱乐部昵称（全服唯一 · 至少含 1 个汉字）</label>
+          <input id="input-nickname" type="text" maxlength="12" placeholder="例如：冰美式续命侠" autocomplete="off" required />
           <small class="field-hint">不可重名，且不能是纯数字或纯英文字母。</small>
         </div>
 
         <div class="field-group">
-          <label for="input-pin">4 位数字暗号（防冒用 / 换设备找回）</label>
+          <label for="input-pin">4 位门锁暗号（防冒用 / 跨设备找回）</label>
           <input id="input-pin" type="password" inputmode="numeric" maxlength="4" pattern="\d{4}" placeholder="4 位数字，如 2026" required />
         </div>
 
         <p class="form-error hidden" id="onboarding-error"></p>
-        <button class="btn-pill btn-primary btn-block" id="btn-enter-game" type="submit">推开门 · 领布鲁斯回家</button>
+        <button class="btn-pill btn-primary btn-block" id="btn-enter-game" type="submit">拧开铜门锁 · 进入 3D 客厅</button>
       </form>
     </div>
   </div>
 
-  <!-- 通用柔光弹窗 -->
+  <!-- 通用弹窗 -->
   <div class="modal-backdrop hidden" id="generic-modal">
     <div class="modal-card" id="generic-modal-card"></div>
   </div>

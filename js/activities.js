@@ -131,7 +131,7 @@ export function renderSceneView(container, sceneType) {
               <div class="lobby-poster-wrap ${scene.tintClass}">
                 <img
                   class="lobby-poster"
-                  src="${clips.poster}"
+                  src="${window.BRUCE_CUSTOM_CLIPS === true ? clips.poster : clips.posterFallback}"
                   data-fallback="${clips.posterFallback}"
                   alt="${scene.title}"
                 />
