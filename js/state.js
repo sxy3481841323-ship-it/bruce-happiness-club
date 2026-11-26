@@ -9,7 +9,7 @@ class GameStore {
       player: null, // { nickname, pin, owner, happiness }
       leaderboard: [],
       ticker: [],
-      view: "map", // "map" | "home" | "street" | "shop"
+      view: "map", // "map" | "home" | "street" | "warehouse" | "shop"
       activeActivityId: null,
     };
     this.listeners = new Set();

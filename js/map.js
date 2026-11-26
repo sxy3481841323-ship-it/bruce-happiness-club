@@ -2,6 +2,7 @@ import { store } from "./state.js";
 import { apiTriggerSwap, apiUpdateScore } from "./api.js";
 import { mountLivingRoomHub } from "./hub3d/roomHub.js";
 import { mountCoastalCafeHub } from "./scenes3d/cafeHub.js";
+import { mountWarehouseHub } from "./scenes3d/warehouseHub.js";
 
 const PREVIEW_TITLES = {
   park: "树影公园",
@@ -23,6 +24,8 @@ let activeHub = null;
 let activeContainer = null;
 let activeCafe = null;
 let activeCafeContainer = null;
+let activeWarehouse = null;
+let activeWarehouseContainer = null;
 let closeModalFn = null;
 let cachedHubCopy = null;
 let hubCopyPromise = null;
@@ -219,6 +222,15 @@ export function stopCafeLoop() {
   activeCafeContainer = null;
 }
 
+export function stopWarehouseLoop() {
+  closeModalFn?.();
+  if (activeWarehouse) {
+    activeWarehouse.destroy();
+    activeWarehouse = null;
+  }
+  activeWarehouseContainer = null;
+}
+
 async function settleScoreAndSwap(result, fallbackReason) {
   const latestPlayer = store.state.player;
   if (!latestPlayer) return null;
@@ -289,7 +301,7 @@ export function renderMapView(container) {
     onSincerityDelta: (delta) => applyAiSincerityDelta(delta),
     onOpenShop: () => store.setView("shop"),
     onTeleportStreet: () => store.setView("street"),
-    onTeleportWarehouse: () => openPreviewModal("warehouse"),
+    onTeleportWarehouse: () => store.setView("warehouse"),
     onTeleportGlobal: () => openGlobalTeleportModal(),
   });
 }
@@ -318,6 +330,34 @@ export function renderCafeView(container) {
     onSincerityDelta: (delta) => applyAiSincerityDelta(delta),
     onOpenShop: () => store.setView("shop"),
     onBackToHub: () => store.setView("map"),
-    onTeleportWarehouse: () => openPreviewModal("warehouse"),
+    onTeleportWarehouse: () => store.setView("warehouse"),
+  });
+}
+
+export function renderWarehouseView(container) {
+  if (!container) return;
+  const sulking = store.isSulking();
+  const player = store.state.player;
+
+  if (activeWarehouse && activeWarehouseContainer === container && container.querySelector(".hub3d-stage")) {
+    activeWarehouse.setContext({ happiness: player?.happiness ?? 100, content: store.state.content });
+    activeWarehouse.setSulking(sulking);
+    return;
+  }
+
+  stopWarehouseLoop();
+  activeWarehouseContainer = container;
+
+  activeWarehouse = mountWarehouseHub(container, {
+    sulking,
+    happiness: player?.happiness ?? 100,
+    player,
+    content: store.state.content || {},
+    getHappiness: () => store.state.player?.happiness ?? 100,
+    onSettle: (result) => settleScoreAndSwap(result, "会员超市扫货"),
+    onSincerityDelta: (delta) => applyAiSincerityDelta(delta),
+    onOpenShop: () => store.setView("shop"),
+    onBackToHub: () => store.setView("map"),
+    onTeleportStreet: () => store.setView("street"),
   });
 }

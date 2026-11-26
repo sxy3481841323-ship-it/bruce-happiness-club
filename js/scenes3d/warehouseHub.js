@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { createLivingBruce } from "../hub3d/bruceLiving.js";
+import { mountBruceChatBar } from "../hub3d/bruceChatUi.js";
 import { sfx } from "../audio.js";
 import { feedback } from "../juice.js";
 
@@ -265,6 +266,7 @@ export function mountWarehouseHub(container, opts = {}) {
           <button type="button" class="trick-pill" data-trick="lick_paw">舔小爪子</button>
           <button type="button" class="trick-pill" data-trick="play_bow">伸个懒腰</button>
           <button type="button" class="trick-pill" data-trick="airplane_ears">委屈飞机耳</button>
+          <button type="button" class="trick-pill is-ai-chat" id="hub3d-btn-chat">✦ 逗它说话</button>
         </div>
         <button type="button" class="hub3d-reset-btn">⌖ 归中视角</button>
 
@@ -1403,7 +1405,7 @@ export function mountWarehouseHub(container, opts = {}) {
   let pokeCount = 0;
   let canvasDown = null;
 
-  const trickButtons = Array.from(container.querySelectorAll(".trick-pill"));
+  const trickButtons = Array.from(container.querySelectorAll(".trick-pill[data-trick]"));
   function highlightTrickBtn(trickId) {
     trickButtons.forEach((b) => b.classList.toggle("is-playing", b.getAttribute("data-trick") === trickId));
     later(() => {
@@ -1450,6 +1452,37 @@ export function mountWarehouseHub(container, opts = {}) {
     btn.addEventListener("click", onTrickClick);
     cleanups.push(() => btn.removeEventListener("click", onTrickClick));
   });
+
+  const chatCleanup = mountBruceChatBar({
+    stageEl,
+    toggleBtn: container.querySelector("#hub3d-btn-chat"),
+    getContext: () => ({
+      scene: "warehouse",
+      sulking,
+      happiness,
+      owner: opts.player?.owner,
+      nickname: opts.player?.nickname,
+    }),
+    onAiResponse(res, showDelta) {
+      if (destroyed) return;
+      sayBruce(res.reply, 5400, res.cue || "BRUCE · 灵动回应");
+      const act = res.action;
+      if (act === "walk") {
+        runTrick("walk");
+      } else if (act && act !== "idle") {
+        bruce.playAction(act);
+        highlightTrickBtn(act);
+        if (act === "roll_over") sfx.playRollJoy();
+        else if (act === "play_bow") sfx.playStretchSigh();
+      }
+      if (res.sincerityDelta) {
+        opts.onSincerityDelta?.(res.sincerityDelta)?.then((applied) => {
+          if (applied) showDelta?.(applied);
+        });
+      }
+    },
+  });
+  cleanups.push(chatCleanup);
 
   const onCanvasDown = (e) => {
     if (activeActId) return;
@@ -1533,7 +1566,7 @@ export function mountWarehouseHub(container, opts = {}) {
 
     const w = Math.max(300, stageEl.clientWidth);
     const h = Math.max(240, stageEl.clientHeight);
-    const desiredFov = w < 640 ? 68 : w < 900 ? 58 : 50;
+    const desiredFov = w / h < 0.95 ? 60 : w < 920 ? 55 : 50;
     if (
       canvas.width !== Math.round(w * renderer.getPixelRatio()) ||
       canvas.height !== Math.round(h * renderer.getPixelRatio()) ||
@@ -1611,6 +1644,8 @@ export function mountWarehouseHub(container, opts = {}) {
     }
 
     bruce.update(dt, elapsed);
+    const rigDiag = bruce.getDiag?.();
+    if (rigDiag) stageEl.dataset.rigDiag = JSON.stringify(rigDiag);
     renderer.render(scene, camera);
 
     const diagObj = {
