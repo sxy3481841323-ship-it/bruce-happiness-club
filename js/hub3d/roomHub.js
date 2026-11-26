@@ -21,7 +21,7 @@ const ACTIVITY_DEFS = {
   home_rain_vinyl: {
     id: "home_rain_vinyl",
     floor: "2f",
-    title: "雨窗黑胶时光",
+    title: "阁楼黑胶时光",
     win: 12,
     fail: -12,
     swapProb: 0,
@@ -52,8 +52,8 @@ const HOTSPOTS = [
   {
     id: "home_rain_vinyl",
     kind: "act",
-    title: "雨窗黑胶",
-    sub: "+12 分 · 2F 阁楼 33RPM",
+    title: "阁楼黑胶",
+    sub: "+12 分 · 2F 午后 33RPM",
     pos: [-12.0, 11.2, -10.8],
     icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.2"/><path d="M18 5l-3 5" stroke-linecap="round"/></svg>`,
   },
@@ -68,8 +68,8 @@ const HOTSPOTS = [
   {
     id: "street",
     kind: "teleport",
-    title: "出门 · 海岸咖啡馆",
-    sub: "3D 阳光吧台探店",
+    title: "出门 · 海岸烘焙室",
+    sub: "手冲吧台与海平线",
     code: "OUT·01",
     pos: [-14.0, 3.6, 2.2],
     icon: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 10l2-5h12l2 5"/><path d="M5 10v9h14v-9"/><path d="M10 19v-5h4v5"/></svg>`,
@@ -77,10 +77,10 @@ const HOTSPOTS = [
   {
     id: "warehouse",
     kind: "teleport",
-    title: "传送 · 会员超市",
-    sub: "3D 冷柜与三文鱼试吃",
-    code: "CLB·02",
-    pos: [-14.0, 3.6, -8.8],
+    title: "出门 · ELOWEN 有机市集",
+    sub: "野生帝王鲑与冷柜鲜食",
+    code: "ELW·02",
+    pos: [-13.9, 1.85, 6.4],
     icon: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/><path d="M3 5h3l2.2 10h9.8l2-7H7"/></svg>`,
   },
   {
@@ -119,8 +119,12 @@ const DEFAULT_HUB_COPY = {
       "二楼摆着黑胶唱片机和环球旅行相框墙，靠在这里晒太阳最惬意了。",
     ],
     tv_art_swap: [
-      "这幅画配咱们家的卡拉卡塔大理石壁炉墙太高级了！再点一下还能换～",
-      "嘿嘿，超薄画框电视秒变私人美术馆，本少爷很有品味吧？",
+      "这幅肌理画配洞石壁炉墙太耐看了，再轻点一下还能换下一件藏品。",
+      "亚麻光影落在画布上，这间客厅就是本汪的私人画廊。",
+    ],
+    patron_card_depart: [
+      "玄关洞石托盘里的 07 号记账卡拿稳啦，出门去挑野生帝王鲑。",
+      "黑胡桃盘里这张卡揣好，今天顺路在 ELOWEN 带两盒草饲冻干。",
     ],
     lamp_toggle: [
       "香槟金钓鱼灯一亮，整个大理石客厅瞬间温柔起来啦。",
@@ -143,8 +147,8 @@ const DEFAULT_HUB_COPY = {
       "哎呀太快了！飞机耳预警，快松手让我缓一秒！",
     ],
     rain_cozy: [
-      "擦干小爪子裹进毛毯，听着雨声最舒服啦。",
-      "黑胶唱片一转起来，整个阁楼都是暖色调。",
+      "羊绒毯铺在脚边，午后斜阳刚好落在黑胶唱机上。",
+      "33 转头版爵士慢悠悠转起来，整个阁楼都是琥珀暖调。",
     ],
     ball_excited: [
       "看我的短腿冲刺！这颗网球归我了！",
@@ -173,8 +177,8 @@ const DEFAULT_HUB_COPY = {
     ],
   },
   portal_hover: {
-    street: "门外风好舒服，今天去街角巡视一圈吗？",
-    warehouse: "听说大超市试吃区有三文鱼，带我坐购物车吧！",
+    street: "阳光正好，去海岸烘焙室喝一杯山羊奶微泡吧。",
+    warehouse: "玄关洞石托盘上的 07 号卡准备好了，去 ELOWEN 挑野生帝王鲑？",
     global: "二楼相框里藏着好多远方，下一站想带我去哪里？",
   },
 };
@@ -387,6 +391,7 @@ export function mountLivingRoomHub(container, opts = {}) {
   };
   const sunnySkyTex = loadSrgbTex("./assets/textures/sky_sunny.jpg", false);
   const rainySkyTex = loadSrgbTex("./assets/textures/sky_rainy.jpg", false);
+  const patronCardTex = loadSrgbTex("./assets/textures/patron_card.jpg", false);
   const tvArtTexs = [
     loadSrgbTex("./assets/textures/tv_art_1.jpg", false),
     loadSrgbTex("./assets/textures/tv_art_2.jpg", false),
@@ -398,6 +403,8 @@ export function mountLivingRoomHub(container, opts = {}) {
   let tvScreenMesh = null;
   let tvScreenMat = null;
   let arcLampMesh = null;
+  let patronCardMesh = null;
+  let patronCardMat = null;
 
   const initOv = getFloorOverview("1f");
   const camera = new THREE.PerspectiveCamera(48, 16 / 10, 0.2, 180);
@@ -573,6 +580,18 @@ export function mountLivingRoomHub(container, opts = {}) {
             obj.material = tvScreenMat;
             return;
           }
+          if (obj.name === "EntryPatronCard") {
+            obj.castShadow = false;
+            patronCardMesh = obj;
+            patronCardMat = new THREE.MeshBasicMaterial({
+              map: patronCardTex,
+              side: THREE.DoubleSide,
+              toneMapped: false,
+            });
+            obj.material?.dispose?.();
+            obj.material = patronCardMat;
+            return;
+          }
           if (obj.name === "ArcLampBulb") {
             arcLampMesh = obj;
           }
@@ -612,13 +631,14 @@ export function mountLivingRoomHub(container, opts = {}) {
     idle_sulk: "BRUCE · 背身冷战中",
     floor_1f_greet: "BRUCE · 一楼阳光厅",
     floor_2f_greet: "BRUCE · 二楼私享阁楼",
-    tv_art_swap: "BRUCE · 艺术鉴赏",
+    tv_art_swap: "BRUCE · 馆藏赏画",
+    patron_card_depart: "BRUCE · 玄关出发",
     lamp_toggle: "BRUCE · 暖光氛围",
     click_poke: "BRUCE · 歪头看你",
     click_poke_sulk: "BRUCE · 别扭哼声",
     petting_bliss: "BRUCE · 眯眼享受",
     ear_warn: "BRUCE · 飞机耳预警",
-    rain_cozy: "BRUCE · 雨窗暖灯",
+    rain_cozy: "BRUCE · 午后慢转",
     ball_excited: "BRUCE · 短腿蓄力",
     walk_call: "BRUCE · 小短腿巡步",
     walk_sulk: "BRUCE · 缓慢挪步",
@@ -782,6 +802,7 @@ export function mountLivingRoomHub(container, opts = {}) {
       hemiLight.color.setHex(0xfffbf2);
       hemiLight.groundColor.setHex(0xe2d6c5);
       hemiLight.intensity = 1.5;
+      sunLight.color.setHex(0xffe7bf);
       sunLight.intensity = 2.05;
       ambientLight.intensity = 0.78;
       if (!salonLampOn) warmLampLight.intensity = 0.0;
@@ -949,7 +970,12 @@ export function mountLivingRoomHub(container, opts = {}) {
     actBodyEl.innerHTML = "";
     btnActAuto.textContent = autoplay ? "手动玩" : "自动演示";
 
-    applyAtmosphere(false, actId === "home_rain_vinyl");
+    applyAtmosphere(false, false);
+    if (actId === "home_rain_vinyl") {
+      sunLight.color.setHex(0xffd796);
+      sunLight.intensity = 1.85;
+      warmLampLight.intensity = 1.1;
+    }
     flyCamera(def.camPos, def.camTarget, 700, () => {
       if (!destroyed && activeActId === actId) {
         actOverlay.classList.add("is-active");
@@ -1263,15 +1289,15 @@ export function mountLivingRoomHub(container, opts = {}) {
         actLater(autoStep, 750);
       }
     } else if (actId === "home_rain_vinyl") {
-      actPromptEl.textContent = "按顺序安顿布鲁斯：毛巾擦爪 → 盖毛毯 → 放黑胶";
+      actPromptEl.textContent = "晴朗午后慢转：铺羊绒毯 → 抽头版黑胶 → 轻落唱针";
       actBodyEl.innerHTML = `
         <div class="hub3d-props-row">
-          <button type="button" class="hub3d-prop-btn" data-prop="towel">TOWEL · 毛巾</button>
-          <button type="button" class="hub3d-prop-btn" data-prop="blanket">BLANKET · 毛毯</button>
-          <button type="button" class="hub3d-prop-btn" data-prop="vinyl">VINYL · 黑胶</button>
+          <button type="button" class="hub3d-prop-btn" data-prop="cashmere">CASHMERE · 羊绒毯</button>
+          <button type="button" class="hub3d-prop-btn" data-prop="sleeve">SLEEVE · 选唱片</button>
+          <button type="button" class="hub3d-prop-btn" data-prop="tonearm">TONEARM · 落唱针</button>
         </div>
       `;
-      const order = ["towel", "blanket", "vinyl"];
+      const order = ["cashmere", "sleeve", "tonearm"];
       let step = 0;
 
       const handleProp = (prop, btn) => {
@@ -1283,13 +1309,13 @@ export function mountLivingRoomHub(container, opts = {}) {
         btn.classList.add("is-done");
         step += 1;
         sfx.playTap();
-        warmLampLight.intensity = step * 1.4;
+        warmLampLight.intensity = 1.0 + step * 0.85;
         bruce.triggerHappyHop();
         const r = stageEl.getBoundingClientRect();
-        spawnFxParticles(r.width * 0.5, r.height * 0.52, step === 1 ? "water" : step === 2 ? "warm" : "note", 18);
+        spawnFxParticles(r.width * 0.5, r.height * 0.52, step === 3 ? "note" : "warm", 18);
         if (step <= 2) sayBruce("rain_cozy", 3000);
-        if (step === 1) actPromptEl.textContent = "爪子擦干啦，披上毛毯暖一暖";
-        else if (step === 2) actPromptEl.textContent = "最后点黑胶唱片放音乐";
+        if (step === 1) actPromptEl.textContent = "羊绒毯铺好了，从木盒里抽一张头版黑胶";
+        else if (step === 2) actPromptEl.textContent = "斜阳落在唱片封面，轻落唱针吧";
         else actLater(() => conclude("win"), 600);
       };
 
@@ -1404,7 +1430,7 @@ export function mountLivingRoomHub(container, opts = {}) {
     }
 
     if (spot.id === "warehouse") {
-      opts.onTeleportWarehouse?.();
+      triggerPatronCardDeparture();
       return;
     }
 
@@ -1413,7 +1439,26 @@ export function mountLivingRoomHub(container, opts = {}) {
     }
   }
 
-  // Pointer gaze tracking, raycast click on 3D Bruce / Gallery TV / Arched Lamp, Click-to-Walk floor & Trick Bar
+  function triggerPatronCardDeparture() {
+    if (destroyed || activeActId) return;
+    if (activeFloor !== "1f") switchFloor("1f", { animate: false, greet: false });
+    controls.enabled = false;
+    setKeyholderOpen(false);
+    sayBruce("patron_card_depart", 2400);
+    flyCamera(
+      new THREE.Vector3(-11.85, 2.58, 6.72),
+      new THREE.Vector3(-13.92, 1.78, 6.40),
+      680,
+      () => {
+        later(() => {
+          controls.enabled = true;
+          opts.onTeleportWarehouse?.();
+        }, 340);
+      },
+    );
+  }
+
+  // Pointer gaze tracking, raycast click on 3D Bruce / Gallery TV / Arched Lamp / Card, Click-to-Walk floor & Trick Bar
   const raycaster = new THREE.Raycaster();
   const ndc = new THREE.Vector2();
   const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -initOv.preset.floorY);
@@ -1546,8 +1591,8 @@ export function mountLivingRoomHub(container, opts = {}) {
       }
     }
 
-    // Tactile luxury appliances: Gallery Art TV & Champagne Arched Floor Lamp
-    const interactiveMeshes = [tvScreenMesh, arcLampMesh].filter(Boolean);
+    // Tactile collector pieces: Gallery Art TV, Champagne Arched Lamp & Entry NO.07 Card
+    const interactiveMeshes = [tvScreenMesh, arcLampMesh, patronCardMesh].filter(Boolean);
     if (interactiveMeshes.length > 0) {
       const propHits = raycaster.intersectObjects(interactiveMeshes, false);
       if (propHits.length > 0) {
@@ -1555,6 +1600,11 @@ export function mountLivingRoomHub(container, opts = {}) {
         feedback("small", e.clientX, e.clientY);
         sfx.playTap();
         const stageRect = stageEl.getBoundingClientRect();
+        if (hitObj === patronCardMesh) {
+          spawnFxParticles(e.clientX - stageRect.left, e.clientY - stageRect.top, "gold", 12);
+          triggerPatronCardDeparture();
+          return;
+        }
         if (hitObj === tvScreenMesh && tvScreenMat) {
           tvArtIdx = (tvArtIdx + 1) % tvArtTexs.length;
           tvScreenMat.map = tvArtTexs[tvArtIdx];
@@ -1799,7 +1849,7 @@ export function mountLivingRoomHub(container, opts = {}) {
 
   return {
     setSulking(nextSulk) {
-      applyAtmosphere(nextSulk, activeActId === "home_rain_vinyl");
+      applyAtmosphere(nextSulk, false);
     },
     setContext({ happiness: nextScore, content: nextContent }) {
       if (Number.isFinite(nextScore)) happiness = nextScore;
@@ -1822,9 +1872,11 @@ export function mountLivingRoomHub(container, opts = {}) {
       controls.dispose();
       sunnySkyTex.dispose();
       rainySkyTex.dispose();
+      patronCardTex.dispose();
       tvArtTexs.forEach((t) => t.dispose());
       skyCycloramaMat?.dispose?.();
       tvScreenMat?.dispose?.();
+      patronCardMat?.dispose?.();
       envRT.dispose();
       moteGeo.dispose();
       moteMat.dispose();

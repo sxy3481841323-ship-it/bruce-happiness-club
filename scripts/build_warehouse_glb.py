@@ -35,6 +35,9 @@ def encode_pil_image(img: Image.Image, fmt="JPEG", quality=84) -> tuple[bytes, s
 
 def load_font(size: int):
     candidates = [
+        "/System/Library/Fonts/Supplemental/Georgia.ttf",
+        "/System/Library/Fonts/Helvetica.ttc",
+        "/System/Library/Fonts/Supplemental/Arial.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
         "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
         "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf",
@@ -207,8 +210,8 @@ def make_cardboard_tex(size=512) -> Image.Image:
     d.rectangle([28, 76, size - 28, size - 68], outline=(62, 46, 32), width=4)
     f_big = load_font(42)
     f_sm = load_font(22)
-    d.text((54, 120), "CLUB SELECT", fill=(48, 36, 26), font=f_big)
-    d.text((54, 184), "PRIME BULK PACK · LOT 02", fill=(66, 48, 34), font=f_sm)
+    d.text((54, 120), "ELOWEN PANTRY", fill=(48, 36, 26), font=f_big)
+    d.text((54, 184), "ORGANIC HARVEST · LOT 02", fill=(66, 48, 34), font=f_sm)
     # Minimal barcode bars
     bx = 54
     for i in range(28):
@@ -229,16 +232,16 @@ def make_product_pack_tex(size=512) -> Image.Image:
     d.rectangle([0, 170, size, 276], fill=(128, 28, 44))
     f_title = load_font(44)
     f_sub = load_font(26)
-    d.text((48, 92), "BRUCE PRIME", fill=(246, 236, 212), font=f_title)
+    d.text((48, 92), "BRUCE PANTRY", fill=(246, 236, 212), font=f_title)
     d.text((48, 198), "FREEZE-DRIED", fill=(255, 244, 218), font=f_title)
-    d.text((48, 312), "SALMON & WAGYU", fill=(224, 192, 126), font=f_sub)
-    d.text((48, 360), "VIP CLUB RESERVE 1.5KG", fill=(218, 214, 206), font=f_sub)
+    d.text((48, 312), "WILD KING SALMON", fill=(224, 192, 126), font=f_sub)
+    d.text((48, 360), "GRASS-FED RESERVE 1.5KG", fill=(218, 214, 206), font=f_sub)
     return img
 
 
-def make_sign_board_tex(w=1024, h=256, title="CLUB WAREHOUSE · 02", subtitle="PRIME COLD CHAIN · VIP TASTING GALLERY") -> Image.Image:
-    """Obsidian & brushed champagne-gold club signage (strictly no hash characters)."""
-    img = Image.new("RGB", (w, h), (18, 20, 25))
+def make_sign_board_tex(w=1024, h=256, title="ELOWEN MARKET · 02", subtitle="ORGANIC PROVISIONS · RAW TONIC GALLERY") -> Image.Image:
+    """Erewhon-inspired forest-bronze & ivory signage."""
+    img = Image.new("RGB", (w, h), (24, 30, 26))
     d = ImageDraw.Draw(img)
     # Fine double gold border
     d.rectangle([10, 10, w - 11, h - 11], outline=(218, 184, 114), width=4)
@@ -248,19 +251,19 @@ def make_sign_board_tex(w=1024, h=256, title="CLUB WAREHOUSE · 02", subtitle="P
     d.text((48, 54), title, fill=(244, 224, 172), font=f_t)
     d.text((50, 146), subtitle, fill=(214, 208, 196), font=f_s)
     # Decorative gold pill badge on right
-    d.rounded_rectangle([w - 210, 56, w - 42, 118], radius=14, fill=(128, 28, 44), outline=(224, 192, 126), width=3)
-    d.text((w - 186, 72), "VIP CLUB", fill=(255, 245, 222), font=load_font(26))
+    d.rounded_rectangle([w - 210, 56, w - 42, 118], radius=14, fill=(42, 54, 44), outline=(224, 192, 126), width=3)
+    d.text((w - 186, 72), "ORGANIC", fill=(255, 245, 222), font=load_font(26))
     return img
 
 
-def make_price_tag_tex(w=512, h=256, label="PRIME WAGYU M9", price="VIP 168") -> Image.Image:
-    """Black-gold club membership price placard (no hash character)."""
-    img = Image.new("RGB", (w, h), (22, 22, 26))
+def make_price_tag_tex(w=512, h=256, label="DRY-AGED WAGYU M9", price="$ 68") -> Image.Image:
+    """Restrained organic market placard."""
+    img = Image.new("RGB", (w, h), (24, 28, 25))
     d = ImageDraw.Draw(img)
-    d.rectangle([6, 6, w - 7, h - 7], outline=(222, 188, 118), width=5)
-    d.rectangle([6, 6, w - 7, 74], fill=(222, 188, 118))
-    d.text((26, 22), "MEMBER PRICE", fill=(20, 18, 22), font=load_font(34))
-    d.text((26, 98), label, fill=(244, 238, 224), font=load_font(32))
+    d.rectangle([6, 6, w - 7, h - 7], outline=(212, 186, 128), width=4)
+    d.rectangle([6, 6, w - 7, 74], fill=(212, 186, 128))
+    d.text((26, 22), "DAILY HARVEST", fill=(24, 28, 25), font=load_font(34))
+    d.text((26, 98), label, fill=(244, 238, 224), font=load_font(30))
     d.text((26, 154), price, fill=(238, 204, 128), font=load_font(56))
     return img
 
@@ -508,13 +511,13 @@ def build_scene():
     t_plaid = add_tex(make_burgundy_plaid_tex(512), "JPEG", 86)
     t_cardboard = add_tex(make_cardboard_tex(512), "JPEG", 82)
     t_pack = add_tex(make_product_pack_tex(512), "JPEG", 84)
-    t_sign_main = add_tex(make_sign_board_tex(1024, 256, "CLUB WAREHOUSE · 02", "PRIME COLD CHAIN · VIP TASTING GALLERY"), "JPEG", 86)
-    t_sign_fresh = add_tex(make_sign_board_tex(1024, 256, "PRIME COLD GALLERY", "SALMON · M9 WAGYU · ORGANIC DAIRY"), "JPEG", 86)
-    t_price_wagyu = add_tex(make_price_tag_tex(512, 256, "M9 WAGYU & SALMON", "VIP 168"), "JPEG", 84)
-    t_price_treat = add_tex(make_price_tag_tex(512, 256, "PRIME PET TREATS", "VIP 89.0"), "JPEG", 84)
-    t_salmon = add_tex(make_wagyu_salmon_tex(512, "salmon"), "JPEG", 84)
-    t_wagyu = add_tex(make_wagyu_salmon_tex(512, "wagyu"), "JPEG", 84)
-    t_concrete = add_tex(make_concrete_wall_tex(512), "JPEG", 82)
+    t_sign_main = add_tex(make_sign_board_tex(1024, 256, "ELOWEN MARKET · 02", "ORGANIC PROVISIONS · RAW TONIC BAR"), "JPEG", 92)
+    t_sign_fresh = add_tex(make_sign_board_tex(1024, 256, "COLD ORGANIC GALLERY", "WILD SALMON · DRY-AGED WAGYU · RAW DAIRY"), "JPEG", 92)
+    t_price_wagyu = add_tex(make_price_tag_tex(512, 256, "DRY-AGED WAGYU & SALMON", "$ 68"), "JPEG", 90)
+    t_price_treat = add_tex(make_price_tag_tex(512, 256, "BONE BROTH TREATS", "$ 28"), "JPEG", 90)
+    t_salmon = add_tex(make_wagyu_salmon_tex(512, "salmon"), "JPEG", 88)
+    t_wagyu = add_tex(make_wagyu_salmon_tex(512, "wagyu"), "JPEG", 88)
+    t_concrete = add_tex(make_concrete_wall_tex(512), "JPEG", 88)
 
     # Materials
     m_floor = add_mat("TerrazzoFloor", (1, 1, 1, 1), roughness=0.22, metalness=0.04, tex_idx=t_terrazzo)
@@ -528,7 +531,7 @@ def build_scene():
     m_chrome = add_mat("ChromeWire", (0.88, 0.90, 0.93, 1.0), roughness=0.18, metalness=0.94)
     m_copper = add_mat("SpunCopper", (0.82, 0.45, 0.24, 1.0), roughness=0.24, metalness=0.88)
     m_brass = add_mat("BrushedBrass", (0.86, 0.72, 0.44, 1.0), roughness=0.28, metalness=0.85)
-    m_rack_orange = add_mat("ClubRackOrange", (0.86, 0.36, 0.11, 1.0), roughness=0.42, metalness=0.25)
+    m_rack_orange = add_mat("ElowenForestBronze", (0.18, 0.22, 0.19, 1.0), roughness=0.44, metalness=0.35)
     m_pallet = add_mat("PalletWood", (1, 1, 1, 1), roughness=0.76, metalness=0.0, tex_idx=t_pallet)
     m_walnut = add_mat("DarkWalnut", (1, 1, 1, 1), roughness=0.46, metalness=0.04, tex_idx=t_walnut)
     m_marble = add_mat("CalacattaMarble", (1, 1, 1, 1), roughness=0.16, metalness=0.04, tex_idx=t_marble)

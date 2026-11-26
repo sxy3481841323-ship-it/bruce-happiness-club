@@ -25,7 +25,7 @@ const LOCATIONS = [
   { id: 'home', title: '布鲁斯的小院', hint: '进去陪陪他', center: [3, 0, 5], anchor: [3, 11, 1], size: [23, 12, 16], radius: 10 },
   { id: 'street', title: '林荫小街', hint: '一起散个步', center: [-24, 0, 7], anchor: [-24, 5.6, 6], size: [15, 6, 18], radius: 6.5 },
   { id: 'park', title: '树影公园', preview: true, center: [-21, 0, -17], anchor: [-21, 6, -17], size: [17, 6, 13], radius: 7 },
-  { id: 'warehouse', title: '会员仓库', preview: true, center: [9, 0, -17], anchor: [9, 6.5, -17], size: [15, 6, 12], radius: 7.5 },
+  { id: 'warehouse', title: 'ELOWEN 市集', preview: true, center: [9, 0, -17], anchor: [9, 6.5, -17], size: [15, 6, 12], radius: 7.5 },
   { id: 'yacht', title: '白帆码头', preview: true, center: [34, 0, -3], anchor: [36, 5.5, -3], size: [13, 5, 24], radius: 6 },
   { id: 'nordic', title: '云端航线', preview: true, center: [-27, 0, -43], anchor: [-27, 8, -43], size: [12, 9, 10], radius: 5.5 },
   { id: 'california', title: '逐光航线', preview: true, center: [0, 0, -48], anchor: [0, 6, -48], size: [12, 7, 10], radius: 5.5 },

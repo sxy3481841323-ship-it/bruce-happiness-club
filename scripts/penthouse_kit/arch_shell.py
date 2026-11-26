@@ -15,6 +15,8 @@ def build_arch_shell(ctx, mats: dict):
     b_walnut = ctx.mb("WalnutFlutedPanels", mats["walnut_fluted"])
     b_walnut_solid = ctx.mb("WalnutSolidTrim", mats["walnut_solid"])
     b_brass = ctx.mb("BrassArchitecture", mats["brass"])
+    b_bronze = ctx.mb("StudioBronzeMullions", mats["bronze_dark"])
+    b_linen = ctx.mb("SheerLinenDrapery", mats["sheer_linen"])
     b_led = ctx.mb("WarmCoveLED", mats["warm_led"])
     b_glass = ctx.mb("ClearCurtainGlass", mats["glass"])
     b_frosted = ctx.mb("FrostedPortalGlass", mats["frosted_glass"])
@@ -108,21 +110,28 @@ def build_arch_shell(ctx, mats: dict):
     b_brass.add_cylinder(-14.60, 11.75, 2.48, 0.035, 0.035, 1.05, segs=10)
 
     # 6. DOUBLE-HEIGHT PANORAMIC CURTAIN WINDOW WALL (Z = -16.0) + Future Terrace Door Portal #1
-    # Slim structural perimeter brass header, sill & pillars
-    b_brass.add_box(0.0, 18.25, -16.0, 30.2, 0.70, 0.48)
-    b_brass.add_box(0.0, 0.12, -16.0, 30.2, 0.24, 0.48)
-    b_brass.add_box(0.0, 9.18, -16.0, 30.2, 0.32, 0.42)  # crisp mezzanine horizon transom
+    # Matte Studio Bronze structural mullions & framing (AD100 architectural bronze contrast)
+    b_bronze.add_box(0.0, 18.25, -16.0, 30.2, 0.70, 0.48)
+    b_bronze.add_box(0.0, 0.12, -16.0, 30.2, 0.24, 0.48)
+    b_bronze.add_box(0.0, 9.18, -16.0, 30.2, 0.28, 0.40)  # slim mezzanine horizon transom
     for mx in (-14.82, -9.6, -3.5, 3.6, 9.4, 14.82):
-        b_brass.add_box(mx, 9.25, -16.0, 0.22, 18.50, 0.40)
+        b_bronze.add_box(mx, 9.25, -16.0, 0.20, 18.50, 0.38)
 
     # Future Expansion Portal #1: Center-Right Sliding Glass Terrace Door (X in [-1.2, 3.6], Y in [0, 7.6])
-    b_brass.add_box(-1.2, 3.85, -15.88, 0.16, 7.70, 0.26)
-    b_brass.add_box(1.2, 7.70, -15.88, 4.96, 0.18, 0.26)
-    b_brass.add_box(1.2, 3.85, -15.84, 0.12, 7.60, 0.20)
-    b_brass.add_cylinder(0.85, 3.05, -15.70, 0.04, 0.04, 1.35, segs=10)
-    b_brass.add_cylinder(1.55, 3.05, -15.70, 0.04, 0.04, 1.35, segs=10)
+    b_bronze.add_box(-1.2, 3.85, -15.88, 0.14, 7.70, 0.24)
+    b_bronze.add_box(1.2, 7.70, -15.88, 4.96, 0.16, 0.24)
+    b_bronze.add_box(1.2, 3.85, -15.84, 0.10, 7.60, 0.18)
+    b_brass.add_cylinder(0.85, 3.05, -15.70, 0.035, 0.035, 1.35, segs=10)
+    b_brass.add_cylinder(1.55, 3.05, -15.70, 0.035, 0.035, 1.35, segs=10)
 
-    # Subtle clear low-iron curtain glass panes (alpha ~ 0.08 so blue sky stays crystal bright)
+    # Softly gathered floor-to-ceiling sheer Belgian linen drapery panels framing the windows
+    for dx_center in (-14.1, -3.85, 14.05):
+        for p_idx in range(6):
+            px = dx_center + (p_idx - 2.5) * 0.21
+            pz = -15.56 + (0.09 if p_idx % 2 == 0 else -0.05)
+            b_linen.add_cylinder(px, 0.06, pz, 0.125, 0.115, 18.10, segs=10)
+
+    # Subtle clear low-iron curtain glass panes (alpha ~ 0.07 so blue sky stays crystal bright)
     b_glass.add_box(0.0, 9.25, -16.02, 29.4, 17.80, 0.04)
 
     # 7. FRONT BACK-OF-CAMERA ENCLOSURE WALL (Z = +15.6) so orbiting never hits void

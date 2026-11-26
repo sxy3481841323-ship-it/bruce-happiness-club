@@ -16,7 +16,7 @@ const BRUCE_HOME_ROT = 0.16;
 const ACTIVITY_DEFS = {
   street_cafe: {
     id: "street_cafe",
-    title: "吧台爪爪奶泡",
+    title: "手冲吧台 · 山羊奶微泡",
     win: 13,
     fail: -14,
     swapProb: 0.15,
@@ -27,7 +27,7 @@ const ACTIVITY_DEFS = {
   },
   street_window: {
     id: "street_window",
-    title: "甜品橱窗品鉴",
+    title: "烘焙台 · 海盐黑麦脆片",
     win: 12,
     fail: -13,
     swapProb: 0.12,
@@ -53,7 +53,7 @@ const HOTSPOTS = [
   {
     id: "street_cafe",
     kind: "act",
-    title: "吧台爪爪奶泡",
+    title: "吧台羊奶微泡",
     sub: "+13 分 · 15% 换分",
     pos: [4.2, 3.2, 5.4],
     icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 10h10v5a5 5 0 0 1-10 0v-5z"/><path d="M15 11h2a2.5 2.5 0 0 1 0 5h-2"/><path d="M8 5c0 1.2 1 1.5 1 2.6M12 4.5c0 1.2 1 1.5 1 2.6"/></svg>`,
@@ -61,7 +61,7 @@ const HOTSPOTS = [
   {
     id: "street_window",
     kind: "act",
-    title: "甜品橱窗品鉴",
+    title: "烘焙海盐脆片",
     sub: "+12 分 · 12% 换分",
     pos: [3.8, 5.6, 0.2],
     icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 14h16v5H4z"/><path d="M6 14a6 6 0 0 1 12 0"/><path d="M9 11h6"/></svg>`,
@@ -78,7 +78,7 @@ const HOTSPOTS = [
     id: "home_return",
     kind: "teleport",
     title: "返回 · 阳光客厅",
-    sub: "回到主基地",
+    sub: "回到双层复式家",
     code: "HOME·00",
     pos: [-5.4, 8.0, -9.0],
     icon: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M6 9.5V20h12V9.5"/></svg>`,
@@ -86,9 +86,9 @@ const HOTSPOTS = [
   {
     id: "warehouse",
     kind: "teleport",
-    title: "下一站 · 会员超市",
-    sub: "3D 冷柜与购物车",
-    code: "CLB·02",
+    title: "下一站 · ELOWEN 有机市集",
+    sub: "野生帝王鲑与冷柜鲜食",
+    code: "ELW·02",
     pos: [4.2, 9.0, -10.5],
     icon: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/><path d="M3 5h3l2.2 10h9.8l2-7H7"/></svg>`,
   },
@@ -96,51 +96,51 @@ const HOTSPOTS = [
 
 const DEFAULT_CAFE_COPY = {
   idle_happy: [
-    "海风穿过落地窗吹过来啦，帮我点一份爪爪奶泡吧！",
-    "今天坐在靠海这排沙发，阳光照得奶油毛尖闪闪发亮。",
-    "那位吧台小哥刚刚偷偷朝我眨眼了，肯定有小饼干。",
+    "海平线刚好压在橡木长台这一线，今天这杯无糖山羊奶微泡水温刚刚好。",
+    "坐在靠海石灰岩地面这一排，海风把奶油长毛的尾尖吹得蓬蓬的。",
+    "听见铜壳小批烘豆机低低沙沙响着，午后一小时就这样慢下来了。",
   ],
   idle_sulk: [
-    "幸福指数低于 80 了，我连海景都不想看，快回客厅零食柜哄我。",
-    "外面在下雨，本汪的爪爪奶泡也没心情喝了，哼。",
+    "幸福指数低于 80 了，我现在连海平线都不想看，快带我回家哄一哄。",
+    "外面飘起海雾小雨，本汪的山羊奶微泡也没心情喝了，哼。",
   ],
   click_poke: [
-    "在咖啡馆也要保持优雅，别把我酒红领巾戳歪啦！",
-    "嘿嘿，听到奶泡机沙沙响，我尾巴已经先摇起来了。",
-    "邻桌客人都在偷看本汪，快帮我拍张 35mm 侧颜照！",
+    "在烘焙室也要保持从容仪态，别把暗酒红真丝领巾戳歪啦。",
+    "嘿嘿，听到分享壶倒咖啡的微响，尾巴已经轻轻摇起来了。",
+    "光斑正斜斜落在白瓷杯和海景银盐照上，帮我拍一张胶片吧。",
   ],
   click_poke_sulk: [
-    "冷战期的小狗在咖啡馆也很高冷……除非端来无糖小饼干。",
-    "别戳了，等幸福指数回到 80 我再陪你吹海风。",
+    "冷战期的小狗在这里也很克制……除非端来两块黑麦海盐脆片。",
+    "别戳了，等幸福指数回到 80 再陪你吹海风。",
   ],
   bar_bliss: [
-    "好香的奶泡味！鼻尖沾了一圈白胡子也太惬意了～",
-    "这一杯 Pup Cup 评分满分，再来一口！",
+    "绵密的无糖山羊奶微泡，鼻尖沾了一圈白绒绒也太舒服啦。",
+    "陶瓷滤杯手冲旁搭一小碟温热奶泡，完美。",
   ],
   ear_warn: [
-    "哇！橱窗玻璃靠太近啦，飞机耳预警，先停一秒缓一缓！",
+    "哇！手写单牌靠太近了，飞机耳预警，先停一秒缓一缓！",
   ],
   walk_call: [
-    "小爪子踩着薄荷灰地砖哒哒过来啦，帮我占好靠海那桌！",
-    "绕过沙发角慢慢走过来，等下顺路去吧台边闻闻香。",
+    "小爪子踩着哑光石灰岩地砖哒哒过来，帮我留好窗边那张矮凳。",
+    "绕过白橡木长台慢慢晃过来，顺路闻闻烘豆的坚果焦香。",
   ],
   walk_sulk: [
-    "下雨天逛咖啡馆也提不起劲……我挪过去一点点好啦。",
+    "起雾的海边有点懒懒的……好吧，我挪过去一点点。",
   ],
   roll_over: [
-    "在晒着太阳的咖啡馆地板翻个滚，邻桌小姐姐都在偷笑呢！",
-    "肚皮翻出来给海风吹一吹，全店最放松的小狗就是我。",
+    "趁太阳正斜照在石灰岩砖面上翻个滚，整间烘焙室只有海浪声。",
+    "肚皮翻出来晒一晒海风微光，一天里最松弛的二十分钟。",
   ],
   lick_paw: [
-    "偷偷舔干净刚沾到的奶泡，这杯爪爪奶泡后劲真香！",
-    "舔两口前爪，假装自己刚才没有偷看甜品橱窗。",
+    "细细舔干净前爪沾到的山羊奶泡，接着把小碟里的两块黑麦脆片推过来吧。",
+    "舔两口右前爪，鼻尖还留着一点浅焙豆和海盐黄油香。",
   ],
   play_bow: [
-    "在咖啡馆里也要对着落地窗伸个大懒腰，尾巴摇成小风扇！",
-    "撅起屁股对你发出玩耍邀请，走嘛走嘛去窗边吹风！",
+    "对着落地无框玻璃海景伸个大懒腰，尾巴摇成温柔节拍器。",
+    "前爪压低对你发出邀请信号，去窗边看远方那艘白帆船吗？",
   ],
   airplane_ears: [
-    "海岸风声呼呼的，本汪先折个标准飞机耳监听周围动静！",
+    "海风声拍打落地玻璃，本汪先折个标准飞机耳听会儿涛声。",
   ],
 };
 
@@ -201,7 +201,7 @@ export function mountCoastalCafeHub(container, opts = {}) {
           <span class="vf-corner vf-tr"></span>
           <span class="vf-corner vf-bl"></span>
           <span class="vf-corner vf-br"></span>
-          <span class="vf-stamp">35MM · COASTAL CAFÉ · F/1.8</span>
+          <span class="vf-stamp">35MM · MALIBU ROASTERY · F/1.8</span>
         </div>
         <div class="hub3d-pins"></div>
         <div class="hub3d-keyholder">
@@ -555,7 +555,8 @@ export function mountCoastalCafeHub(container, opts = {}) {
               const basicCoast = new THREE.MeshBasicMaterial({
                 map: m.map,
                 side: THREE.DoubleSide,
-                color: sulking ? 0x6e85a0 : 0xf4f8fc,
+                color: sulking ? 0x6e85a0 : 0xffffff,
+                toneMapped: false,
               });
               obj.material = basicCoast;
               coastMatRef = basicCoast;
@@ -780,7 +781,7 @@ export function mountCoastalCafeHub(container, opts = {}) {
       barGlowLight.intensity = 1.35;
       loungeFillLight.intensity = 0.72;
       if (coastMatRef) {
-        coastMatRef.color.setHex(0xf4f8fc);
+        coastMatRef.color.setHex(0xffffff);
       }
       if (globeMatRef) globeMatRef.emissiveIntensity = 1.35;
       if (underBarMatRef) underBarMatRef.emissiveIntensity = 1.2;
@@ -1170,7 +1171,7 @@ export function mountCoastalCafeHub(container, opts = {}) {
         });
       }
     } else if (actId === "street_window") {
-      actPromptEl.textContent = "轻划甜品展示柜玻璃，带布鲁斯挑一块无糖小饼干";
+      actPromptEl.textContent = "轻拭白橡木烘焙台面，替布鲁斯挑两块黑麦海盐脆片";
       actBodyEl.innerHTML = `
         <div class="hub3d-brush-zone"></div>
         <div class="hub3d-progress"><div class="hub3d-progress-fill"></div></div>

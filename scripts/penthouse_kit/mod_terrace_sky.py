@@ -125,7 +125,7 @@ def build_terrace_and_sky(ctx, mats):
     R = 42.0
     cz = -4.0
     y_bot = -14.0
-    y_top = 24.0
+    y_top = 28.0
     theta_min = -2.53
     theta_max = 2.53
     segs = 48

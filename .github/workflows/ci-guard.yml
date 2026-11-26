@@ -38,6 +38,12 @@ jobs:
               "\u676d\u5dde|\u897f\u6e56|\u94b1\u5858\u6c5f|\u7075\u9690\u5bfa|\u9f99\u4e95|"
               "\u5b8b\u57ce|\u6842\u82b1|\u4e09\u58a9|\u6ee8\u6c5f|\u6c5f\u5357|\u77f3\u6865|\u62f1\u6865|\u4e4c\u7bf7\u8239"
           )
+          tacky_re = re.compile(
+              "\u8d35\u65cf|\u9ad8\u8d35|\u8c6a\u5b85|\u9876\u5962|\u5bcc\u8c6a|\u571f\u8c6a|\u6709\u94b1|"
+              "(?<![A-Za-z])VIP(?![A-Za-z])|\u4f1a\u5458\u8d85\u5e02|\u4f1a\u5458\u5e97|\u4f1a\u5458\u5236|\u4f1a\u5458\u5361|"
+              "\u6392\u9762|\u626b\u8d27|\u5de8\u65e0\u9738|\u5427\u53f0\u5c0f\u54e5|\u5c0f\u59d0\u59d0|\u751c\u54c1\u6a71\u7a97",
+              re.I,
+          )
           cdn_re = re.compile(r"https?://(fonts\.googleapis|unpkg\.com|cdn\.jsdelivr|cdnjs\.cloudflare)", re.I)
 
           for pattern in ("index.html", "scene-preview.html", "css/*.css", "js/**/*.js", "data/*.json"):
@@ -51,6 +57,15 @@ jobs:
                   cm = cdn_re.search(txt)
                   if cm:
                       print(f"ERROR: External CDN '{cm.group(0)}' in {path}")
+                      sys.exit(1)
+
+          for pattern in ("index.html", "data/*.json", "js/hub3d/*.js", "js/scenes3d/*.js", "js/map.js", "js/map3d.js", "functions/api/*.js"):
+              for path in glob.glob(pattern):
+                  with open(path, "r", encoding="utf-8", errors="ignore") as f:
+                      txt = f.read()
+                  tm = tacky_re.search(txt)
+                  if tm:
+                      print(f"ERROR: Quiet-luxury violation (Show Don't Tell) '{tm.group(0)}' in {path}")
                       sys.exit(1)
 
           if os.path.exists(".env"):

@@ -4,7 +4,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { createLivingBruce } from "../hub3d/bruceLiving.js";
 
 /**
- * 新 3D 传送场景标准模板（例如：林荫街角咖啡馆 / 会员制大超市）
+ * 新 3D 传送场景标准模板（例如：海岸私家烘焙室 / ELOWEN 有机市集）
  * 协作者可复制本文件为 js/scenes3d/<scene>.js 并在 scene-preview.html?module=<scene> 中独立预览调试，
  * 无需修改 index.html、js/map.js 或 js/hub3d/*。
  */

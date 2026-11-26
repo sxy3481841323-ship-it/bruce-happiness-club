@@ -27,7 +27,7 @@ const ACTIVITY_DEFS = {
   },
   warehouse_cart: {
     id: "warehouse_cart",
-    title: "VIP 购物车巡航",
+    title: "亚麻手推车备膳",
     win: 13,
     fail: -13,
     swapProb: 0.14,
@@ -61,7 +61,7 @@ const HOTSPOTS = [
   {
     id: "warehouse_cart",
     kind: "act",
-    title: "VIP 购物车巡航",
+    title: "亚麻手推车备膳",
     sub: "+13 分 · 14% 换分",
     pos: [-4.1, 4.2, 1.8],
     icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/><path d="M3 5h3l2.2 10h9.8l2-7H7"/></svg>`,
@@ -96,62 +96,62 @@ const HOTSPOTS = [
 
 const DEFAULT_WAREHOUSE_COPY = {
   idle_happy: [
-    "现煎试吃台飘来三文鱼和黄油香，本汪的鼻子已经自动锁定方位！",
-    "酒红格纹软垫铺在 VIP 超大购物车里，整家会员超市属我最有排面。",
-    "左边冷柜藏着 M9 雪花和牛，右边货架全是巨无霸冻干桶，今天不搬空不回家！",
+    "现煎鲜食吧台飘来野生帝王鲑与草饲黄油香，本汪的鼻尖早就先一步签到了。",
+    "酒红格纹软垫铺进亚麻手推车里，挑两盒有机骨汤冻干就准备回家。",
+    "左边干式熟成冷柜切着 M9 和牛，右边原木货架摆着冷压鲜食，每一样都合口味。",
   ],
   idle_sulk: [
-    "幸福指数跌破 80 了，连现煎三文鱼试吃台都提不起劲，快回客厅零食柜哄我。",
-    "天窗外面都在下雨，本汪先在购物车旁边生一会儿闷气，哼。",
+    "幸福指数跌破 80 了，连现煎野生帝王鲑都提不起劲，快回客厅哄我。",
+    "天窗外都在阴天，本汪先挨着亚麻手推车安静歇一会儿，哼。",
   ],
   click_poke: [
-    "逛会员大超市也要保持优雅仪态，别把我酒红真丝领巾戳歪啦！",
-    "再戳我一下，我就跳进 VIP 购物车亲自掌舵扫货啦！",
+    "逛有机市集也要保持仪态呀，别把我的暗酒红真丝领巾戳歪啦。",
+    "再轻轻戳我一下，我就跳进手推车里的格纹软垫坐好。",
   ],
   click_poke_sulk: [
-    "冷战期间谢绝营业……除非你现在立刻端一碟三文鱼过来。",
-    "哼，尾巴刚才只是被冷柜的灯光晃了一下，才没有摇呢。",
+    "冷战期暂不挑食盆……除非现在切一小碟微温帝王鲑过来。",
+    "哼，尾巴刚才只是被暖铜吊灯晃了一下，才没有偷摇。",
   ],
   tasting_bliss: [
-    "现煎三文鱼配铜灯保温也太香了，本汪给这家会员店打满分！",
+    "野生帝王鲑配铜灯保温微熟度刚刚好，鲜味还留在鼻尖呢。",
   ],
   cart_cruise: [
-    "VIP 购物车稳稳推进货架区，本汪负责用眼神把冻干桶全部签收！",
+    "推着深绿铜柄手推车路过原木货架，挑几盒无谷骨汤冻干和新鲜蓝莓。",
   ],
   cold_warn: [
-    "哇！冷柜寒气直冲耳朵，飞机耳预警！先松手停一秒缓一缓！",
+    "哇！干式熟成冷柜寒气太足啦，飞机耳预警！先松手缓一秒！",
   ],
   walk_call: [
-    "小短腿踩在抛光水磨石地板上哒哒过来啦，去哪个货架巡视？",
-    "顺着主通道优雅小跑过来，试吃台和冻干区都在本汪掌控中！",
+    "小短腿踩在哑光水磨石廊道上哒哒走来，先去鲜食吧台还是冷柜那侧？",
+    "沿着有机生鲜廊道从容小跑过来，一切都在掌握中。",
   ],
   walk_sulk: [
-    "雨天逛超市好没精神……好吧，我慢慢挪过去看两眼。",
+    "阴天出来买菜没怎么睡醒……好吧，慢慢挪过去两步。",
   ],
   roll_over: [
-    "在水磨石主通道就地翻个 360 度肚皮打滚，会员通道瞬间变成 T 台！",
+    "趁天窗自然光洒在水磨石上翻个身打滚，格纹领巾铺在地板上刚刚好。",
   ],
   lick_paw: [
-    "认真舔干净刚刚试吃三文鱼沾到的香气，精致小狗绝不浪费一滴鲜味！",
+    "细细舔净前爪沾到的野生鲑鱼油脂香，一点鲜味也不浪费。",
   ],
   play_bow: [
-    "前爪压低、尾巴高速摇成小马达——快推上 VIP 购物车出发扫货！",
+    "前爪压低、尾巴愉悦轻摆，推上亚麻软垫手推车逛完本周有机货架吧！",
   ],
   airplane_ears: [
-    "冷链风声呼呼吹过，本汪先收起双耳切换成流线型飞机耳护体！",
+    "冷链风声轻拂，本汪先折起双耳开启流线防风模式。",
   ],
 };
 
 const DEFAULT_ACTIVITY_LINES = {
   warehouse_salmon: {
-    win_lines: ["布鲁斯在铜灯暖光下先闻香验货，吹凉后一口叼住现煎三文鱼块，舔爪子舔得一脸陶醉。"],
-    phone_fail_lines: ["你低头回消息那两秒，试吃台最后一块温热三文鱼被隔壁推车领走了，布鲁斯幽怨地盯住你。"],
-    hazard_fail_lines: ["哎呀！误碰了旁边的青芥末小碟，布鲁斯打了个响亮的小喷嚏，耳朵立刻折成委屈飞机耳。"],
+    win_lines: ["布鲁斯在铜灯暖光下先闻香验货，吹凉后一口叼住现煎野生帝王鲑，舔爪舔得十分满足。"],
+    phone_fail_lines: ["低头滑手机两秒钟，试吃碟里刚煎好的帝王鲑凉掉了，布鲁斯安静坐着望向你。"],
+    hazard_fail_lines: ["哎呀！误碰了旁边的青芥末小碟，布鲁斯打了个轻响的小喷嚏，耳朵贴成飞机耳。"],
   },
   warehouse_cart: {
-    win_lines: ["酒红格纹软垫铺得平平整整，布鲁斯神气地巡视完一整排重型货架，战利品塞满 VIP 购物车！"],
-    phone_fail_lines: ["刚要挑最上层的冻干桶，你却点开了手机通知，VIP 购物车停在半路让布鲁斯白激动一场。"],
-    hazard_fail_lines: ["拐弯太急车身猛地一颠，冻干桶晃得哗啦响，布鲁斯吓得赶紧压平耳朵抱紧软垫。"],
+    win_lines: ["酒红格纹软垫铺得松软贴身，布鲁斯稳稳挑齐了草饲骨汤冻干与有机鲜果，惬意收工。"],
+    phone_fail_lines: ["刚看中上层原木架的冻干罐，你却点开了手机通知，推车半途停在过道上。"],
+    hazard_fail_lines: ["拐弯太快轻轻晃了一下，果酱罐碰得叮当响，布鲁斯乖乖缩进软垫抱紧靠背。"],
   },
   warehouse_freezer: {
     win_lines: ["隔着擦净的冷柜玻璃一眼相中纹理最漂亮的 M9 雪花和牛，布鲁斯开心得当场翻肚皮打滚！"],
@@ -237,7 +237,7 @@ export function mountWarehouseHub(container, opts = {}) {
           <span class="vf-corner vf-tr"></span>
           <span class="vf-corner vf-bl"></span>
           <span class="vf-corner vf-br"></span>
-          <span class="vf-stamp">35MM · CLUB WAREHOUSE · F/2.0</span>
+          <span class="vf-stamp">35MM · ELOWEN MARKET · F/2.0</span>
         </div>
         <div class="hub3d-pins"></div>
         <div class="hub3d-keyholder">
@@ -272,7 +272,7 @@ export function mountWarehouseHub(container, opts = {}) {
 
         <div class="hub3d-act-overlay">
           <div class="hub3d-act-top">
-            <button type="button" class="hub3d-glass-pill" id="hub3d-btn-back">回到会员超市全景</button>
+            <button type="button" class="hub3d-glass-pill" id="hub3d-btn-back">回到有机市集全景</button>
             <button type="button" class="hub3d-glass-pill" id="hub3d-btn-auto">自动演示</button>
           </div>
           <div class="hub3d-act-prompt"></div>
@@ -294,15 +294,15 @@ export function mountWarehouseHub(container, opts = {}) {
           <p class="hub3d-settle-status"></p>
           <div class="hub3d-settle-actions">
             <button type="button" class="th-btn-primary" id="hub3d-btn-replay">再来一次</button>
-            <button type="button" class="th-btn-ghost" id="hub3d-btn-done">回到会员超市全景</button>
+            <button type="button" class="th-btn-ghost" id="hub3d-btn-done">回到有机市集全景</button>
           </div>
         </section>
 
         <div class="hub3d-loading">
-          <span>正在推开会员仓储超市电动门……</span>
+          <span>正在推开 ELOWEN 有机市集木框玻璃门……</span>
         </div>
       </div>
-      <p class="hub3d-hint">拖动环视会员超市 · 点击水磨石通道唤狗巡店，点黄铜光点体验试吃台/冷柜/购物车</p>
+      <p class="hub3d-hint">拖动环视 ELOWEN 有机市集 · 点击水磨石廊道唤狗，点黄铜光点体验鲜食吧/冷柜/备膳车</p>
     </div>
   `;
 
@@ -487,7 +487,7 @@ export function mountWarehouseHub(container, opts = {}) {
   salmonPlateGroup.add(plateMesh, s1, s2);
   scene.add(salmonPlateGroup);
 
-  // Animated 3D VIP Cart Treat Loot Prop (pops into Bruce's cart during warehouse_cart)
+  // Animated 3D Elowen Cart Treat Loot Prop (pops into Bruce's cart during warehouse_cart)
   const cartLootGroup = new THREE.Group();
   cartLootGroup.position.set(-4.35, 3.25, 1.35);
   cartLootGroup.visible = false;
@@ -618,12 +618,12 @@ export function mountWarehouseHub(container, opts = {}) {
   });
 
   const WH_SPEECH_CUES = {
-    idle_happy: "BRUCE · 会员店巡场",
-    idle_sulk: "BRUCE · 雨天冷战中",
+    idle_happy: "BRUCE · 市集晨巡",
+    idle_sulk: "BRUCE · 阴天冷战中",
     click_poke: "BRUCE · 领巾晃动",
     click_poke_sulk: "BRUCE · 别扭哼声",
-    tasting_bliss: "BRUCE · 三文鱼真香",
-    cart_cruise: "BRUCE · VIP 推车巡航",
+    tasting_bliss: "BRUCE · 帝王鲑微熟",
+    cart_cruise: "BRUCE · 有机备膳中",
     cold_warn: "BRUCE · 冷气飞机耳预警",
     walk_call: "BRUCE · 通道巡视",
     walk_sulk: "BRUCE · 缓慢挪步",
@@ -652,7 +652,7 @@ export function mountWarehouseHub(container, opts = {}) {
     lastSpeechText = text;
     lastSpeechAt = performance.now();
     if (speechCueEl) {
-      speechCueEl.textContent = customCue || WH_SPEECH_CUES[categoryOrText] || (sulking ? "BRUCE · 雨天冷战中" : "BRUCE · 会员店轻哼");
+      speechCueEl.textContent = customCue || WH_SPEECH_CUES[categoryOrText] || (sulking ? "BRUCE · 阴天冷战中" : "BRUCE · 鲜食吧轻哼");
     }
     speechLineEl.textContent = text;
     speechEl.classList.toggle("is-sulk", Boolean(sulking));
@@ -751,9 +751,9 @@ export function mountWarehouseHub(container, opts = {}) {
     item.addEventListener("pointerenter", () => {
       if (activeActId) return;
       if (spot.id === "home_return") {
-        sayBruce("扫货结束就回阳光客厅吧，战利品全塞进零食柜！", 3200, "BRUCE · 出口张望");
+        sayBruce("备膳挑好啦，携 07 号记账卡回阳光客厅吧。", 3200, "BRUCE · 出口张望");
       } else if (spot.id === "street") {
-        sayBruce("买完肉干顺路去海岸咖啡馆喝杯爪爪奶泡怎么样？", 3200, "BRUCE · 出口张望");
+        sayBruce("有机食材齐了，顺路去海岸烘焙室喝一杯山羊奶微泡吧。", 3200, "BRUCE · 出口张望");
       }
     });
   });
@@ -1041,11 +1041,11 @@ export function mountWarehouseHub(container, opts = {}) {
             : actCopy.hazard_fail_lines;
       const summaryLine = pickRandom(
         pool,
-        isWin ? "布鲁斯在会员仓储超市收获满满，满意地晃起蓬松尾巴。" : "布鲁斯被突发状况吓了一跳，默默收起飞机耳。",
+        isWin ? "布鲁斯在 ELOWEN 有机市集备好本周鲜食，满意地晃起大尾巴。" : "布鲁斯被突发声响惊了一下，默默折平飞机耳。",
       );
 
       settleEl.querySelector(".hub3d-settle-title").textContent =
-        outcome === "win" ? "扫货成功" : outcome === "phone_fail" ? "被手机抢走了" : "踩到雷点了";
+        outcome === "win" ? "备膳完成" : outcome === "phone_fail" ? "被手机抢走了" : "踩到雷点了";
       const deltaEl = settleEl.querySelector(".hub3d-settle-delta");
       deltaEl.textContent = `${delta >= 0 ? "+" : ""}${delta}`;
       deltaEl.classList.toggle("is-neg", delta < 0);
@@ -1055,7 +1055,7 @@ export function mountWarehouseHub(container, opts = {}) {
 
       const projected = Math.max(0, happiness + delta);
       btnReplay.hidden = projected < 80;
-      btnDone.textContent = projected < 80 ? "去零食急救柜" : "回到会员超市全景";
+      btnDone.textContent = projected < 80 ? "去零食急救柜" : "回到有机市集全景";
       settleEl.classList.add("is-visible");
 
       const triggerSwapCandidate = isWin && Math.random() < def.swapProb;
@@ -1081,7 +1081,7 @@ export function mountWarehouseHub(container, opts = {}) {
           btnDone.textContent = "去零食急救柜";
         } else {
           statusEl.textContent = `当前幸福指数 · ${finalScore}`;
-          btnDone.textContent = "回到会员超市全景";
+          btnDone.textContent = "回到有机市集全景";
         }
 
         if (Number.isFinite(swap?.newScore)) {
@@ -1190,12 +1190,12 @@ export function mountWarehouseHub(container, opts = {}) {
         });
       }
     } else if (actId === "warehouse_cart") {
-      actPromptEl.textContent = "开启 VIP 购物车巡航：铺好酒红软垫 → 巡视冻干货架 → 挑满整车肉干";
+      actPromptEl.textContent = "亚麻手推车备膳：铺好格纹软垫 → 巡视原木货架 → 装入冻干食材";
       actBodyEl.innerHTML = `
         <div class="hub3d-props-row">
-          <button type="button" class="hub3d-prop-btn" data-prop="cushion">CUSHION · 铺好酒红软垫</button>
-          <button type="button" class="hub3d-prop-btn" data-prop="patrol">PATROL · 巡视冻干货架</button>
-          <button type="button" class="hub3d-prop-btn" data-prop="load">LOAD · 挑满整车肉干</button>
+          <button type="button" class="hub3d-prop-btn" data-prop="cushion">CUSHION · 铺好格纹软垫</button>
+          <button type="button" class="hub3d-prop-btn" data-prop="patrol">PATROL · 巡视有机货架</button>
+          <button type="button" class="hub3d-prop-btn" data-prop="load">LOAD · 选入冻干食材</button>
         </div>
         <button type="button" class="hub3d-hazard-btn">BUMP · 急转弯颠簸</button>
       `;
@@ -1226,7 +1226,7 @@ export function mountWarehouseHub(container, opts = {}) {
           cartLootGroup.visible = true;
           cartLootGroup.position.set(-4.35, 3.45, 1.35);
           sayBruce("cart_cruise", 3000);
-          actPromptEl.textContent = "锁定大桶冻干！装满整辆 VIP 购物车";
+          actPromptEl.textContent = "选中有机草饲冻干！放入亚麻手推车里";
         } else {
           cartLootGroup.visible = true;
           cartLootGroup.position.set(-4.35, 2.75, 1.35);

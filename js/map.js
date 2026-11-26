@@ -6,7 +6,7 @@ import { mountWarehouseHub } from "./scenes3d/warehouseHub.js";
 
 const PREVIEW_TITLES = {
   park: "树影公园",
-  warehouse: "会员制大超市",
+  warehouse: "ELOWEN · 有机市集",
   yacht: "白帆游艇码头",
   nordic: "云端航线 · 北欧峡湾",
   california: "逐光航线 · 阳光海岸",
@@ -106,7 +106,7 @@ export function openPreviewModal(previewId) {
 
   const item = (content?.remote_previews || []).find((p) => p.id === previewId);
   card.innerHTML = `
-    <span class="modal-pill-tag">${previewId === "warehouse" ? "传送目的地 · 会员制大超市" : "传送目的地 · 二期区域"}</span>
+    <span class="modal-pill-tag">${previewId === "warehouse" ? "传送目的地 · ELOWEN 有机市集" : "传送目的地 · 二期区域"}</span>
     <h2 class="modal-title" id="map-preview-title"></h2>
     <p class="modal-lead" id="map-preview-description"></p>
     <div class="soft-callout">
@@ -115,7 +115,7 @@ export function openPreviewModal(previewId) {
       <ul id="map-preview-perks"></ul>
     </div>
     <div class="modal-footer-row">
-      <span class="soft-hint">${previewId === "warehouse" ? "放入超市 3D 模型后即可直接传送进入" : "放入对应 3D 场景后即可点击传送进入"}</span>
+      <span class="soft-hint">${previewId === "warehouse" ? "点击卡片特写即可直接传送进入" : "放入对应 3D 场景后即可点击传送进入"}</span>
       <button class="btn-pill btn-primary" id="btn-close-preview" type="button">返回 3D 客厅</button>
     </div>
   `;
@@ -354,7 +354,7 @@ export function renderWarehouseView(container) {
     player,
     content: store.state.content || {},
     getHappiness: () => store.state.player?.happiness ?? 100,
-    onSettle: (result) => settleScoreAndSwap(result, "会员超市扫货"),
+    onSettle: (result) => settleScoreAndSwap(result, "ELOWEN 有机市集备膳"),
     onSincerityDelta: (delta) => applyAiSincerityDelta(delta),
     onOpenShop: () => store.setView("shop"),
     onBackToHub: () => store.setView("map"),

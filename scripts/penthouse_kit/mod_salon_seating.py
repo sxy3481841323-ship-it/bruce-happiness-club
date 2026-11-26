@@ -1,122 +1,157 @@
 import math
 
+
 def build_salon_seating(ctx, mats):
-    # 1. Plush Cream Wool Carpet
+    # ------------------------------------------------------------------
+    # 1. Borderless Hand-Knotted Alpaca Rug
+    # ------------------------------------------------------------------
     rug = ctx.mb("SalonRug", mats["rug"])
-    rug.add_rounded_box(cx=3.2, cy=0.02, cz=-0.2, sx=11.8, sy=0.04, sz=13.2, bevel=0.015, uv_tile=5.0)
+    rug.add_rounded_box(3.2, 0.02, -0.2, 11.8, 0.04, 13.2, bevel=0.015, uv_tile=5.5)
 
-    # 2. Curved / L-Shaped Italian Cream Boucle Modular Sofa
-    # Walnut plinth base
-    base = ctx.mb("SofaPlinth", mats["walnut_solid"])
-    # L-shape: long section along X (back at Z=-6.8), short section along Z (back at X=-1.8)
-    # Long section plinth
-    base.add_rounded_box(cx=1.7, cy=0.16, cz=-6.2, sx=7.0, sy=0.24, sz=1.2, bevel=0.03, uv_tile=2.0)
-    # Short section plinth (L return)
-    base.add_rounded_box(cx=-1.2, cy=0.16, cz=-3.0, sx=1.2, sy=0.24, sz=5.2, bevel=0.03, uv_tile=2.0)
+    # ------------------------------------------------------------------
+    # 2. Low-Slung Organic Cloud Modular Bouclé Sofa
+    #    X in [-1.8, 5.2], Z in [-6.8, 0.6], Y in [0, 2.4]
+    # ------------------------------------------------------------------
+    # --- Recessed smoked walnut plinth (Y 0.04..0.24) ---
+    plinth = ctx.mb("SofaPlinth", mats["walnut_solid"])
+    # main body plinth
+    plinth.add_rounded_box(1.7, 0.14, -3.1, 6.6, 0.20, 6.6, bevel=0.03, uv_tile=2.0)
+    # L-chaise wing plinth (X=-1.0, Z=-2.6..0.5)
+    plinth.add_rounded_box(-1.0, 0.14, -1.05, 1.6, 0.20, 3.1, bevel=0.03, uv_tile=2.0)
 
-    # Seat cushions (plump chubby rounded boxes)
+    # --- Plump chamfered pillowed seat modules (Y 0.24..1.08) ---
     seat = ctx.mb("SofaSeat", mats["boucle"])
-    # Long section seats
-    for i in range(3):
-        x = -0.5 + i * 2.2
-        seat.add_rounded_box(cx=x, cy=0.76, cz=-6.0, sx=2.1, sy=0.97, sz=1.5, bevel=0.18, uv_tile=1.5)
-    # Short section seats
-    for i in range(2):
-        z = -4.2 + i * 2.2
-        seat.add_rounded_box(cx=-1.2, cy=0.76, cz=z, sx=1.5, sy=0.97, sz=2.1, bevel=0.18, uv_tile=1.5)
+    # main run of seat cushions (segmented, plump)
+    seat_xs = [-0.6, 0.9, 2.4, 3.9]
+    for sx in seat_xs:
+        seat.add_rounded_box(sx, 0.66, -5.4, 1.45, 0.84, 1.55, bevel=0.16, uv_tile=1.2)
+    # front row of seat cushions (deeper)
+    for sx in seat_xs:
+        seat.add_rounded_box(sx, 0.66, -3.7, 1.45, 0.84, 1.55, bevel=0.16, uv_tile=1.2)
+    # L-chaise wing seat cushions
+    seat.add_rounded_box(-1.0, 0.66, -1.9, 1.45, 0.84, 1.55, bevel=0.16, uv_tile=1.2)
+    seat.add_rounded_box(-1.0, 0.66, -0.3, 1.45, 0.84, 1.55, bevel=0.16, uv_tile=1.2)
 
-    # Sculptural curved backrest
+    # --- Sculpted rounded wraparound back (Y 1.08..2.12) ---
     back = ctx.mb("SofaBack", mats["boucle"])
-    # Long back
-    back.add_rounded_box(cx=1.7, cy=1.9, cz=-6.55, sx=7.0, sy=1.3, sz=0.5, bevel=0.2, uv_tile=1.5)
-    # Short back
-    back.add_rounded_box(cx=-1.55, cy=1.9, cz=-3.0, sx=0.5, sy=1.3, sz=5.2, bevel=0.2, uv_tile=1.5)
+    # rear back cushions (soft segmented bolster tufts)
+    for sx in seat_xs:
+        back.add_rounded_box(sx, 1.60, -6.15, 1.45, 1.02, 0.55, bevel=0.22, uv_tile=1.2)
+    # side back cushions (left wing)
+    back.add_rounded_box(-1.75, 1.60, -3.7, 0.55, 1.02, 1.55, bevel=0.22, uv_tile=1.2)
+    back.add_rounded_box(-1.75, 1.60, -1.9, 0.55, 1.02, 1.55, bevel=0.22, uv_tile=1.2)
+    back.add_rounded_box(-1.75, 1.60, -0.3, 0.55, 1.02, 1.55, bevel=0.22, uv_tile=1.2)
+    # right side back cushion
+    back.add_rounded_box(5.05, 1.60, -3.7, 0.55, 1.02, 1.55, bevel=0.22, uv_tile=1.2)
+    back.add_rounded_box(5.05, 1.60, -5.4, 0.55, 1.02, 1.55, bevel=0.22, uv_tile=1.2)
+    # soft bolster tufts across the back (rounded cylinders)
+    for sx in seat_xs:
+        back.add_cylinder(sx, 1.05, -5.85, 0.28, 0.28, 1.35, segs=16, rot_z=math.pi / 2.0)
+    # L-corner back bolster
+    back.add_cylinder(-1.55, 1.05, -1.1, 0.28, 0.28, 2.6, segs=16, rot_x=math.pi / 2.0)
 
-    # Wide rounded armrests
-    arm = ctx.mb("SofaArm", mats["boucle"])
-    # Right arm of long section
-    arm.add_rounded_box(cx=5.0, cy=1.1, cz=-6.0, sx=0.6, sy=1.0, sz=1.6, bevel=0.2, uv_tile=1.5)
-    # Front arm of short section
-    arm.add_rounded_box(cx=-1.2, cy=1.1, cz=-0.4, sx=1.6, sy=1.0, sz=0.6, bevel=0.2, uv_tile=1.5)
+    # --- ONLY 3 Asymmetrical Pebble & Cloud Throw Pillows ---
+    pillows = ctx.mb("SofaPillows", mats["cognac_suede"])
+    # 1. tilted cognac nubuck pebble bolster around (0.2, 1.48, -5.1)
+    pillows.add_sphere(0.2, 1.48, -5.1, 0.62, 0.34, 0.42, rings=14, segs=20)
+    # 2. soft cream/ivory linen bolster around (3.9, 1.45, -5.2)
+    pillows_cream = ctx.mb("SofaPillowsCream", mats["cream_pillow"])
+    pillows_cream.add_sphere(3.9, 1.45, -5.2, 0.58, 0.32, 0.40, rings=14, segs=20)
+    # 3. muted oxblood cashmere cushion tucked into L-corner around (-0.3, 1.46, -1.6)
+    pillows_burg = ctx.mb("SofaPillowsBurgundy", mats["burgundy"])
+    pillows_burg.add_sphere(-0.3, 1.46, -1.6, 0.55, 0.30, 0.38, rings=14, segs=20)
 
-    # Throw pillows - burgundy and cream, tilted along backrest
-    pil_burg = ctx.mb("PillowBurgundy", mats["burgundy"])
-    pil_cream = ctx.mb("PillowCream", mats["cream_pillow"])
-    # Long back pillows
-    for i in range(3):
-        x = -0.3 + i * 2.2
-        pil_burg.add_rounded_box(cx=x, cy=1.55, cz=-6.15, sx=0.7, sy=0.7, sz=0.25, bevel=0.1, uv_tile=1.0)
-        pil_cream.add_rounded_box(cx=x + 1.0, cy=1.5, cz=-6.1, sx=0.65, sy=0.65, sz=0.22, bevel=0.1, uv_tile=1.0)
-    # Short back pillows
-    for i in range(2):
-        z = -4.0 + i * 2.2
-        pil_burg.add_rounded_box(cx=-1.35, cy=1.55, cz=z, sx=0.25, sy=0.7, sz=0.7, bevel=0.1, uv_tile=1.0)
-        pil_cream.add_rounded_box(cx=-1.3, cy=1.5, cz=z + 1.0, sx=0.22, sy=0.65, sz=0.65, bevel=0.1, uv_tile=1.0)
+    # ------------------------------------------------------------------
+    # 3. Pierre Jeanneret-Inspired Sculpted Walnut & Bouclé Lounge Chair
+    #    X=7.2, Z=-6.0, angled toward center
+    # ------------------------------------------------------------------
+    chair_angle = math.radians(-35.0)
+    ca = math.cos(chair_angle)
+    sa = math.sin(chair_angle)
+    cx0, cz0 = 7.2, -6.0
 
-    # 3. Boucle Swivel Lounge Chair at X=7.2, Z=-6.2
-    chair_angle = math.atan2(-1.6 - (-6.2), 4.2 - 7.2)  # toward coffee table
-    # Brass swivel pedestal
-    ped = ctx.mb("ChairPedestal", mats["brass"])
-    ped.add_cylinder(cx=7.2, y0=0.04, cz=-6.2, r_bot=0.45, r_top=0.35, height=0.35, segs=24)
-    ped.add_cylinder(cx=7.2, y0=0.39, cz=-6.2, r_bot=0.12, r_top=0.12, height=0.25, segs=16)
-    # Chair seat
-    ch_seat = ctx.mb("ChairSeat", mats["boucle"])
-    ch_seat.add_rounded_box(cx=7.2, cy=0.85, cz=-6.2, sx=1.3, sy=0.5, sz=1.3, bevel=0.18, uv_tile=1.5, rot_y=chair_angle)
-    # Chair back
-    ch_back = ctx.mb("ChairBack", mats["boucle"])
-    bx = 7.2 + math.sin(chair_angle) * 0.55
-    bz = -6.2 + math.cos(chair_angle) * 0.55
-    ch_back.add_rounded_box(cx=bx, cy=1.45, cz=bz, sx=1.3, sy=0.9, sz=0.35, bevel=0.15, uv_tile=1.5, rot_y=chair_angle)
-    # Chair armrests
-    ch_arm = ctx.mb("ChairArm", mats["boucle"])
-    for side in [-1, 1]:
-        ax = 7.2 + math.cos(chair_angle) * side * 0.6
-        az = -6.2 - math.sin(chair_angle) * side * 0.6
-        ch_arm.add_rounded_box(cx=ax, cy=1.05, cz=az, sx=0.3, sy=0.45, sz=1.2, bevel=0.12, uv_tile=1.5, rot_y=chair_angle)
+    def rot(px, pz):
+        return (cx0 + px * ca - pz * sa, cz0 + px * sa + pz * ca)
 
-    # Travertine drum side table at X=9.2, Z=-5.4
-    side = ctx.mb("SideTable", mats["travertine"])
-    side.add_cylinder(cx=9.2, y0=0.04, cz=-5.4, r_bot=0.42, r_top=0.42, height=0.55, segs=28)
+    # --- Angled solid walnut V-frame side legs ---
+    legs = ctx.mb("LoungeChairLegs", mats["walnut_solid"])
+    for side in (-1.0, 1.0):
+        # V-frame: two angled struts meeting at bottom
+        lx = side * 0.62
+        # front strut
+        p0 = rot(lx, 0.55)
+        p1 = rot(lx * 0.55, -0.55)
+        legs.add_cylinder(p0[0], 0.0, p0[1], 0.055, 0.055, 0.95, segs=10,
+                          rot_x=math.radians(18.0 * side), rot_z=math.radians(10.0))
+        # rear strut
+        p2 = rot(lx, -0.55)
+        legs.add_cylinder(p2[0], 0.0, p2[1], 0.055, 0.055, 0.95, segs=10,
+                          rot_x=math.radians(-18.0 * side), rot_z=math.radians(-10.0))
+        # cross rail
+        legs.add_cylinder(p1[0], 0.42, p1[1], 0.045, 0.045, 0.9, segs=8,
+                          rot_z=math.pi / 2.0)
 
-    # 4. Twin Overlapping Sculptural Coffee Tables
-    # Low oval travertine table at X=4.2, Z=-1.6
-    # Three fluted walnut legs
-    legs = ctx.mb("CoffeeLegs", mats["walnut_solid"])
-    for i in range(3):
-        ang = i * (2 * math.pi / 3) + math.pi / 6
-        lx = 4.2 + math.cos(ang) * 0.55
-        lz = -1.6 + math.sin(ang) * 0.55
-        legs.add_cylinder(cx=lx, y0=0.04, cz=lz, r_bot=0.09, r_top=0.09, height=0.85, segs=12)
-    # Oval travertine top
-    top1 = ctx.mb("CoffeeTop1", mats["travertine"])
-    top1.add_rounded_box(cx=4.2, cy=0.89, cz=-1.6, sx=2.2, sy=0.12, sz=1.4, bevel=0.06, uv_tile=1.5)
+    # --- Plump chamfered bouclé seat/back cushion ---
+    chair_cush = ctx.mb("LoungeChairCushion", mats["boucle"])
+    seat_c = rot(0.0, 0.0)
+    chair_cush.add_rounded_box(seat_c[0], 0.62, seat_c[1], 1.15, 0.42, 1.15,
+                               bevel=0.14, uv_tile=1.0, rot_y=chair_angle)
+    back_c = rot(0.0, -0.52)
+    chair_cush.add_rounded_box(back_c[0], 1.18, back_c[1], 1.15, 0.72, 0.32,
+                               bevel=0.14, uv_tile=1.0, rot_y=chair_angle)
 
-    # Higher brass-ring & travertine pedestal cocktail table at X=5.8, Z=-2.4
-    ped2 = ctx.mb("CocktailPedestal", mats["brass"])
-    ped2.add_cylinder(cx=5.8, y0=0.04, cz=-2.4, r_bot=0.35, r_top=0.3, height=0.9, segs=24)
-    # Brass ring detail
-    ped2.add_cylinder(cx=5.8, y0=0.5, cz=-2.4, r_bot=0.38, r_top=0.38, height=0.06, segs=24)
-    # Travertine top
-    top2 = ctx.mb("CocktailTop", mats["travertine"])
-    top2.add_cylinder(cx=5.8, y0=0.94, cz=-2.4, r_bot=0.75, r_top=0.75, height=0.12, segs=32)
+    # --- Small Roman travertine drum table at (9.1, 0.04, -5.2) ---
+    drum = ctx.mb("TravertineDrumTable", mats["travertine"])
+    drum.add_cylinder(9.1, 0.04, -5.2, 0.42, 0.40, 0.52, segs=24)
+    drum.add_cylinder(9.1, 0.56, -5.2, 0.44, 0.44, 0.05, segs=24)
 
-    # Stacked art books
-    books = ctx.mb("ArtBooks", mats["burgundy"])
-    books.add_rounded_box(cx=5.6, cy=1.10, cz=-2.3, sx=0.55, sy=0.06, sz=0.42, bevel=0.01, uv_tile=1.0)
-    books2 = ctx.mb("ArtBooks2", mats["cream_pillow"])
-    books2.add_rounded_box(cx=5.65, cy=1.16, cz=-2.35, sx=0.5, sy=0.05, sz=0.38, bevel=0.01, uv_tile=1.0)
+    # ------------------------------------------------------------------
+    # 4. Twin Sculptural Honed Travertine & Bronze Plinth Coffee Tables
+    #    X=4.2, Z=-1.6
+    # ------------------------------------------------------------------
+    # --- Low oval/capsule honed travertine slab (Y 0.04..0.88) ---
+    trav = ctx.mb("TravertineCoffeeTable", mats["travertine"])
+    # two wide curved fluted travertine drums
+    trav.add_cylinder(3.4, 0.04, -1.6, 0.55, 0.52, 0.72, segs=28)
+    trav.add_cylinder(5.0, 0.04, -1.6, 0.55, 0.52, 0.72, segs=28)
+    # fluting detail (thin vertical ridges)
+    for i in range(12):
+        ang = (i / 12.0) * math.pi * 2.0
+        fx = 3.4 + math.cos(ang) * 0.54
+        fz = -1.6 + math.sin(ang) * 0.54
+        trav.add_cylinder(fx, 0.06, fz, 0.025, 0.025, 0.68, segs=6)
+        fx2 = 5.0 + math.cos(ang) * 0.54
+        fz2 = -1.6 + math.sin(ang) * 0.54
+        trav.add_cylinder(fx2, 0.06, fz2, 0.025, 0.025, 0.68, segs=6)
+    # oval capsule slab top
+    trav.add_rounded_box(4.2, 0.84, -1.6, 2.6, 0.08, 1.35, bevel=0.04, uv_tile=1.5)
 
-    # Sculptural ceramic vase
-    vase = ctx.mb("CeramicVase", mats["cream_pillow"])
-    profile = [
-        (0.0, 0.0),
-        (0.12, 0.0),
-        (0.16, 0.05),
+    # --- Overlapping higher dark-bronze & cream marble cocktail table ---
+    bronze = ctx.mb("BronzeCocktailTable", mats["bronze_dark"])
+    # bronze plinth base
+    bronze.add_rounded_box(5.9, 0.30, -2.4, 1.15, 0.52, 1.15, bevel=0.05, uv_tile=1.0)
+    # cream marble top (use travertine as cream marble proxy)
+    bronze_top = ctx.mb("BronzeCocktailTop", mats["travertine"])
+    bronze_top.add_rounded_box(5.9, 1.10, -2.4, 1.35, 0.08, 1.35, bevel=0.04, uv_tile=1.2)
+
+    # --- Styling: two linen-bound exhibition monographs + stoneware bowl ---
+    books = ctx.mb("CoffeeTableBooks", mats["cream_pillow"])
+    books.add_rounded_box(5.55, 1.17, -2.55, 0.42, 0.06, 0.32, bevel=0.01, uv_tile=0.5)
+    books2 = ctx.mb("CoffeeTableBooks2", mats["cognac_suede"])
+    books2.add_rounded_box(5.62, 1.24, -2.50, 0.40, 0.06, 0.30, bevel=0.01, uv_tile=0.5)
+
+    # low shallow stoneware bowl (add_lathe)
+    bowl = ctx.mb("StonewareBowl", mats["travertine"])
+    bowl_profile = [
+        (0.00, 0.00),
+        (0.18, 0.00),
+        (0.22, 0.04),
+        (0.24, 0.10),
+        (0.22, 0.14),
         (0.18, 0.15),
-        (0.14, 0.28),
-        (0.08, 0.38),
-        (0.07, 0.45),
-        (0.09, 0.48),
-        (0.0, 0.48),
+        (0.16, 0.13),
+        (0.15, 0.08),
+        (0.14, 0.04),
+        (0.00, 0.03),
     ]
-    vase.add_lathe(cx=6.1, y0=1.06, cz=-2.5, profile=profile, segs=24)
+    bowl.add_lathe(6.25, 1.14, -2.25, bowl_profile, segs=24)

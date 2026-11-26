@@ -100,7 +100,7 @@ export async function onRequestPost(context) {
   const nickname = String(body?.nickname || "新邻居").slice(0, 12);
   const happiness = Number.isFinite(body?.happiness) ? Number(body.happiness) : 100;
   const sulking = Boolean(body?.sulking || happiness < 80);
-  const sceneName = body?.scene === "cafe" ? "海岸咖啡馆" : body?.scene === "warehouse" ? "会员制仓储大超市" : "顶层阳光客厅";
+  const sceneName = body?.scene === "cafe" ? "海岸烘焙室" : body?.scene === "warehouse" ? "ELOWEN 有机市集" : "双层阳光客厅";
 
   const systemPrompt =
     mode === "suggest_names"

@@ -38,6 +38,28 @@ FORBIDDEN_WORDS = (
     "\u4e4c\u7bf7\u8239",
 )
 
+# Quiet luxury Show-Dont-Tell ban list (escaped so this script stays clean under static scan)
+TACKY_WORDS = (
+    "\u8d35\u65cf",
+    "\u9ad8\u8d35",
+    "\u8c6a\u5b85",
+    "\u9876\u5962",
+    "\u5bcc\u8c6a",
+    "\u571f\u8c6a",
+    "\u6709\u94b1",
+    "VIP",
+    "\u4f1a\u5458\u8d85\u5e02",
+    "\u4f1a\u5458\u5e97",
+    "\u4f1a\u5458\u5236",
+    "\u4f1a\u5458\u5361",
+    "\u6392\u9762",
+    "\u626b\u8d27",
+    "\u5de8\u65e0\u9738",
+    "\u5427\u53f0\u5c0f\u54e5",
+    "\u5c0f\u59d0\u59d0",
+    "\u751c\u54c1\u6a71\u7a97",
+)
+
 
 def load_deepseek_key() -> str:
     env_map = {}
@@ -102,6 +124,13 @@ def check_forbidden_text(text: str) -> str | None:
     return None
 
 
+def check_tacky_text(text: str) -> str | None:
+    for w in TACKY_WORDS:
+        if re.search(rf"(?<![A-Za-z]){re.escape(w)}(?![A-Za-z])" if w.isascii() else re.escape(w), text, re.I):
+            return w
+    return None
+
+
 def _run_verify(task: dict) -> tuple[bool, str]:
     out_path = task["out_path"]
     if not os.path.exists(out_path):
@@ -111,6 +140,10 @@ def _run_verify(task: dict) -> tuple[bool, str]:
     bad_word = check_forbidden_text(content)
     if bad_word:
         return False, f"Forbidden geographic term found in output: {bad_word!r}. Remove it immediately."
+    if task.get("check_tacky_copy"):
+        tacky = check_tacky_text(content)
+        if tacky:
+            return False, f"Quiet-luxury violation (Show, Don't Tell): forbidden tacky/literal status word {tacky!r}. Express status indirectly via objects and taste."
 
     verify_cmd = task.get("verify_cmd")
     if not verify_cmd:

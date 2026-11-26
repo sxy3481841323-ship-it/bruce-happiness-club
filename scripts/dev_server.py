@@ -106,7 +106,7 @@ def call_deepseek_live(body):
     nickname = str(body.get("nickname") or "新邻居")[:12]
     happiness = int(body.get("happiness", 100)) if str(body.get("happiness", "")).isdigit() else 100
     sulking = bool(body.get("sulking") or happiness < 80)
-    scene_name = "海岸咖啡馆" if body.get("scene") == "cafe" else ("会员制仓储大超市" if body.get("scene") == "warehouse" else "顶层阳光客厅")
+    scene_name = "海岸烘焙室" if body.get("scene") == "cafe" else ("ELOWEN 有机市集" if body.get("scene") == "warehouse" else "双层阳光客厅")
 
     if mode == "suggest_names":
         sys_p = (

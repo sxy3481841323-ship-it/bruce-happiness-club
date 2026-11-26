@@ -18,6 +18,11 @@ from PIL import Image, ImageDraw, ImageFilter
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_PATH = os.path.join(ROOT_DIR, "assets", "models", "coastal_cafe.glb")
 
+import sys
+if os.path.join(ROOT_DIR, "scripts") not in sys.path:
+    sys.path.insert(0, os.path.join(ROOT_DIR, "scripts"))
+from penthouse_kit.tex_cafe_coastal import make_malibu_coastal_panorama, make_coastal_wave_photo_tex
+
 
 # ---------------------------------------------------------------------------
 # Procedural Texture Generators (embedded cleanly into GLB)
@@ -47,9 +52,9 @@ def make_sage_tile_tex(size=1024) -> Image.Image:
     ty = (y >= size // 2).astype(np.float32)
     tile_shift = (tx * 2.4 - ty * 1.8 + tx * ty * 1.5)
 
-    r = np.clip(184 + cloud + tile_shift, 160, 212)
-    g = np.clip(208 + cloud + tile_shift, 184, 232)
-    b = np.clip(174 + cloud * 0.9 + tile_shift, 152, 200)
+    r = np.clip(212 + cloud + tile_shift, 192, 232)
+    g = np.clip(208 + cloud + tile_shift, 188, 228)
+    b = np.clip(198 + cloud * 0.9 + tile_shift, 178, 218)
 
     # Crisp grout seams at 0 and size/2
     grout_w = 5
@@ -571,15 +576,15 @@ def build_scene():
         materials.append(mat)
         return idx
 
-    # Textures
-    t_tile = add_tex(make_sage_tile_tex(1024), "JPEG", 88)
-    t_brick = add_tex(make_white_brick_tex(1024), "JPEG", 86)
-    t_marble = add_tex(make_marble_tex(1024, 512), "JPEG", 88)
-    t_oak = add_tex(make_oak_tex(512), "JPEG", 86)
-    t_fabric = add_tex(make_oatmeal_fabric_tex(512), "JPEG", 84)
-    t_art = add_tex(make_geo_art_tex(512), "JPEG", 88)
-    t_coast = add_tex(make_coastal_backdrop_tex(2048, 1024), "JPEG", 85)
-    t_latte = add_tex(make_latte_art_tex(256), "JPEG", 85)
+    # Textures (High-Res 15 MB Quiet Luxury Standard)
+    t_tile = add_tex(make_sage_tile_tex(1024), "JPEG", 90)
+    t_brick = add_tex(make_white_brick_tex(1024), "JPEG", 90)
+    t_marble = add_tex(make_marble_tex(1024, 512), "JPEG", 90)
+    t_oak = add_tex(make_oak_tex(512), "JPEG", 88)
+    t_fabric = add_tex(make_oatmeal_fabric_tex(512), "JPEG", 88)
+    t_art = add_tex(make_coastal_wave_photo_tex(1024), "JPEG", 94)
+    t_coast = add_tex(make_malibu_coastal_panorama(4096, 2048), "JPEG", 95)
+    t_latte = add_tex(make_latte_art_tex(256), "JPEG", 88)
 
     # Materials
     m_floor = add_mat("SageTileFloor", (1, 1, 1, 1), roughness=0.25, metalness=0.04, tex_idx=t_tile)
@@ -603,8 +608,8 @@ def build_scene():
     m_leaf_bright = add_mat("FoliageBright", (0.25, 0.54, 0.21, 1.0), roughness=0.52, double_sided=True)
     m_palm_trunk = add_mat("PalmTrunk", (0.38, 0.31, 0.24, 1.0), roughness=0.86)
     m_palm_frond = add_mat("PalmFronds", (0.20, 0.46, 0.18, 1.0), roughness=0.60, double_sided=True)
-    m_flower_pink = add_mat("FlowerPink", (0.86, 0.28, 0.42, 1.0), roughness=0.65)
-    m_flower_coral = add_mat("FlowerCoral", (0.92, 0.42, 0.40, 1.0), roughness=0.65)
+    m_flower_pink = add_mat("FlowerPink", (0.94, 0.92, 0.88, 1.0), roughness=0.72)
+    m_flower_coral = add_mat("FlowerCoral", (0.92, 0.87, 0.78, 1.0), roughness=0.72)
     m_boardwalk = add_mat("BoardwalkTimber", (0.56, 0.48, 0.40, 1.0), roughness=0.84)
     m_coast_bg = add_mat("CoastalBackdrop", (1, 1, 1, 1), roughness=1.0, emissive=None, tex_idx=t_coast, double_sided=True)
     m_art = add_mat("GeoPainting", (1, 1, 1, 1), roughness=0.45, tex_idx=t_art)
