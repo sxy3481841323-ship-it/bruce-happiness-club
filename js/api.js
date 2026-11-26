@@ -15,10 +15,13 @@ const DEFAULT_SEEDS = [
 ];
 
 function isStaticFallbackNeeded(err) {
+  const msg = String(err?.message || "");
   return (
     err?.status === 404 ||
     err?.status === 405 ||
     err?.status === 501 ||
+    (Number.isFinite(err?.status) && err.status >= 500) ||
+    /KV namespace|not bound|not found/i.test(msg) ||
     err?.name === "TypeError"
   );
 }
@@ -225,7 +228,7 @@ async function requestJson(url, options = {}) {
 
 export async function apiRegister(owner, nickname, pin) {
   try {
-    return await requestJson("/api/register", {
+    return await requestJson("./api/register", {
       method: "POST",
       body: JSON.stringify({ owner, nickname, pin }),
     });
@@ -239,7 +242,7 @@ export async function apiRegister(owner, nickname, pin) {
 
 export async function apiUpdateScore(nickname, pin, owner, happiness, tickerMessage = "") {
   try {
-    return await requestJson("/api/score", {
+    return await requestJson("./api/score", {
       method: "POST",
       body: JSON.stringify({ nickname, pin, owner, happiness, tickerMessage }),
     });
@@ -253,7 +256,7 @@ export async function apiUpdateScore(nickname, pin, owner, happiness, tickerMess
 
 export async function apiTriggerSwap(nickname, pin, reason) {
   try {
-    return await requestJson("/api/swap", {
+    return await requestJson("./api/swap", {
       method: "POST",
       body: JSON.stringify({ nickname, pin, reason }),
     });
@@ -267,7 +270,7 @@ export async function apiTriggerSwap(nickname, pin, reason) {
 
 export async function apiGetLeaderboard() {
   try {
-    return await requestJson("/api/leaderboard", { method: "GET" });
+    return await requestJson("./api/leaderboard", { method: "GET" });
   } catch (err) {
     if (isStaticFallbackNeeded(err)) {
       return handleStaticFallback("leaderboard");

@@ -19,10 +19,43 @@ const DEFAULT_TICKER = [
   { id: "seed-3", text: "冷战播报：雨天踩坑冷战中 正在别墅客厅掏分哄狗，祝他抽中 96% 和牛礼盒。", ts: Date.now() - 30000 },
 ];
 
+function isKvStore(v) {
+  return Boolean(v && typeof v.get === "function" && typeof v.put === "function");
+}
+
+function getMemoryKv() {
+  if (typeof globalThis === "undefined") return null;
+  if (!globalThis.__BRUCE_MEM_KV_MAP__) {
+    globalThis.__BRUCE_MEM_KV_MAP__ = new Map();
+  }
+  const map = globalThis.__BRUCE_MEM_KV_MAP__;
+  return {
+    async get(key) {
+      return map.has(key) ? map.get(key) : null;
+    },
+    async put(key, val) {
+      map.set(key, String(val));
+    },
+  };
+}
+
 export function getKv(env) {
-  if (env && env.BRUCE_KV) return env.BRUCE_KV;
-  if (typeof globalThis !== "undefined" && globalThis.BRUCE_KV) return globalThis.BRUCE_KV;
-  return null;
+  if (env && isKvStore(env.BRUCE_KV)) return env.BRUCE_KV;
+  if (typeof globalThis !== "undefined" && isKvStore(globalThis.BRUCE_KV)) {
+    return globalThis.BRUCE_KV;
+  }
+  // Auto-detect any EdgeOne KV namespace bound under another variable name (e.g. bruce, brucename)
+  if (env && typeof env === "object") {
+    for (const val of Object.values(env)) {
+      if (isKvStore(val)) return val;
+    }
+  }
+  if (typeof globalThis !== "undefined") {
+    for (const key of ["bruce_kv", "BRUCE", "bruce", "brucename", "KV"]) {
+      if (isKvStore(globalThis[key])) return globalThis[key];
+    }
+  }
+  return getMemoryKv();
 }
 
 export function jsonResponse(data, status = 200) {
