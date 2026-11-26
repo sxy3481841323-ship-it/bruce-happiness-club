@@ -43,16 +43,33 @@
     <div class="hud-score-pill" title="幸福指数 = 排行榜分数 = 冷战期唯一消费货币">
       <div class="score-flap-head">
         <span class="score-label">HAPPINESS · 幸福指数</span>
-        <span class="score-rank" id="hud-rank">#--</span>
+        <span class="score-rank" id="hud-rank">榜上有名</span>
       </div>
       <span class="score-value" id="hud-score">100</span>
     </div>
 
-    <div class="hud-actions">
-      <button class="btn-pill keycap" id="btn-nav-map" type="button">客厅</button>
-      <button class="btn-pill keycap hidden" id="btn-nav-shop" type="button">急救零食</button>
-      <button class="btn-pill keycap btn-primary" id="btn-nav-board" type="button">排行榜</button>
-      <button class="btn-pill keycap" id="btn-sound-toggle" type="button">音效</button>
+    <div class="hud-actions hud-atelier-dock" role="toolbar" aria-label="快捷导航">
+      <button class="dock-item is-active" id="btn-nav-map" type="button" title="回到 3D 阳光客厅">
+        <svg class="dock-ico" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M6 10v9.5h12V10"/><path d="M10.5 19.5v-5h3v5"/></svg>
+        <span class="dock-label">客厅</span>
+      </button>
+      <button class="dock-item is-alert hidden" id="btn-nav-shop" type="button" title="前往零食急救柜哄狗">
+        <svg class="dock-ico" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 8h10l1 11H6L7 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+        <span class="dock-label">急救零食</span>
+      </button>
+      <button class="dock-item is-honors" id="btn-nav-board" type="button" title="打开私人俱乐部荣誉挂牌墙">
+        <svg class="dock-ico" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4.5a1.5 1.5 0 0 0 0 3H7M17 6h2.5a1.5 1.5 0 0 1 0 3H17"/></svg>
+        <span class="dock-label">荣誉榜</span>
+      </button>
+      <span class="dock-divider" aria-hidden="true"></span>
+      <button class="dock-sound-btn" id="btn-sound-toggle" type="button" aria-label="切换音效" aria-pressed="true" title="音效开关">
+        <svg class="sound-waves" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <path class="wave-inner" d="M15.5 8.5a5 5 0 0 1 0 7"/>
+          <path class="wave-outer" d="M18.5 5.5a9 9 0 0 1 0 13"/>
+          <line class="mute-slash" x1="21" y1="3" x2="3" y2="21"/>
+        </svg>
+      </button>
     </div>
   </nav>
 
@@ -95,127 +112,84 @@
     </div>
   </aside>
 
-  <!-- 归家序幕：顶层 PH 私人电梯 -> 深胡桃木黄铜门廊 -> 推门进 3D 阳光客厅 -->
+  <!-- 归家序幕：全屏真 3D 顶层私人电梯 -> 3D 立体胡桃木门廊 -> 1 秒阳光反差推门进客厅 -->
   <div class="modal-backdrop prologue-backdrop" id="onboarding-modal">
-    <button class="prologue-skip-btn hidden" id="btn-prologue-skip" type="button">跳过序幕 ›</button>
+    <canvas class="prologue-3d-canvas" id="prologue-3d-canvas"></canvas>
+    <div class="prologue-sunbloom" aria-hidden="true"></div>
+    <button class="prologue-skip-btn" id="btn-prologue-skip" type="button">跳过序幕 ›</button>
 
-    <!-- 第 1 幕：顶层私人电梯 -->
-    <div class="prologue-elevator" id="prologue-elevator" aria-hidden="true">
-      <div class="elev-header">
-        <span class="elev-label">PRIVATE PENTHOUSE LIFT</span>
-        <div class="elev-dial">
-          <span class="elev-floor-num" id="prologue-floor-num">18</span>
-          <span class="elev-arrow">▲</span>
+    <div class="prologue-overlay-ui" id="prologue-overlay-ui">
+      <!-- 状态 A：新住户 / 换号悬浮黑曜石黄铜登记卡片 -->
+      <div class="door-concierge-card" id="prologue-register-panel">
+        <div class="onboarding-head">
+          <span class="modal-pill-tag brass-plaque-tag">PH-01 · 领巾入籍名牌</span>
+          <h1>刻制门牌，推开 3D 阳光客厅</h1>
+          <p class="sub-copy">初始 100 分幸福指数既是排名积分，也是冷战期哄狗的唯一货币。</p>
         </div>
-      </div>
-      <div class="elev-doors">
-        <div class="elev-door elev-door-left">
-          <span class="elev-seam-trim"></span>
-        </div>
-        <div class="elev-door elev-door-right">
-          <span class="elev-seam-trim"></span>
-        </div>
-      </div>
-    </div>
 
-    <!-- 第 2 幕：静谧冷调胡桃木与拉丝黄铜寓所门廊 -->
-    <div class="prologue-foyer">
-      <div class="foyer-wainscot" aria-hidden="true"></div>
-      <div class="prologue-sunbloom" aria-hidden="true"></div>
+        <div class="owner-picker">
+          <label class="owner-option selected" data-owner="Alex">
+            <input type="radio" name="owner" value="Alex" checked />
+            <img src="./assets/img/owner_alex.jpg" alt="Alex" />
+            <span class="owner-name">Alex</span>
+            <span class="owner-role">男主人</span>
+          </label>
+          <label class="owner-option" data-owner="Meya">
+            <input type="radio" name="owner" value="Meya" />
+            <img src="./assets/img/owner_meya.jpg" alt="Meya" />
+            <span class="owner-name">Meya</span>
+            <span class="owner-role">女主人</span>
+          </label>
+        </div>
 
-      <div class="prologue-door-frame">
-        <div class="prologue-door" id="prologue-door">
-          <div class="door-crown-plaque">
-            <span class="plaque-screw"></span>
-            <span class="plaque-crest-text">PH-01 · BRUCE RESIDENCE</span>
-            <span class="plaque-screw"></span>
+        <form id="onboarding-form" class="onboarding-form" novalidate>
+          <div class="field-group">
+            <label for="input-nickname">住户昵称（全服唯一 · 至少含 1 个汉字）</label>
+            <input id="input-nickname" type="text" maxlength="12" placeholder="例如：冰美式续命侠" autocomplete="off" required />
+            <small class="field-hint">不可重名，且不能是纯数字或纯英文字母。</small>
           </div>
 
-          <div class="door-molding-box">
-            <!-- 状态 A：新住户 / 换号刻制名牌登记 -->
-            <div class="door-concierge-card" id="prologue-register-panel">
-              <div class="onboarding-head">
-                <span class="modal-pill-tag brass-plaque-tag">NO.01 · 领巾入籍名牌</span>
-                <h1>刻制门牌，推开 3D 阳光客厅</h1>
-                <p class="sub-copy">初始 100 分幸福指数既是俱乐部荣誉排名，也是跌破 80 分冷战期买零食哄狗的唯一货币。</p>
-              </div>
+          <div class="field-group">
+            <label for="input-pin">4 位铜锁暗号（防冒用 / 跨设备归家）</label>
+            <input id="input-pin" type="password" inputmode="numeric" maxlength="4" pattern="\d{4}" placeholder="4 位数字，如 2026" required />
+          </div>
 
-              <div class="owner-picker">
-                <label class="owner-option selected" data-owner="Alex">
-                  <input type="radio" name="owner" value="Alex" checked />
-                  <img src="./assets/img/owner_alex.jpg" alt="Alex" />
-                  <span class="owner-name">Alex</span>
-                  <span class="owner-role">男主人</span>
-                </label>
-                <label class="owner-option" data-owner="Meya">
-                  <input type="radio" name="owner" value="Meya" />
-                  <img src="./assets/img/owner_meya.jpg" alt="Meya" />
-                  <span class="owner-name">Meya</span>
-                  <span class="owner-role">女主人</span>
-                </label>
-              </div>
+          <p class="form-error hidden" id="onboarding-error"></p>
+          <button class="btn-pill btn-brass-lock btn-block" id="btn-enter-game" type="submit">
+            <span class="lock-glyph" aria-hidden="true">🗝</span>
+            <span class="lock-btn-label">拧开黄铜门锁 · 推门归家</span>
+          </button>
+        </form>
+      </div>
 
-              <form id="onboarding-form" class="onboarding-form" novalidate>
-                <div class="field-group">
-                  <label for="input-nickname">住户昵称（全服唯一 · 至少含 1 个汉字）</label>
-                  <input id="input-nickname" type="text" maxlength="12" placeholder="例如：冰美式续命侠" autocomplete="off" required />
-                  <small class="field-hint">不可重名，且不能是纯数字或纯英文字母。</small>
-                </div>
-
-                <div class="field-group">
-                  <label for="input-pin">4 位铜锁暗号（防冒用 / 跨设备归家）</label>
-                  <input id="input-pin" type="password" inputmode="numeric" maxlength="4" pattern="\d{4}" placeholder="4 位数字，如 2026" required />
-                </div>
-
-                <p class="form-error hidden" id="onboarding-error"></p>
-                <button class="btn-pill btn-brass-lock btn-block" id="btn-enter-game" type="submit">
-                  <span class="lock-glyph" aria-hidden="true">🗝</span>
-                  <span class="lock-btn-label">拧开黄铜门锁 · 推门归家</span>
-                </button>
-              </form>
+      <!-- 状态 B：老住户底部极简黄铜门牌控制条（保留 85% 立体 3D 门廊视野） -->
+      <div class="prologue-welcome hidden" id="prologue-welcome-panel">
+        <div class="brass-resident-dock">
+          <div class="welcome-resident-meta">
+            <div class="welcome-avatars">
+              <img id="welcome-owner-img" class="welcome-avatar" src="./assets/img/owner_alex.jpg" alt="主人" />
+              <img class="welcome-avatar is-bruce" src="./assets/img/bruce_happy.jpg" alt="布鲁斯" />
             </div>
-
-            <!-- 状态 B：老住户专属黄铜铭牌归家 -->
-            <div class="prologue-welcome hidden" id="prologue-welcome-panel">
-              <div class="brass-resident-plate">
-                <span class="plate-rivet r-tl"></span>
-                <span class="plate-rivet r-tr"></span>
-                <span class="plate-rivet r-bl"></span>
-                <span class="plate-rivet r-br"></span>
-                <div class="welcome-kicker">RESIDENCE KEY · 欢迎回家</div>
-                <div class="welcome-resident-row">
-                  <img id="welcome-owner-img" class="welcome-avatar" src="./assets/img/owner_alex.jpg" alt="主人" />
-                  <img class="welcome-avatar is-bruce" src="./assets/img/bruce_happy.jpg" alt="布鲁斯" />
-                </div>
-                <h1 class="welcome-resident-name" id="welcome-resident-name">Alex &amp; 新邻居</h1>
-                <div class="welcome-score-row">
-                  <span class="welcome-score-badge" id="welcome-score-tag">当前幸福指数 100</span>
-                </div>
-              </div>
-
-              <button class="btn-pill btn-brass-lock btn-block" id="btn-unlock-home" type="button">
-                <span class="lock-glyph" aria-hidden="true">🗝</span>
-                <span class="lock-btn-label">拧开黄铜门锁 · 推门进客厅</span>
-              </button>
-
-              <button class="prologue-switch-link" id="btn-prologue-switch" type="button">更换住户名牌 / 切换账号</button>
+            <div class="welcome-text-col">
+              <div class="welcome-kicker">PH-01 · 欢迎回家</div>
+              <div class="welcome-resident-name" id="welcome-resident-name">Alex &amp; 新邻居</div>
+              <div class="welcome-score-badge" id="welcome-score-tag">幸福指数 100 · 布鲁斯在门后等你</div>
             </div>
           </div>
 
-          <!-- 门右侧拉丝黄铜执手 -->
-          <div class="door-brass-hardware" aria-hidden="true">
-            <span class="door-lock-plate"></span>
-            <span class="door-lever-handle"></span>
+          <div class="welcome-dock-actions">
+            <button class="btn-pill btn-brass-lock btn-block" id="btn-unlock-home" type="button">
+              <span class="lock-glyph" aria-hidden="true">🗝</span>
+              <span class="lock-btn-label">拧开 3D 铜门锁 · 推门进客厅</span>
+            </button>
+            <button class="prologue-switch-link" id="btn-prologue-switch" type="button">更换住户名牌 / 切换账号</button>
           </div>
-
-          <!-- 门底溢出的客厅暖光 -->
-          <div class="door-light-seam" aria-hidden="true"></div>
         </div>
       </div>
 
       <p class="foyer-paw-whisper" id="prologue-paw-whisper">
         <span class="whisper-dot"></span>
-        门缝透出阳光客厅的暖光，门后隐约传来布鲁斯轻快踏近的小爪子声……
+        门缝溢出阳光客厅的暖光，直接点击 3D 大门把手也可推门归家
       </p>
     </div>
   </div>

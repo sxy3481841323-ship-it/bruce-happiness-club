@@ -4,6 +4,7 @@ import { renderMapView, stopMapLoop, renderCafeView, stopCafeLoop } from "./map.
 import { renderSceneView, unmountSceneView } from "./activities.js";
 import { renderShopView } from "./shop.js";
 import { renderLeaderboardDrawer, renderTicker } from "./leaderboard.js";
+import { mountPrologue3D } from "./hub3d/prologue3d.js";
 import { sfx } from "./audio.js";
 
 function validateNicknameClient(raw) {
@@ -41,8 +42,8 @@ function syncUiFromState(state) {
 
 function setupPrologueStage() {
   const modal = document.getElementById("onboarding-modal");
-  const elevator = document.getElementById("prologue-elevator");
-  const floorNumEl = document.getElementById("prologue-floor-num");
+  const canvas3d = document.getElementById("prologue-3d-canvas");
+  const overlayUi = document.getElementById("prologue-overlay-ui");
   const skipBtn = document.getElementById("btn-prologue-skip");
   const registerPanel = document.getElementById("prologue-register-panel");
   const welcomePanel = document.getElementById("prologue-welcome-panel");
@@ -58,12 +59,39 @@ function setupPrologueStage() {
 
   let doorAnimating = false;
   let pawCuePlayed = false;
+  let currentMode = "register";
+  let scene3d = null;
+
+  const ensureScene3D = () => {
+    if (scene3d || !canvas3d) return scene3d;
+    try {
+      scene3d = mountPrologue3D(canvas3d, {
+        onArrivedTop() {
+          sfx.playElevatorChime();
+        },
+        onArrivedFoyer() {
+          overlayUi?.classList.add("is-foyer-ready");
+        },
+        onDoorClicked() {
+          if (currentMode === "welcome" && !doorAnimating) {
+            openDoorAndEnter(false);
+          } else if (currentMode === "register") {
+            document.getElementById("input-nickname")?.focus();
+          }
+        },
+      });
+    } catch (err) {
+      console.warn("Prologue 3D init fallback:", err);
+      overlayUi?.classList.add("is-foyer-ready");
+    }
+    return scene3d;
+  };
 
   const setPrologueMode = (mode, playerData = null) => {
     const isWelcome = mode === "welcome" && Boolean(playerData);
+    currentMode = isWelcome ? "welcome" : "register";
     registerPanel?.classList.toggle("hidden", isWelcome);
     welcomePanel?.classList.toggle("hidden", !isWelcome);
-    skipBtn?.classList.toggle("hidden", !isWelcome);
     if (isWelcome && playerData) {
       if (welcomeOwnerImg) {
         welcomeOwnerImg.src = playerData.owner === "Meya"
@@ -76,27 +104,31 @@ function setupPrologueStage() {
       if (welcomeScoreEl) {
         const scoreVal = Number.isFinite(playerData.happiness) ? playerData.happiness : 100;
         welcomeScoreEl.textContent = scoreVal < 80
-          ? `当前幸福指数 ${scoreVal} · 布鲁斯在门后等你哄`
-          : `当前幸福指数 ${scoreVal} · 布鲁斯已叼好丝巾`;
+          ? `幸福指数 ${scoreVal} · 布鲁斯在门后等你哄`
+          : `幸福指数 ${scoreVal} · 布鲁斯正摇尾迎接`;
       }
       if (whisperEl) {
-        whisperEl.lastChild.textContent = `门缝溢出暖光，${playerData.nickname}，布鲁斯正摇着尾巴贴在门后等你！`;
+        whisperEl.lastChild.textContent = `门缝溢出暖光，${playerData.nickname}，点 3D 门把手或下方按钮即可推门回家`;
       }
     } else if (whisperEl) {
-      whisperEl.lastChild.textContent = "门缝透出阳光客厅的暖光，门后隐约传来布鲁斯轻快踏近的小爪子声……";
+      whisperEl.lastChild.textContent = "门缝溢出阳光客厅的暖光，登记名牌后即可拧开 3D 铜门锁";
     }
   };
 
   const openDoorAndEnter = (immediate = false) => {
     if (!modal || doorAnimating) return;
     doorAnimating = true;
-    elevator?.classList.add("is-arrived");
     sfx.playDoorUnlock();
 
     const finish = () => {
       modal.classList.add("hidden");
       modal.classList.remove("is-opening");
+      overlayUi?.classList.remove("is-foyer-ready");
       doorAnimating = false;
+      if (scene3d) {
+        scene3d.destroy();
+        scene3d = null;
+      }
       window.dispatchEvent(new CustomEvent("bruce:door-opened"));
     };
 
@@ -107,28 +139,22 @@ function setupPrologueStage() {
     }
 
     modal.classList.add("is-opening");
-    setTimeout(finish, 680);
+    if (scene3d) {
+      scene3d.playUnlockAndSwing(finish);
+    } else {
+      setTimeout(finish, 920);
+    }
   };
 
-  // Penthouse elevator arrival choreography on boot
+  // Start the full-screen 3D Penthouse Elevator & Foyer immediately on boot
+  ensureScene3D();
   const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
   if (reduceMotion) {
-    if (floorNumEl) floorNumEl.textContent = "PH";
-    elevator?.classList.add("is-arrived");
-  } else {
-    setTimeout(() => {
-      if (floorNumEl) floorNumEl.textContent = "26";
-    }, 210);
-    setTimeout(() => {
-      if (floorNumEl) floorNumEl.textContent = "PH";
-      sfx.playElevatorChime();
-    }, 440);
-    setTimeout(() => {
-      elevator?.classList.add("is-arrived");
-    }, 640);
+    scene3d?.skipToFoyer();
+    overlayUi?.classList.add("is-foyer-ready");
   }
 
-  // First pointer interaction in foyer plays soft muffled paw taps behind the walnut door
+  // First pointer interaction in foyer plays soft muffled paw taps behind the 3D walnut door
   modal?.addEventListener("pointerdown", () => {
     if (!pawCuePlayed && !doorAnimating) {
       pawCuePlayed = true;
@@ -188,7 +214,12 @@ function setupPrologueStage() {
   });
 
   skipBtn?.addEventListener("click", () => {
-    openDoorAndEnter(true);
+    if (currentMode === "welcome") {
+      openDoorAndEnter(true);
+    } else {
+      scene3d?.skipToFoyer();
+      overlayUi?.classList.add("is-foyer-ready");
+    }
   });
 
   switchBtn?.addEventListener("click", () => {
@@ -196,8 +227,9 @@ function setupPrologueStage() {
     document.getElementById("input-nickname").value = "";
     document.getElementById("input-pin").value = "";
     errEl?.classList.add("hidden");
-    elevator?.classList.add("is-arrived");
     modal?.classList.remove("is-opening");
+    scene3d?.skipToFoyer();
+    overlayUi?.classList.add("is-foyer-ready");
     setPrologueMode("register");
   });
 
@@ -206,8 +238,9 @@ function setupPrologueStage() {
       setPrologueMode("welcome", playerData);
     },
     showRegister() {
-      elevator?.classList.add("is-arrived");
       modal?.classList.remove("is-opening", "hidden");
+      ensureScene3D()?.skipToFoyer();
+      overlayUi?.classList.add("is-foyer-ready");
       setPrologueMode("register");
     },
   };
@@ -241,7 +274,10 @@ function setupGlobalNav(prologueCtrl) {
 
   document.getElementById("btn-sound-toggle")?.addEventListener("click", (e) => {
     const muted = sfx.toggleMute();
-    e.currentTarget.textContent = muted ? "静音" : "音效";
+    const btn = e.currentTarget;
+    btn.classList.toggle("is-muted", muted);
+    btn.setAttribute("aria-pressed", muted ? "false" : "true");
+    btn.title = muted ? "已静音（点击开启音效）" : "音效开启（点击静音）";
   });
 
   document.getElementById("btn-switch-player")?.addEventListener("click", () => {
@@ -288,11 +324,12 @@ async function boot() {
       moodEl.className = `mood-pill ${sulking ? "mood-pill-sulk" : "mood-pill-happy"}`;
       moodEl.textContent = sulking ? "冷战锁定 (<80)" : "活力陪玩中";
       const myRow = (state.leaderboard || []).find((r) => r.nickname === player.nickname);
-      document.getElementById("hud-rank").textContent = myRow ? `#${myRow.rank}` : "#--";
+      document.getElementById("hud-rank").textContent = myRow ? `第 ${myRow.rank} 名` : "未上榜";
     }
 
     document.getElementById("anhedonia-banner").classList.toggle("hidden", !sulking);
     document.getElementById("btn-nav-shop").classList.toggle("hidden", !sulking);
+    document.getElementById("btn-nav-map")?.classList.toggle("is-active", state.view === "map" || state.view === "street");
     renderTicker(state.ticker);
     renderLeaderboardDrawer();
 

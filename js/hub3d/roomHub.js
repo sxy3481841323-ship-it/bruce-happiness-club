@@ -425,6 +425,37 @@ export function mountLivingRoomHub(container, opts = {}) {
   bruce.setMood(sulking ? "sulk" : "happy");
   scene.add(bruce.root);
 
+  // Soft radial contact shadow under Bruce (replacing the hard gray circle disc)
+  const shadowCanvas = document.createElement("canvas");
+  shadowCanvas.width = 128;
+  shadowCanvas.height = 128;
+  const sctx = shadowCanvas.getContext("2d");
+  const sgrad = sctx.createRadialGradient(64, 64, 6, 64, 64, 58);
+  sgrad.addColorStop(0, "rgba(38, 32, 26, 0.22)");
+  sgrad.addColorStop(0.55, "rgba(38, 32, 26, 0.08)");
+  sgrad.addColorStop(1, "rgba(38, 32, 26, 0)");
+  sctx.fillStyle = sgrad;
+  sctx.fillRect(0, 0, 128, 128);
+  const softShadowTex = new THREE.CanvasTexture(shadowCanvas);
+  const softShadowGeo = new THREE.PlaneGeometry(2.3, 2.3);
+  softShadowGeo.rotateX(-Math.PI / 2);
+  const softShadowMat = new THREE.MeshBasicMaterial({
+    map: softShadowTex,
+    transparent: true,
+    depthWrite: false,
+  });
+  const softShadowMesh = new THREE.Mesh(softShadowGeo, softShadowMat);
+  softShadowMesh.position.set(-0.08, 0.015, -0.05);
+  bruce.root.add(softShadowMesh);
+
+  bruce.ready.then((ok) => {
+    if (!ok || destroyed) return;
+    const hardShadow = bruce.root.children[1];
+    if (hardShadow && hardShadow !== softShadowMesh && hardShadow.isMesh) {
+      hardShadow.visible = false;
+    }
+  });
+
   // Load living room GLB
   let roomRoot = null;
   const gltfLoader = new GLTFLoader();
@@ -1436,6 +1467,9 @@ export function mountLivingRoomHub(container, opts = {}) {
       rainMat.dispose();
       ballGeo.dispose();
       ballMat.dispose();
+      softShadowTex.dispose();
+      softShadowGeo.dispose();
+      softShadowMat.dispose();
       swapRingGeos.forEach((g) => g.dispose());
       swapRingMats.forEach((m) => m.dispose());
       if (roomRoot) {

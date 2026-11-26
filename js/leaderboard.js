@@ -72,7 +72,7 @@ export function renderLeaderboardDrawer() {
           ? "is-rank-3"
           : "is-rank-other";
 
-    const rankBadge = rankNum === 1 ? "NO.01" : `#${rankNum}`;
+    const rankBadge = rankNum === 1 ? "01" : String(rankNum);
     const rivetsHtml = rankNum === 1
       ? `<span class="plaque-rivet r-tl"></span><span class="plaque-rivet r-tr"></span><span class="plaque-rivet r-bl"></span><span class="plaque-rivet r-br"></span>`
       : "";

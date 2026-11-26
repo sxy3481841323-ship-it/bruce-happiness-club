@@ -184,24 +184,22 @@ for f in js/*.js js/theater/*.js functions/api/*.js; do node --check "$f" || exi
 
 ---
 
-## 九、2026-11-26 晚 · 主线 2 高定 UI/UX 精修（归家序幕 + 空间去膏药化 + 电影字幕 + 荣誉挂牌墙）
+## 九、2026-11-26 晚 · 主线 2 高定 UI/UX 精修（全屏真 3D 电梯门廊 + 无阴影悬浮 UI + 荣誉挂牌墙）
 
-本次精修**保持现有 3D 布鲁斯模型与渲染器不动**，专注重构全局首屏体验与四项高定界面质感：
+本次精修**保持现有 3D 布鲁斯模型（`assets/models/bruce.glb`）与 `js/hub3d/bruceLiving.js` 不变**，专注重构首屏 3D 归家体验与全局视觉质感：
 
-1. **① 归家序幕（AB 结合 · 私人电梯 → 胡桃木黄铜门廊 → 推门进客厅）**：
-   - [index.html](./index.html)、[css/style.css](./css/style.css)、[js/main.js](./js/main.js)、[js/audio.js](./js/audio.js)：
-     - 首屏升级为全屏顶层 `PH` 私人电梯抵达 (`18 → 26 → PH` + Web Audio 双音叮声 `playElevatorChime()`)，拉丝深铜电梯门对开后进入静谧冷调胡桃木寓所门廊；
-     - 门底缝隙透出客厅暖阳（`.door-light-seam`），首次交互播放门后布鲁斯轻快小爪子声（`playDoorPaws()`）；
-     - 新住户在门廊深胡桃木黄铜牌上刻制入籍（支持 `16px` 移动端防缩放输入）；老住户刷新进入自动切为**专属拉丝黄铜名牌（`#prologue-welcome-panel` + `跳过序幕`）**，点击「拧开黄铜门锁 · 推门进客厅」触发门锁脆响（`playDoorUnlock()`）、门扇 `3D rotateY` 向内推开与日光柔光晕开，并在 [js/hub3d/roomHub.js](./js/hub3d/roomHub.js) 联动 `bruce:door-opened` 缓推归位运镜。
-2. **② 空间去膏药化（折叠钥匙夹 + `28px` 呼吸小黄铜点）**：
-   - [css/hub3d.css](./css/hub3d.css)、[js/hub3d/roomHub.js](./js/hub3d/roomHub.js)、[js/scenes3d/cafeHub.js](./js/scenes3d/cafeHub.js)：
-     - 所有传送存根从 3D 场景抽离，收纳进左下角深咖皮质黄铜扣 **「出门钥匙夹 / 通行钥匙夹」**（`.hub3d-keyholder`），点开弹出带打孔码存根卡（`OUT·01` / `CLB·02` / `FLY·04` / `HOME·00`）；
-     - 3D 场景内 3 个互动热区彻底瘦身为 **`28px` 呼吸小黄铜点（`.hub3d-dot`）**（带 `44px` 隐形触控热区、GPU 合成层呼吸金圈，默认零文字遮挡，仅在悬停或键盘聚焦时展开微胶囊标签）。
-3. **③ 电影胶片底部柔光对白字幕**：
-   - 移除 3D 头顶黑框投影，将 `.hub3d-speech` 固定于画面底部中央，零边框零尖角，使用 `closest-side` 无边界柔光羽化阴影衬底 + 香槟金状态提示条（`BRUCE · 摇尾轻哼` / `BRUCE · 海风絮语` / `BRUCE · 背身冷战中`），彻底不遮挡布鲁斯面部。
-4. **④ 深胡桃木 & 酒红丝绒 · 私人俱乐部荣誉挂牌墙**：
-   - [js/leaderboard.js](./js/leaderboard.js)、[css/style.css](./css/style.css)：抽屉重构为深色油润胡桃木展柜内嵌酒红天鹅绒展板；第 1 名授**宽幅拉丝黄铜主荣誉铭牌**配四角黄铜铆钉，`#2`/`#3` 为银/青铜饰边，`#4+` 为胡桃木嵌铜牌；
-   - 与后端 `selectMeaningATarget` 算法同源计算排在你上方每位高分住户的 **`⌖ 换分猎物 · 约 X%`** 权重标识，低于 80 分玩家佩戴 **`🌧️ 冷战哄狗中`** 黛蓝铭签，并对昵称做 HTML 转义、省略号溢出防护与 `tabular-nums` 等宽数字加固。
+1. **① 全屏真 3D 顶层私人电梯 + 3D 立体胡桃木门廊（[js/hub3d/prologue3d.js](./js/hub3d/prologue3d.js)）**：
+   - 彻底取代旧版居中 2D 小方框，在 `#onboarding-modal` 挂载全屏 `100vw × 100dvh` WebGL 场景：胡桃木竖栅栏 + 拉丝黄铜扶手与LED 灯带电梯轿厢（`16 → 22 → 28 → PH` 顶部铜牌 + 双音叮声 `playElevatorChime()`）→ 双开暗铜电梯门滑开推进至私人玄关门廊；
+   - 玄关完整构建双侧石材胡桃木护墙板、双柱壁灯真实点光源、大理石边几与绿植花盆、四块立体雕花胡桃木厚门、黄铜合页与可转动立体执手、`PH · 01 BRUCE RESIDENCE` 铜牌及门缝暖光；
+   - 点击 3D 门锁按钮或直接点击 3D 门扇后触发把手下压、门扇内开、`1 秒`高光反差日光晕开（`.prologue-sunbloom`），随后彻底销毁序幕 WebGL 上下文释放显存，无缝衔接客厅运镜。
+2. **② 全局去除底部黑边硬阴影 & 客厅布鲁斯软接触阴影**：
+   - [css/hub3d.css](./css/hub3d.css)、[css/style.css](./css/style.css)：清除呼吸黄铜点、钥匙夹、归中键、顶部身份牌、翻牌计分器及近景活动按钮的所有黑色硬底块（`0 Npx 0 #151417`），统一升级为磨砂烟熏黑曜石质感 + 香槟金柔晕；
+   - [js/hub3d/roomHub.js](./js/hub3d/roomHub.js)：用径向渐变 `CanvasTexture` 软阴影替换旧版灰色硬圆碟。
+3. **③ 空间去膏药化 + 电影底部柔光字幕**：
+   - 传送存根收进左下角「出门钥匙夹 / 通行钥匙夹」（`.hub3d-keyholder`），3D 场景内只留 `28px` 呼吸小黄铜点（`.hub3d-dot`）；对话固定为底部 `closest-side` 无边界柔光电影字幕（`.hub3d-speech`）。
+4. **④ 右上角黑曜石细金线悬浮拨片栏 + 去 `#` 号荣誉挂牌墙**：
+   - [index.html](./index.html)、[css/style.css](./css/style.css)、[js/main.js](./js/main.js)：右上角三个旧方块按键合并为圆角磨砂黑曜石细金线悬浮拨片胶囊（`客厅` / `急救零食` / `荣誉榜` + 三道声波图标静音开关 `.dock-sound-btn`）；
+   - [js/leaderboard.js](./js/leaderboard.js)：去掉全部像乱码的 `#` 符号（顶部改为 `第 X 名`，榜单改为纯数字 `01` / `2` / `3`...），保留深胡桃木酒红天鹅绒荣誉挂牌墙、Meaning-A `⌖ 换分猎物 · 约 X%` 提示与 `🌧️ 冷战哄狗中` 铭签。
 5. **待接力 · 主线 1（四足站立动态布鲁斯，已暂缓）**：用户已在 `~/Downloads/动态.glb` 生成 Tripo 四足站立带骨骼原模（暂按指令搁置），后续如重启直接减面压缩至 `<= 4 MB` 无扩展 glTF 2.0 即可接入。
 
 
