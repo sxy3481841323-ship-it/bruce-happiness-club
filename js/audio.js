@@ -86,6 +86,22 @@ class SoundEngine {
       this._tone(f, 0.36, "sine", 0.055, 0.12 + idx * 0.045);
     });
   }
+
+  playPawStep(soft = false) {
+    const pitch = soft ? 162 + Math.random() * 28 : 185 + Math.random() * 30;
+    this._tone(pitch, 0.048, "triangle", soft ? 0.022 : 0.032, 0);
+  }
+
+  playRollJoy() {
+    this._tone(440, 0.1, "sine", 0.045, 0);
+    this._tone(554.37, 0.12, "triangle", 0.05, 0.09);
+    this._tone(659.25, 0.16, "sine", 0.05, 0.18);
+  }
+
+  playStretchSigh() {
+    this._tone(392, 0.16, "sine", 0.04, 0);
+    this._tone(523.25, 0.24, "sine", 0.04, 0.1);
+  }
 }
 
 export const sfx = new SoundEngine();

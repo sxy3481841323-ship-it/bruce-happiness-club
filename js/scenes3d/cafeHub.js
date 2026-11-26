@@ -7,9 +7,10 @@ import { feedback } from "../juice.js";
 
 const OVERVIEW_CAM = new THREE.Vector3(-0.3, 6.4, 18.6);
 const OVERVIEW_TARGET = new THREE.Vector3(-0.3, 4.7, -5.0);
+const FLOOR_Y = 0.0;
 
-const BRUCE_HOME_POS = new THREE.Vector3(-1.35, 0.0, 3.2);
-const BRUCE_HOME_ROT = 0.28;
+const BRUCE_HOME_POS = new THREE.Vector3(-1.35, FLOOR_Y, 3.2);
+const BRUCE_HOME_ROT = 0.16;
 
 const ACTIVITY_DEFS = {
   street_cafe: {
@@ -20,8 +21,8 @@ const ACTIVITY_DEFS = {
     swapProb: 0.15,
     camPos: new THREE.Vector3(-0.6, 5.5, 9.6),
     camTarget: new THREE.Vector3(3.8, 4.2, 2.2),
-    brucePos: new THREE.Vector3(0.45, 0.0, 3.85),
-    bruceRot: 1.15,
+    brucePos: new THREE.Vector3(0.45, FLOOR_Y, 3.85),
+    bruceRot: 1.32,
   },
   street_window: {
     id: "street_window",
@@ -31,8 +32,8 @@ const ACTIVITY_DEFS = {
     swapProb: 0.12,
     camPos: new THREE.Vector3(0.4, 5.2, 7.6),
     camTarget: new THREE.Vector3(3.6, 4.6, 2.2),
-    brucePos: new THREE.Vector3(0.55, 0.0, 2.65),
-    bruceRot: 1.35,
+    brucePos: new THREE.Vector3(0.55, FLOOR_Y, 2.65),
+    bruceRot: 1.42,
   },
   street_walk: {
     id: "street_walk",
@@ -42,8 +43,8 @@ const ACTIVITY_DEFS = {
     swapProb: 0.1,
     camPos: new THREE.Vector3(-1.2, 4.6, 10.6),
     camTarget: new THREE.Vector3(-6.8, 3.0, 4.4),
-    brucePos: new THREE.Vector3(-3.8, 0.0, 6.8),
-    bruceRot: -0.95,
+    brucePos: new THREE.Vector3(-3.8, FLOOR_Y, 6.8),
+    bruceRot: -1.32,
   },
 };
 
@@ -117,6 +118,28 @@ const DEFAULT_CAFE_COPY = {
   ],
   ear_warn: [
     "哇！橱窗玻璃靠太近啦，飞机耳预警，先停一秒缓一缓！",
+  ],
+  walk_call: [
+    "小爪子踩着薄荷灰地砖哒哒过来啦，帮我占好靠海那桌！",
+    "绕过沙发角慢慢走过来，等下顺路去吧台边闻闻香。",
+  ],
+  walk_sulk: [
+    "下雨天逛咖啡馆也提不起劲……我挪过去一点点好啦。",
+  ],
+  roll_over: [
+    "在晒着太阳的咖啡馆地板翻个滚，邻桌小姐姐都在偷笑呢！",
+    "肚皮翻出来给海风吹一吹，全店最放松的小狗就是我。",
+  ],
+  lick_paw: [
+    "偷偷舔干净刚沾到的奶泡，这杯爪爪奶泡后劲真香！",
+    "舔两口前爪，假装自己刚才没有偷看甜品橱窗。",
+  ],
+  play_bow: [
+    "在咖啡馆里也要对着落地窗伸个大懒腰，尾巴摇成小风扇！",
+    "撅起屁股对你发出玩耍邀请，走嘛走嘛去窗边吹风！",
+  ],
+  airplane_ears: [
+    "海岸风声呼呼的，本汪先折个标准飞机耳监听周围动静！",
   ],
 };
 
@@ -196,6 +219,16 @@ export function mountCoastalCafeHub(container, opts = {}) {
         <div class="hub3d-speech" aria-live="polite">
           <span class="speech-cue"></span>
           <span class="speech-line"></span>
+        </div>
+        <div class="hub3d-tricks-bar" role="toolbar" aria-label="与布鲁斯互动动作">
+          <button type="button" class="trick-pill" data-trick="walk">
+            <svg class="trick-ico" viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><circle cx="7" cy="8.5" r="1.8"/><circle cx="12" cy="6.5" r="1.8"/><circle cx="17" cy="8.5" r="1.8"/><path d="M12 11.2c-3 0-5.2 2.4-5.2 4.7 0 1.4 1 2.4 2.4 2.4.9 0 1.8-.35 2.8-.35s1.9.35 2.8.35c1.4 0 2.4-1 2.4-2.4 0-2.3-2.2-4.7-5.2-4.7z"/></svg>
+            <span>唤过来</span>
+          </button>
+          <button type="button" class="trick-pill" data-trick="roll_over">肚皮打滚</button>
+          <button type="button" class="trick-pill" data-trick="lick_paw">舔小爪子</button>
+          <button type="button" class="trick-pill" data-trick="play_bow">伸个懒腰</button>
+          <button type="button" class="trick-pill" data-trick="airplane_ears">委屈飞机耳</button>
         </div>
         <button type="button" class="hub3d-reset-btn">⌖ 归中视角</button>
 
@@ -451,46 +484,34 @@ export function mountCoastalCafeHub(container, opts = {}) {
   scene.add(swapRingsGroup);
 
   // Living Bruce on the sunlit sage tile floor beside the front café table
-  const bruce = createLivingBruce({ modelUrl: "./assets/models/bruce.glb", height: 2.38 });
+  const bruce = createLivingBruce({ modelUrl: "./assets/models/bruce_rigged.glb", height: 2.38 });
   bruce.root.position.copy(BRUCE_HOME_POS);
   bruce.root.rotation.y = BRUCE_HOME_ROT;
   bruce.setMood(sulking ? "sulk" : "happy");
   scene.add(bruce.root);
 
-  // Soft radial contact shadow under Bruce (replacing the hard disc) + seat Bruce flush on tile
-  const shadowCanvas = document.createElement("canvas");
-  shadowCanvas.width = 128;
-  shadowCanvas.height = 128;
-  const sctx = shadowCanvas.getContext("2d");
-  const sgrad = sctx.createRadialGradient(64, 64, 8, 64, 64, 60);
-  sgrad.addColorStop(0, "rgba(28, 34, 30, 0.30)");
-  sgrad.addColorStop(0.55, "rgba(28, 34, 30, 0.12)");
-  sgrad.addColorStop(1, "rgba(28, 34, 30, 0)");
-  sctx.fillStyle = sgrad;
-  sctx.fillRect(0, 0, 128, 128);
-  const softShadowTex = new THREE.CanvasTexture(shadowCanvas);
-  const softShadowGeo = new THREE.PlaneGeometry(2.2, 2.2);
-  softShadowGeo.rotateX(-Math.PI / 2);
-  const softShadowMat = new THREE.MeshBasicMaterial({
-    map: softShadowTex,
+  // Champagne-gold floor click ripple indicator for Walk-to navigation
+  const rippleGeo = new THREE.RingGeometry(0.16, 0.24, 32);
+  rippleGeo.rotateX(-Math.PI / 2);
+  const rippleMat = new THREE.MeshBasicMaterial({
+    color: 0xf4d48c,
     transparent: true,
+    opacity: 0,
     depthWrite: false,
+    side: THREE.DoubleSide,
   });
-  const softShadowMesh = new THREE.Mesh(softShadowGeo, softShadowMat);
-  softShadowMesh.position.set(0.0, 0.012, -0.15);
-  bruce.root.add(softShadowMesh);
+  const rippleMesh = new THREE.Mesh(rippleGeo, rippleMat);
+  rippleMesh.position.set(BRUCE_HOME_POS.x, FLOOR_Y + 0.025, BRUCE_HOME_POS.z);
+  rippleMesh.visible = false;
+  scene.add(rippleMesh);
+  let rippleAge = -1;
 
-  bruce.ready.then((ok) => {
-    if (!ok || destroyed) return;
-    const hardShadow = bruce.root.children[1];
-    if (hardShadow && hardShadow !== softShadowMesh && hardShadow.isMesh) {
-      hardShadow.visible = false;
-    }
-    const holder = bruce.root.children[0]?.children[0];
-    if (holder) {
-      holder.position.set(0.0, -0.18, 0.25);
-    }
-  });
+  function triggerFloorRipple(x, z) {
+    rippleMesh.position.set(x, FLOOR_Y + 0.025, z);
+    rippleMesh.scale.setScalar(0.6);
+    rippleMesh.visible = true;
+    rippleAge = 0;
+  }
 
   // Tracked shader materials from GLB
   let palmShaderMat = null;
@@ -592,10 +613,17 @@ export function mountCoastalCafeHub(container, opts = {}) {
     click_poke_sulk: "BRUCE · 别扭哼声",
     bar_bliss: "BRUCE · 舔奶泡中",
     ear_warn: "BRUCE · 飞机耳预警",
+    walk_call: "BRUCE · 小短腿巡店",
+    walk_sulk: "BRUCE · 缓慢挪步",
+    roll_over: "BRUCE · 晒日打滚",
+    lick_paw: "BRUCE · 舔干净奶泡",
+    play_bow: "BRUCE · 窗边伸懒腰",
+    airplane_ears: "BRUCE · 海风飞机耳",
   };
 
   let speechTimer = null;
   let lastSpeechText = "";
+  let lastSpeechAt = 0;
   function sayBruce(categoryOrText, durationMs = 3800, customCue = "") {
     if (!speechEl || !speechLineEl || destroyed) return;
     const pool = cafeCopy?.[categoryOrText];
@@ -610,6 +638,7 @@ export function mountCoastalCafeHub(container, opts = {}) {
     }
     if (!text) return;
     lastSpeechText = text;
+    lastSpeechAt = performance.now();
     if (speechCueEl) {
       speechCueEl.textContent = customCue || CAFE_SPEECH_CUES[categoryOrText] || (sulking ? "BRUCE · 雨窗冷战中" : "BRUCE · 吧台轻哼");
     }
@@ -627,7 +656,14 @@ export function mountCoastalCafeHub(container, opts = {}) {
   }
 
   const idleTimerId = setInterval(() => {
-    if (!destroyed && !activeActId && loadingEl.classList.contains("is-hidden")) {
+    if (
+      !destroyed &&
+      !activeActId &&
+      loadingEl.classList.contains("is-hidden") &&
+      performance.now() - lastSpeechAt >= 6800 &&
+      !bruce.isWalking?.() &&
+      !bruce.getActiveAction?.()
+    ) {
       sayBruce(sulking ? "idle_sulk" : "idle_happy", 5200);
     }
   }, 7500);
@@ -805,6 +841,7 @@ export function mountCoastalCafeHub(container, opts = {}) {
     pinsLayer.classList.remove("is-hidden");
     resetBtn.style.display = "";
     controls.enabled = true;
+    bruce.stopWalk();
     bruce.setPetting(0);
     bruce.root.position.copy(BRUCE_HOME_POS);
     bruce.root.rotation.y = BRUCE_HOME_ROT;
@@ -834,6 +871,7 @@ export function mountCoastalCafeHub(container, opts = {}) {
 
     actCleanup?.();
     activeActId = actId;
+    bruce.stopWalk();
     document.body.classList.add("is-hub3d-act");
     if (speechTimer) {
       clearTimeout(speechTimer);
@@ -956,12 +994,21 @@ export function mountCoastalCafeHub(container, opts = {}) {
       if (isWin) {
         sfx.playSuccess();
         bruce.setMood("excited");
-        bruce.triggerHappyHop();
+        if (actId === "street_cafe") {
+          bruce.playAction("lick_paw");
+        } else if (actId === "street_walk") {
+          bruce.playAction("play_bow");
+        } else if (Math.random() < 0.6) {
+          bruce.playAction("roll_over");
+        } else {
+          bruce.triggerHappyHop();
+        }
         const r = stageEl.getBoundingClientRect();
         spawnFxParticles(r.width * 0.5, r.height * 0.48, "gold", 22);
       } else {
         sfx.playFail();
         bruce.setMood("sulk");
+        bruce.playAction("airplane_ears");
       }
 
       const actCopy = content?.activities?.[actId] || {};
@@ -1099,6 +1146,7 @@ export function mountCoastalCafeHub(container, opts = {}) {
           actPromptEl.textContent = "奶泡打好啦！端到布鲁斯面前的吧台边缘";
         } else {
           pupCupGroup.position.set(3.25, 4.44, 3.85);
+          bruce.playAction("lick_paw");
           sayBruce("bar_bliss", 3000);
           actLater(() => conclude("win"), 600);
         }
@@ -1303,10 +1351,70 @@ export function mountCoastalCafeHub(container, opts = {}) {
     }
   }
 
-  // Pointer gaze tracking & raycast click on 3D Bruce
+  // Pointer gaze tracking, raycast click on 3D Bruce, Click-to-Walk floor & Trick Bar
   const raycaster = new THREE.Raycaster();
   const ndc = new THREE.Vector2();
+  const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -FLOOR_Y);
+  const floorHit = new THREE.Vector3();
+  const CAFE_WALK_SPOTS = [
+    [-1.35, 3.2],
+    [-0.4, 7.6],
+    [0.2, 0.6],
+    [-2.4, 8.8],
+  ];
+  let walkSpotCursor = 0;
+  let pokeCount = 0;
   let canvasDown = null;
+
+  const trickButtons = Array.from(container.querySelectorAll(".trick-pill"));
+  function highlightTrickBtn(trickId) {
+    trickButtons.forEach((b) => b.classList.toggle("is-playing", b.getAttribute("data-trick") === trickId));
+    later(() => {
+      trickButtons.forEach((b) => {
+        if (b.getAttribute("data-trick") === trickId) b.classList.remove("is-playing");
+      });
+    }, 2400);
+  }
+
+  function walkBruceTo(rawX, rawZ) {
+    const tz = THREE.MathUtils.clamp(rawZ, -5.2, 11.0);
+    const tx = tz >= 7.2
+      ? THREE.MathUtils.clamp(rawX, -3.8, 2.1)
+      : THREE.MathUtils.clamp(rawX, -1.6, 0.55);
+    triggerFloorRipple(tx, tz);
+    bruce.walkTo(tx, tz, { speedScale: sulking ? 0.65 : 1.0 });
+    sayBruce(sulking ? "walk_sulk" : "walk_call", 3400);
+  }
+
+  function runTrick(trickId) {
+    if (destroyed || activeActId) return;
+    highlightTrickBtn(trickId);
+    if (trickId === "walk") {
+      walkSpotCursor = (walkSpotCursor + 1) % CAFE_WALK_SPOTS.length;
+      const [wx, wz] = CAFE_WALK_SPOTS[walkSpotCursor];
+      sfx.playTap();
+      walkBruceTo(wx, wz);
+      return;
+    }
+    if (trickId === "roll_over") sfx.playRollJoy();
+    else if (trickId === "play_bow") sfx.playStretchSigh();
+    else sfx.playTap();
+    bruce.playAction(trickId);
+    const rect = stageEl.getBoundingClientRect();
+    spawnFxParticles(rect.width * 0.52, rect.height * 0.56, trickId === "airplane_ears" ? "water" : "gold", 14);
+    sayBruce(trickId, 3800);
+  }
+
+  trickButtons.forEach((btn) => {
+    const onTrickClick = (e) => {
+      e.stopPropagation();
+      setKeyholderOpen(false);
+      feedback("small", e.clientX, e.clientY);
+      runTrick(btn.getAttribute("data-trick"));
+    };
+    btn.addEventListener("click", onTrickClick);
+    cleanups.push(() => btn.removeEventListener("click", onTrickClick));
+  });
 
   const onCanvasDown = (e) => {
     if (activeActId) return;
@@ -1323,17 +1431,41 @@ export function mountCoastalCafeHub(container, opts = {}) {
     ndc.x = ((e.clientX - r.left) / r.width) * 2 - 1;
     ndc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
     raycaster.setFromCamera(ndc, camera);
-    const bruceGroup = bruce.root.children[0];
-    if (!bruceGroup) return;
-    bruce.root.updateMatrixWorld(true);
-    const hits = raycaster.intersectObject(bruceGroup, true);
-    if (hits.length > 0) {
-      feedback("small", e.clientX, e.clientY);
-      sfx.playTap();
-      const stageRect = stageEl.getBoundingClientRect();
-      spawnFxParticles(e.clientX - stageRect.left, e.clientY - stageRect.top, sulking ? "water" : "gold", 12);
-      if (!sulking) bruce.triggerHappyHop();
-      sayBruce(sulking ? "click_poke_sulk" : "click_poke", 4200);
+    const bruceGroup = bruce.hitTarget || bruce.root.children[0];
+    if (bruceGroup) {
+      bruce.root.updateMatrixWorld(true);
+      const hits = raycaster.intersectObject(bruceGroup, true);
+      if (hits.length > 0) {
+        feedback("small", e.clientX, e.clientY);
+        const stageRect = stageEl.getBoundingClientRect();
+        spawnFxParticles(e.clientX - stageRect.left, e.clientY - stageRect.top, sulking ? "water" : "gold", 14);
+        if (sulking) {
+          sfx.playTap();
+          bruce.playAction("airplane_ears");
+          highlightTrickBtn("airplane_ears");
+          sayBruce("click_poke_sulk", 4200);
+        } else {
+          const cycle = ["roll_over", "play_bow", "lick_paw"];
+          const chosen = cycle[pokeCount % cycle.length];
+          pokeCount += 1;
+          if (chosen === "roll_over") sfx.playRollJoy();
+          else if (chosen === "play_bow") sfx.playStretchSigh();
+          else sfx.playTap();
+          bruce.playAction(chosen);
+          highlightTrickBtn(chosen);
+          sayBruce(chosen, 4000);
+        }
+        return;
+      }
+    }
+
+    // Walkable sage tile corridor raycast -> Click-to-Walk
+    if (raycaster.ray.direction.y < -0.04 && raycaster.ray.intersectPlane(floorPlane, floorHit)) {
+      if (floorHit.x >= -5.4 && floorHit.x <= 3.0 && floorHit.z >= -6.0 && floorHit.z <= 12.0) {
+        sfx.playTap();
+        walkBruceTo(floorHit.x, floorHit.z);
+        highlightTrickBtn("walk");
+      }
     }
   };
   canvas.addEventListener("pointerdown", onCanvasDown);
@@ -1424,10 +1556,23 @@ export function mountCoastalCafeHub(container, opts = {}) {
     }
 
     if (swapRingsGroup.visible) {
+      swapRingsGroup.position.set(bruce.root.position.x, bruce.root.position.y + 1.1, bruce.root.position.z);
       swapRingsGroup.rotation.y += dt * 1.4;
       swapRingsGroup.children.forEach((c, idx) => {
         c.rotation.z += dt * (0.6 + idx * 0.25);
       });
+    }
+
+    if (rippleAge >= 0) {
+      rippleAge += dt;
+      const p = rippleAge / 0.85;
+      if (p >= 1) {
+        rippleAge = -1;
+        rippleMesh.visible = false;
+      } else {
+        rippleMesh.scale.setScalar(0.6 + p * 2.2);
+        rippleMat.opacity = (1 - p) * 0.82;
+      }
     }
 
     bruce.update(dt, elapsed);
@@ -1546,9 +1691,8 @@ export function mountCoastalCafeHub(container, opts = {}) {
       foamGeo.dispose();
       foamMat.dispose();
       swirlGeo.dispose();
-      softShadowTex.dispose();
-      softShadowGeo.dispose();
-      softShadowMat.dispose();
+      rippleGeo.dispose();
+      rippleMat.dispose();
       swapRingGeos.forEach((g) => g.dispose());
       swapRingMats.forEach((m) => m.dispose());
       if (cafeRoot) {
