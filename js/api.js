@@ -278,3 +278,61 @@ export async function apiGetLeaderboard() {
     throw err;
   }
 }
+
+export async function apiAskBruce(payload = {}) {
+  try {
+    return await requestJson("./api/bruce-ai", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  } catch (_) {
+    let hubData = null;
+    try {
+      const resp = await fetch("./data/hub_deepseek.json");
+      if (resp.ok) hubData = await resp.json();
+    } catch (__) {}
+
+    const owner = payload.owner === "Meya" ? "Meya" : "Alex";
+    if (payload.mode === "suggest_names") {
+      const ob = hubData?.onboarding_pack || {};
+      const names = (owner === "Meya" ? ob.meya_names : ob.alex_names) || ["奶油领巾侠", "太阳蛋邻居", "黑胶散步家", "早八冰美式"];
+      const greets = (owner === "Meya" ? ob.meya_greetings : ob.alex_greetings) || ["布鲁斯正贴在门缝边闻你的味道呢，快推门进来！"];
+      return {
+        ok: true,
+        mode: "suggest_names",
+        owner,
+        names,
+        greeting: greets[Math.floor(Math.random() * greets.length)],
+        source: "static",
+      };
+    }
+
+    const msg = String(payload.message || "").trim();
+    const sulking = Boolean(payload.sulking);
+    const rules = hubData?.offline_chat_replies || [];
+    for (const rule of rules) {
+      if (Array.isArray(rule.keywords) && rule.keywords.some((k) => msg.includes(k))) {
+        return {
+          ok: true,
+          mode: "chat",
+          reply: rule.reply,
+          cue: rule.cue || "BRUCE · 心有灵犀",
+          action: rule.action || "roll_over",
+          sincerityDelta: sulking ? 1 : 0,
+          source: "static",
+        };
+      }
+    }
+    return {
+      ok: true,
+      mode: "chat",
+      reply: sulking
+        ? "还在冷战期呢，除非你去零食柜挑一块牛肉干，或者再好好哄哄我！"
+        : "耳朵听见啦！要不要趁着阳光好，点一下让我翻肚皮给你摸？",
+      cue: sulking ? "BRUCE · 冷战傲娇" : "BRUCE · 歪头回应",
+      action: sulking ? "airplane_ears" : "roll_over",
+      sincerityDelta: 0,
+      source: "static",
+    };
+  }
+}

@@ -57,11 +57,11 @@ function makeMarbleFloorTexture() {
   c.width = 512;
   c.height = 512;
   const ctx = c.getContext("2d");
-  ctx.fillStyle = "#201E20";
+  ctx.fillStyle = "#EAE0D0";
   ctx.fillRect(0, 0, 512, 512);
 
-  // Subtle tile grid & travertine / nero veining
-  ctx.strokeStyle = "rgba(180, 152, 108, 0.18)";
+  // Subtle tile grid & warm cream travertine veining
+  ctx.strokeStyle = "rgba(156, 128, 88, 0.2)";
   ctx.lineWidth = 2;
   for (let i = 0; i <= 512; i += 128) {
     ctx.beginPath();
@@ -74,7 +74,7 @@ function makeMarbleFloorTexture() {
     ctx.stroke();
   }
   for (let v = 0; v < 24; v++) {
-    ctx.strokeStyle = v % 3 === 0 ? "rgba(232, 204, 150, 0.14)" : "rgba(255, 248, 236, 0.06)";
+    ctx.strokeStyle = v % 3 === 0 ? "rgba(182, 148, 102, 0.16)" : "rgba(255, 250, 240, 0.35)";
     ctx.lineWidth = 1.2 + (v % 2);
     ctx.beginPath();
     let x = (v * 37) % 512;
@@ -99,11 +99,11 @@ function makeStoneWallTexture() {
   c.width = 256;
   c.height = 256;
   const ctx = c.getContext("2d");
-  ctx.fillStyle = "#2A2B30";
+  ctx.fillStyle = "#E2D7C5";
   ctx.fillRect(0, 0, 256, 256);
   for (let i = 0; i < 650; i++) {
-    const shade = 34 + (i % 18);
-    ctx.fillStyle = `rgba(${shade}, ${shade + 1}, ${shade + 5}, 0.25)`;
+    const shade = 205 + (i % 24);
+    ctx.fillStyle = `rgba(${shade}, ${shade - 8}, ${shade - 20}, 0.25)`;
     ctx.fillRect((i * 29) % 256, (i * 47) % 256, 6, 4);
   }
   const tex = new THREE.CanvasTexture(c);
@@ -161,7 +161,7 @@ function makeNameplateTexture() {
   ctx.font = "900 28px -apple-system, BlinkMacSystemFont, sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText("PH · 01   BRUCE RESIDENCE", 256, 65);
+  ctx.fillText("PH · 01   SUNLIT LOFT", 256, 65);
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   return tex;
@@ -184,13 +184,13 @@ export function mountPrologue3D(canvasEl, opts = {}) {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.08;
+  renderer.toneMappingExposure = 1.18;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x101116);
-  scene.fog = new THREE.FogExp2(0x121319, 0.042);
+  scene.background = new THREE.Color(0xdad0c0);
+  scene.fog = new THREE.FogExp2(0xdad0c0, 0.022);
 
   // Interior PMREM bronze/warm-stone environment so brass hardware & walnut have real reflections
   const pmrem = new THREE.PMREMGenerator(renderer);
@@ -264,9 +264,9 @@ export function mountPrologue3D(canvasEl, opts = {}) {
     metalness: 0.06,
   }));
   const matCeiling = trackMat(new THREE.MeshStandardMaterial({
-    color: 0x1d1e24,
+    color: 0xe6dccb,
     roughness: 0.72,
-    metalness: 0.05,
+    metalness: 0.04,
   }));
   const matRug = trackMat(new THREE.MeshStandardMaterial({
     color: 0x541825,
@@ -580,7 +580,8 @@ export function mountPrologue3D(canvasEl, opts = {}) {
   // =========================================================================
   // LIGHTING RIG
   // =========================================================================
-  scene.add(new THREE.AmbientLight(0xd9dfeb, 0.42));
+  scene.add(new THREE.AmbientLight(0xfff7ea, 0.78));
+  scene.add(new THREE.HemisphereLight(0xfffaf0, 0xd4c3ae, 0.65));
   const cabLight = new THREE.PointLight(0xffe1ad, 7.5, 9, 1.6);
   cabLight.position.set(0, 2.95, 4.65);
   scene.add(cabLight);

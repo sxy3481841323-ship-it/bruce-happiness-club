@@ -6,75 +6,90 @@ const MOOD_PRESETS = {
   happy: {
     headPitch: -0.02,
     headYaw: 0.0,
-    headTilt: 0.04,
+    headTilt: 0.05,
     earDrop: 0.0,
-    tailAmp: 0.22,
-    tailFreq: 6.2,
-    tailLift: -0.18,
-    breath: 0.018,
+    tailAmp: 0.24,
+    tailFreq: 6.4,
+    tailLift: -0.22,
+    breath: 0.032,
   },
   excited: {
-    headPitch: -0.08,
+    headPitch: -0.1,
     headYaw: 0.0,
-    headTilt: -0.08,
+    headTilt: -0.09,
     earDrop: -0.04,
-    tailAmp: 0.34,
-    tailFreq: 11.2,
-    tailLift: -0.28,
-    breath: 0.025,
+    tailAmp: 0.36,
+    tailFreq: 11.5,
+    tailLift: -0.34,
+    breath: 0.042,
   },
   warn: {
-    headPitch: 0.08,
+    headPitch: 0.1,
     headYaw: 0.0,
     headTilt: 0.02,
-    earDrop: 0.95,
+    earDrop: 1.0,
     tailAmp: 0.06,
     tailFreq: 2.2,
-    tailLift: 0.14,
-    breath: 0.014,
+    tailLift: 0.16,
+    breath: 0.022,
   },
   sulk: {
-    headPitch: 0.14,
-    headYaw: -0.34,
-    headTilt: -0.07,
-    earDrop: 0.72,
+    headPitch: 0.18,
+    headYaw: -0.38,
+    headTilt: -0.08,
+    earDrop: 0.85,
     tailAmp: 0.035,
     tailFreq: 1.4,
-    tailLift: 0.24,
-    breath: 0.012,
+    tailLift: 0.28,
+    breath: 0.02,
   },
 };
 
+// Sanitized bone names (GLTFLoader strips ':' so our GLB uses '_' cleanly)
 const SPINE_BONES = [
-  "tripo::0_Right_Limb_0",
-  "tripo::0_Right_Limb_1",
-  "tripo::0_Right_Limb_2",
-  "tripo::0_Right_Limb_3",
+  "tripo_0_Right_Limb_0",
+  "tripo_0_Right_Limb_1",
+  "tripo_0_Right_Limb_2",
+  "tripo_0_Right_Limb_3",
 ];
-const NECK_HEAD_BONES = ["tripo::Head_0", "tripo::Head_1", "tripo::Head_2", "tripo::Head_3"];
+const NECK_HEAD_BONES = ["tripo_Head_0", "tripo_Head_1", "tripo_Head_2", "tripo_Head_3"];
 const JAW_BONES = ["bone_30", "bone_31", "bone_32"];
-const LEFT_EAR_BONES = ["tripo::Head_4", "tripo::Head_5", "tripo::Head_6", "tripo::Head_7"];
+const LEFT_EAR_BONES = ["tripo_Head_4", "tripo_Head_5", "tripo_Head_6", "tripo_Head_7"];
 const RIGHT_EAR_BONES = ["bone_49", "bone_50", "bone_51", "bone_52"];
 const TAIL_BONES = [
-  "tripo::Spine_0",
-  "tripo::1_Left_Limb_0",
-  "tripo::1_Left_Limb_1",
-  "tripo::1_Left_Limb_2",
-  "tripo::1_Left_Limb_3",
-  "tripo::1_Left_Limb_4",
-  "tripo::1_Left_Limb_5",
+  "tripo_Spine_0",
+  "tripo_1_Left_Limb_0",
+  "tripo_1_Left_Limb_1",
+  "tripo_1_Left_Limb_2",
+  "tripo_1_Left_Limb_3",
+  "tripo_1_Left_Limb_4",
+  "tripo_1_Left_Limb_5",
 ];
 
 const FL_LEG = ["bone_16", "bone_17", "bone_18", "bone_19"];
 const FR_LEG = ["bone_55", "bone_56", "bone_57", "bone_58"];
-const RL_LEG = ["tripo::0_Left_Limb_0", "tripo::0_Left_Limb_1", "tripo::0_Left_Limb_2", "tripo::0_Left_Limb_3"];
-const RR_LEG = ["tripo::1_Right_Limb_0", "tripo::1_Right_Limb_1", "tripo::1_Right_Limb_2", "tripo::1_Right_Limb_3"];
+const RL_LEG = ["tripo_0_Left_Limb_0", "tripo_0_Left_Limb_1", "tripo_0_Left_Limb_2", "tripo_0_Left_Limb_3"];
+const RR_LEG = ["tripo_1_Right_Limb_0", "tripo_1_Right_Limb_1", "tripo_1_Right_Limb_2", "tripo_1_Right_Limb_3"];
+
+const CORE_REQUIRED_BONES = [
+  "tripo_Root",
+  ...SPINE_BONES,
+  ...NECK_HEAD_BONES,
+  ...JAW_BONES,
+  ...LEFT_EAR_BONES,
+  ...RIGHT_EAR_BONES,
+  ...TAIL_BONES,
+  ...FL_LEG,
+  ...FR_LEG,
+  ...RL_LEG,
+  ...RR_LEG,
+];
 
 const ACTION_DURATIONS = {
-  roll_over: 2.85,
-  lick_paw: 2.55,
-  play_bow: 2.55,
-  airplane_ears: 2.25,
+  roll_over: 3.15,
+  lick_paw: 2.65,
+  play_bow: 2.65,
+  airplane_ears: 2.35,
 };
 
 function damp(a, b, lambda, dt) {
@@ -111,9 +126,62 @@ function buildSoftShadowTexture() {
 }
 
 /**
+ * Sample ~80-120 extreme convex-hull vertex indices across the dog body
+ * (paw soles, elbows, chest keel, chin, snout, flanks, spine, ears, rump, tail)
+ * for O(1) exact per-frame SkinnedMesh ground contact clamping.
+ */
+function sampleHullVertexIndices(geometry) {
+  const pos = geometry?.attributes?.position;
+  if (!pos) return [];
+  const count = pos.count;
+  const minX = new Float32Array(72).fill(Infinity);
+  const maxX = new Float32Array(72).fill(-Infinity);
+  const minY = new Float32Array(72).fill(Infinity);
+  const maxY = new Float32Array(72).fill(-Infinity);
+  const idxMinX = new Int32Array(72).fill(-1);
+  const idxMaxX = new Int32Array(72).fill(-1);
+  const idxMinY = new Int32Array(72).fill(-1);
+  const idxMaxY = new Int32Array(72).fill(-1);
+
+  for (let i = 0; i < count; i++) {
+    const x = pos.getX(i);
+    const y = pos.getY(i);
+    const z = pos.getZ(i);
+    const ix = Math.min(3, Math.max(0, Math.floor(((x + 0.26) / 0.52) * 4)));
+    const iy = Math.min(2, Math.max(0, Math.floor((y / 1.01) * 3)));
+    const iz = Math.min(5, Math.max(0, Math.floor(((z + 0.65) / 1.3) * 6)));
+    const cell = (iy * 6 + iz) * 4 + ix;
+    if (y < minY[cell]) {
+      minY[cell] = y;
+      idxMinY[cell] = i;
+    }
+    if (y > maxY[cell]) {
+      maxY[cell] = y;
+      idxMaxY[cell] = i;
+    }
+    if (x < minX[cell]) {
+      minX[cell] = x;
+      idxMinX[cell] = i;
+    }
+    if (x > maxX[cell]) {
+      maxX[cell] = x;
+      idxMaxX[cell] = i;
+    }
+  }
+
+  const picked = new Set();
+  for (let c = 0; c < 72; c++) {
+    if (idxMinY[c] >= 0) picked.add(idxMinY[c]);
+    if (idxMaxY[c] >= 0) picked.add(idxMaxY[c]);
+    if (idxMinX[c] >= 0) picked.add(idxMinX[c]);
+    if (idxMaxX[c] >= 0) picked.add(idxMaxX[c]);
+  }
+  return Array.from(picked);
+}
+
+/**
  * 86-bone Skeletal Rigged Bruce Controller
  * Canonical glTF space: +Z Forward (Nose), +Y Up [0..1], +X Dog's Left.
- * Supports: walkTo, breathing, tail wag, head gaze, roll_over, lick_paw, play_bow, airplane_ears, happyHop.
  */
 export function createRiggedBruce({
   modelUrl = "./assets/models/bruce_rigged.glb",
@@ -147,19 +215,25 @@ export function createRiggedBruce({
   let pettingBoost = 0;
   let hopTimer = 0;
 
-  let activeAction = null; // { name, t, dur, onDone }
-  let walkGoal = null; // { x, z, speedScale, onArrive }
+  let activeAction = null;
+  let walkGoal = null;
   let walkBlend = 0;
   let walkPhase = 0;
   let prevStepIndex = 0;
 
-  const state = { ...MOOD_PRESETS.happy };
-  const rigBones = new Map(); // name -> { bone, restPos, restQuat, qCharOfBone, qBoneFromChar }
+  let skinnedMeshRef = null;
+  let hullIndices = [];
+  let missingCoreBones = [];
+  let matchedBoneCount = 0;
+  let lastDiag = null;
 
-  // Reusable math scratch objects (zero per-frame allocations)
+  const state = { ...MOOD_PRESETS.happy };
+  const rigBones = new Map();
+
   const tmpEuler = new THREE.Euler(0, 0, 0, "YXZ");
   const tmpQuat = new THREE.Quaternion();
   const tmpScale = new THREE.Vector3();
+  const tmpHullV = new THREE.Vector3();
 
   function addBoneRot(boneName, rx, ry, rz) {
     const rec = rigBones.get(boneName);
@@ -206,6 +280,10 @@ export function createRiggedBruce({
           obj.castShadow = true;
           obj.receiveShadow = true;
           obj.frustumCulled = false;
+          if (obj.isSkinnedMesh && !skinnedMeshRef) {
+            skinnedMeshRef = obj;
+            hullIndices = sampleHullVertexIndices(obj.geometry);
+          }
           if (obj.geometry) disposables.push(obj.geometry);
           const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
           mats.forEach((m) => {
@@ -236,6 +314,12 @@ export function createRiggedBruce({
         }
       });
 
+      missingCoreBones = CORE_REQUIRED_BONES.filter((n) => !rigBones.has(n));
+      matchedBoneCount = CORE_REQUIRED_BONES.length - missingCoreBones.length;
+      if (missingCoreBones.length > 0) {
+        console.error("RiggedBruce missing core bones:", missingCoreBones);
+      }
+
       return true;
     } catch (err) {
       if (!destroyed && err?.name !== "AbortError") {
@@ -250,8 +334,8 @@ export function createRiggedBruce({
   }
 
   function lookAtNormalized(nx, ny) {
-    gazeYaw = THREE.MathUtils.clamp(nx, -1, 1) * 0.42;
-    gazePitch = THREE.MathUtils.clamp(ny, -1, 1) * 0.22;
+    gazeYaw = THREE.MathUtils.clamp(nx, -1, 1) * 0.45;
+    gazePitch = THREE.MathUtils.clamp(ny, -1, 1) * 0.24;
   }
 
   function setPetting(amount) {
@@ -288,11 +372,10 @@ export function createRiggedBruce({
     if (destroyed) return;
     const preset = MOOD_PRESETS[mood] || MOOD_PRESETS.happy;
 
-    // 1. Damp mood targets
     const targetHeadPitch = preset.headPitch + (mood === "sulk" ? 0.08 : gazePitch * (1 - pettingBoost * 0.4));
     const targetHeadYaw = mood === "sulk" ? preset.headYaw : gazeYaw * (1 - pettingBoost * 0.4);
     const breathWave = Math.sin(elapsed * (mood === "excited" ? 3.8 : 2.35));
-    const spontaneousTilt = mood === "happy" ? Math.sin(elapsed * 0.7) * 0.07 : 0;
+    const spontaneousTilt = mood === "happy" ? Math.sin(elapsed * 0.72) * 0.08 : 0;
 
     state.headPitch = damp(state.headPitch, targetHeadPitch, 6.5, dt);
     state.headYaw = damp(state.headYaw, targetHeadYaw, 6.5, dt);
@@ -303,7 +386,7 @@ export function createRiggedBruce({
     state.tailLift = damp(state.tailLift, preset.tailLift, 6.0, dt);
     state.breath = damp(state.breath, preset.breath, 5.0, dt);
 
-    // 2. Locomotion steering toward walkGoal
+    // Locomotion toward walkGoal
     if (walkGoal) {
       const dx = walkGoal.x - root.position.x;
       const dz = walkGoal.z - root.position.z;
@@ -318,10 +401,8 @@ export function createRiggedBruce({
         root.rotation.y = dampAngle(root.rotation.y, desiredYaw, 8.5, dt);
         const speed = 2.55 * (walkGoal.speedScale || 1.0);
         const step = Math.min(dist, speed * dt);
-        const nx = dx / dist;
-        const nz = dz / dist;
-        root.position.x += nx * step;
-        root.position.z += nz * step;
+        root.position.x += (dx / dist) * step;
+        root.position.z += (dz / dist) * step;
         walkPhase += step * 5.8;
 
         const stepIdx = Math.floor(walkPhase / Math.PI);
@@ -334,7 +415,7 @@ export function createRiggedBruce({
       walkBlend = damp(walkBlend, 0.0, 10.0, dt);
     }
 
-    // 3. Reset all bones cleanly before compositing character-space poses
+    // Reset all bones to bind rest
     rigBones.forEach(({ bone, restPos, restQuat }) => {
       bone.position.copy(restPos);
       bone.quaternion.copy(restQuat);
@@ -347,195 +428,194 @@ export function createRiggedBruce({
     contactShadow.scale.setScalar(1.0);
     contactShadow.material.opacity = 0.92;
 
-    // 4. Base organic life: chest breathing, tail wag, head gaze, mood airplane ears
-    const breathScale = 1 + breathWave * state.breath;
-    addBoneScale("tripo::0_Right_Limb_1", breathScale, 1 + breathWave * state.breath * 0.45, breathScale);
-    addBoneScale("tripo::0_Right_Limb_2", breathScale, 1 + breathWave * state.breath * 0.65, breathScale);
-    addBoneScale("tripo::0_Right_Limb_3", 1 + breathWave * state.breath * 0.55, 1, 1 + breathWave * state.breath * 0.35);
-    motion.position.y += (breathWave * 0.5 + 0.5) * 0.008 * height;
+    // 1. Visible organic ribcage & spine breathing + idle micro-motion
+    const breathExpand = 1 + breathWave * state.breath;
+    addBoneScale(SPINE_BONES[1], breathExpand, 1 + breathWave * state.breath * 0.55, breathExpand);
+    addBoneScale(SPINE_BONES[2], breathExpand * 1.01, 1 + breathWave * state.breath * 0.72, breathExpand);
+    addBoneScale(SPINE_BONES[3], 1 + breathWave * state.breath * 0.55, 1, 1 + breathWave * state.breath * 0.4);
+    addBoneRot(SPINE_BONES[2], -breathWave * 0.028, 0, 0);
 
-    // 7-segment tail wag with wave lag
     let tailFreq = state.tailFreq;
     let tailAmp = state.tailAmp;
     let tailLift = state.tailLift;
 
-    // Petting purr body sway
     if (pettingBoost > 0.01) {
-      motion.rotation.z += Math.sin(elapsed * 12) * 0.03 * pettingBoost;
-      motion.rotation.y += Math.sin(elapsed * 5.2) * 0.055 * pettingBoost;
+      addBoneRot(SPINE_BONES[1], 0, Math.sin(elapsed * 5.2) * 0.07 * pettingBoost, 0);
+      addBoneRot(SPINE_BONES[2], 0, Math.sin(elapsed * 5.2) * 0.09 * pettingBoost, 0);
     }
 
-    // Head/neck gaze
-    const neckShare = [0.2, 0.25, 0.28, 0.27];
-    let headRx = state.headPitch;
+    const neckShare = [0.22, 0.25, 0.27, 0.26];
+    let headRx = state.headPitch + breathWave * 0.028;
     let headRy = state.headYaw;
     let headRz = state.headTilt;
-
-    // Mood ear fold baseline
     let earFold = state.earDrop;
 
-    // 5. Walk gait layered on limbs + spine + ears
+    // 2. Full 4-Legged Diagonal Trot Gait + Serpentine Spine & Floppy Ears
+    let hopAirOffset = 0;
     if (walkBlend > 0.01) {
       const wb = walkBlend;
       const pA = walkPhase;
       const pB = walkPhase + Math.PI;
 
-      const swingA = Math.sin(pA) * 0.42 * wb;
-      const liftA = Math.max(0, Math.cos(pA)) * 0.56 * wb;
-      const swingB = Math.sin(pB) * 0.42 * wb;
-      const liftB = Math.max(0, Math.cos(pB)) * 0.56 * wb;
+      const swingA = Math.sin(pA) * 0.44 * wb;
+      const liftA = Math.max(0, Math.cos(pA)) * 0.58 * wb;
+      const swingB = Math.sin(pB) * 0.44 * wb;
+      const liftB = Math.max(0, Math.cos(pB)) * 0.58 * wb;
 
       // Diagonal Pair A: Front Left + Rear Right
       addBoneRot(FL_LEG[0], -swingA, 0, 0);
       addBoneRot(FL_LEG[1], liftA, 0, 0);
       addBoneRot(FL_LEG[2], -liftA * 0.45, 0, 0);
-      addBoneRot(RR_LEG[0], -swingA * 0.9, 0, 0);
-      addBoneRot(RR_LEG[1], liftA * 0.9, 0, 0);
-      addBoneRot(RR_LEG[2], -liftA * 0.4, 0, 0);
+      addBoneRot(RR_LEG[0], -swingA * 0.95, 0, 0);
+      addBoneRot(RR_LEG[1], liftA * 0.95, 0, 0);
+      addBoneRot(RR_LEG[2], -liftA * 0.42, 0, 0);
 
       // Diagonal Pair B: Front Right + Rear Left
       addBoneRot(FR_LEG[0], -swingB, 0, 0);
       addBoneRot(FR_LEG[1], liftB, 0, 0);
       addBoneRot(FR_LEG[2], -liftB * 0.45, 0, 0);
-      addBoneRot(RL_LEG[0], -swingB * 0.9, 0, 0);
-      addBoneRot(RL_LEG[1], liftB * 0.9, 0, 0);
-      addBoneRot(RL_LEG[2], -liftB * 0.4, 0, 0);
+      addBoneRot(RL_LEG[0], -swingB * 0.95, 0, 0);
+      addBoneRot(RL_LEG[1], liftB * 0.95, 0, 0);
+      addBoneRot(RL_LEG[2], -liftB * 0.42, 0, 0);
 
-      // Trotting torso bounce & lateral waggle
-      const strideBob = Math.abs(Math.sin(pA)) * 0.028 * height * wb;
-      motion.position.y += strideBob;
-      motion.rotation.z += Math.sin(pA) * 0.032 * wb;
+      hopAirOffset += Math.abs(Math.sin(pA)) * 0.016 * height * wb;
       SPINE_BONES.forEach((bn, idx) => {
-        addBoneRot(bn, 0, Math.sin(pA - idx * 0.35) * 0.04 * wb, 0);
+        addBoneRot(bn, Math.cos(pA * 2) * 0.025 * wb, Math.sin(pA - idx * 0.4) * 0.048 * wb, Math.sin(pA) * 0.02 * wb);
       });
-      LEFT_EAR_BONES.forEach((bn, idx) => addBoneRot(bn, 0, 0, Math.sin(pA * 2 - idx * 0.3) * 0.045 * wb));
-      RIGHT_EAR_BONES.forEach((bn, idx) => addBoneRot(bn, 0, 0, -Math.sin(pA * 2 - idx * 0.3) * 0.045 * wb));
-      tailLift = THREE.MathUtils.lerp(tailLift, -0.22, wb);
-      tailAmp = Math.max(tailAmp, 0.24 * wb);
+      headRx += Math.cos(pA * 2) * 0.06 * wb;
+      LEFT_EAR_BONES.forEach((bn, idx) => addBoneRot(bn, 0, 0, Math.sin(pA * 2 - idx * 0.3) * 0.08 * wb));
+      RIGHT_EAR_BONES.forEach((bn, idx) => addBoneRot(bn, 0, 0, -Math.sin(pA * 2 - idx * 0.3) * 0.08 * wb));
+      tailLift = THREE.MathUtils.lerp(tailLift, -0.26, wb);
+      tailAmp = Math.max(tailAmp, 0.28 * wb);
     }
 
-    // 6. Active showcased trick choreography (overrides/layers cleanly onto skeleton)
+    // 3. Expressive Choreographed Actions
     if (activeAction) {
       activeAction.t += dt;
       const t = activeAction.t;
       const dur = activeAction.dur;
-      const env = envelopeBell(t, dur, 0.24, 0.28);
+      const env = envelopeBell(t, dur, 0.28, 0.32);
 
       if (activeAction.name === "roll_over") {
-        // 0..0.38 crouch -> 0.38..2.28 smooth 360 roll with belly-up paw paddle -> 2.28..2.85 shake
-        const crouchEnv = t < 0.55 ? envelopeBell(t, 0.55, 0.16, 0.22) : 0;
-        motion.position.y -= crouchEnv * 0.05 * height;
-        if (crouchEnv > 0.01) {
-          [FL_LEG, FR_LEG, RL_LEG, RR_LEG].forEach((leg) => {
-            addBoneRot(leg[0], -0.28 * crouchEnv, 0, 0);
-            addBoneRot(leg[1], 0.55 * crouchEnv, 0, 0);
+        // Authentic 3-Stage Dachshund Belly Rub Roll (NO stiff 360° barrel roll!)
+        // Stage 1 (0..0.65s): Fold legs -> lie down onto rug -> roll onto side (~85°)
+        // Stage 2 (0.65..2.25s): Roll onto back (~156°) + S-wave spine rub + paw bicycle + neck look up
+        // Stage 3 (2.25..3.15s): Roll BACK the same way (156° -> 0°) + stand up + 26Hz fur shake!
+        let sideRoll = 0;
+        if (t < 0.65) {
+          sideRoll = smoothstep(0.18, 0.65, t) * 1.48;
+        } else if (t < 2.25) {
+          const midWiggle = Math.sin((t - 0.65) * 6.2) * 0.22 * envelopeBell(t - 0.65, 1.6, 0.28, 0.28);
+          sideRoll = 1.48 + smoothstep(0.65, 1.0, t) * 1.24 + midWiggle; // peaks ~2.72 rad (~156° belly up!)
+        } else {
+          sideRoll = (1 - smoothstep(2.25, 2.72, t)) * 2.72;
+        }
+        motion.rotation.z += sideRoll;
+
+        // Legs stay tucked/bent close to torso while lying/belly-up, and alternate bicycle paddle when belly-up!
+        const tuckEnv = smoothstep(0.0, 0.35, t) * (1 - smoothstep(2.55, 2.95, t));
+        const paddleEnv = smoothstep(0.7, 1.05, t) * (1 - smoothstep(2.05, 2.38, t));
+        const pad = Math.sin(t * 11.5) * 0.36 * paddleEnv;
+
+        addBoneRot(FL_LEG[0], -0.45 * tuckEnv + pad, 0, 0.28 * tuckEnv);
+        addBoneRot(FL_LEG[1], 0.85 * tuckEnv, 0, 0);
+        addBoneRot(FR_LEG[0], -0.45 * tuckEnv - pad, 0, -0.28 * tuckEnv);
+        addBoneRot(FR_LEG[1], 0.85 * tuckEnv, 0, 0);
+        addBoneRot(RL_LEG[0], -0.35 * tuckEnv - pad * 0.8, 0, 0.22 * tuckEnv);
+        addBoneRot(RL_LEG[1], 0.72 * tuckEnv, 0, 0);
+        addBoneRot(RR_LEG[0], -0.35 * tuckEnv + pad * 0.8, 0, -0.22 * tuckEnv);
+        addBoneRot(RR_LEG[1], 0.72 * tuckEnv, 0, 0);
+
+        // S-wave spine squirm rubbing back into carpet
+        if (paddleEnv > 0.01) {
+          SPINE_BONES.forEach((bn, idx) => {
+            addBoneRot(bn, 0, Math.sin(t * 7.2 - idx * 0.7) * 0.14 * paddleEnv, Math.cos(t * 6.5 - idx * 0.5) * 0.06 * paddleEnv);
           });
+          // Ears splay gently outward beside head on carpet
+          LEFT_EAR_BONES.forEach((bn, idx) => addBoneRot(bn, 0.08 * paddleEnv, 0, (0.28 - idx * 0.04) * paddleEnv));
+          RIGHT_EAR_BONES.forEach((bn, idx) => addBoneRot(bn, 0.08 * paddleEnv, 0, (-0.28 + idx * 0.04) * paddleEnv));
         }
 
-        const rollU = THREE.MathUtils.clamp((t - 0.32) / 1.98, 0, 1);
-        // Warp rollU so belly-up region around 0.5 has a playful wiggle dwell
-        let rollAngle = 0;
-        if (rollU > 0 && rollU < 1) {
-          const base = rollU < 0.5
-            ? 0.5 * Math.pow(rollU * 2, 0.78)
-            : 1 - 0.5 * Math.pow((1 - rollU) * 2, 0.78);
-          const dwell = Math.sin(rollU * Math.PI);
-          rollAngle = base * Math.PI * 2 + Math.sin(t * 10.5) * 0.22 * dwell;
-        }
-        motion.rotation.z += rollAngle;
-        // Exact geometric floor-clearance curve across 0..2π roll:
-        // 0 at upright, ~0.28*H on sides (π/2, 3π/2), ~0.52*H belly-up (π) so back touches y=0 without clipping!
-        const bellyFactor = Math.sin(rollAngle * 0.5) ** 2;
-        const sideFactor = Math.abs(Math.sin(rollAngle));
-        motion.position.y += (0.52 * bellyFactor + 0.04 * sideFactor) * height;
-        contactShadow.scale.setScalar(1 + bellyFactor * 0.28);
-        contactShadow.material.opacity = 0.92 - bellyFactor * 0.22;
+        // Cute head curl looking up & tilted sideways while waiting for belly rubs
+        headRx = THREE.MathUtils.lerp(headRx, -0.38, tuckEnv);
+        headRy = THREE.MathUtils.lerp(headRy, 0.22, paddleEnv);
+        headRz = THREE.MathUtils.lerp(headRz, -0.25, paddleEnv);
+        tailFreq = 11.8;
+        tailAmp = 0.34;
+        tailLift = -0.18;
 
-        // Tuck & paddle all 4 paws in the air while rolling
-        const airEnv = Math.sin(rollU * Math.PI);
-        if (airEnv > 0.01) {
-          const pad = Math.sin(t * 14.0) * 0.32 * airEnv;
-          addBoneRot(FL_LEG[0], -0.45 * airEnv + pad, 0, 0.16 * airEnv);
-          addBoneRot(FL_LEG[1], 0.72 * airEnv, 0, 0);
-          addBoneRot(FR_LEG[0], -0.45 * airEnv - pad, 0, -0.16 * airEnv);
-          addBoneRot(FR_LEG[1], 0.72 * airEnv, 0, 0);
-          addBoneRot(RL_LEG[0], -0.35 * airEnv - pad * 0.7, 0, 0.12 * airEnv);
-          addBoneRot(RL_LEG[1], 0.55 * airEnv, 0, 0);
-          addBoneRot(RR_LEG[0], -0.35 * airEnv + pad * 0.7, 0, -0.12 * airEnv);
-          addBoneRot(RR_LEG[1], 0.55 * airEnv, 0, 0);
-          headRx -= 0.18 * airEnv;
-          tailFreq = 12.5;
-          tailAmp = 0.32;
+        // Crisp standing fur shake at the end (2.72s .. 3.15s)
+        if (t > 2.7) {
+          const shEnv = envelopeBell(t - 2.7, dur - 2.7, 0.06, 0.16);
+          const sh = Math.sin((t - 2.7) * 32.0) * 0.22 * shEnv;
+          SPINE_BONES.forEach((bn, idx) => addBoneRot(bn, 0, 0, -sh * (0.3 + idx * 0.12)));
+          headRz += sh * 1.15;
+          LEFT_EAR_BONES.forEach((bn) => addBoneRot(bn, 0, 0, sh * 1.1));
+          RIGHT_EAR_BONES.forEach((bn) => addBoneRot(bn, 0, 0, sh * 1.1));
         }
 
-        // Cute finishing shake right after standing back up
-        if (t > 2.25) {
-          const shEnv = envelopeBell(t - 2.25, dur - 2.25, 0.08, 0.22);
-          const sh = Math.sin((t - 2.25) * 28.0) * 0.18 * shEnv;
-          headRz += sh;
-          LEFT_EAR_BONES.forEach((bn) => addBoneRot(bn, 0, 0, sh * 0.85));
-          RIGHT_EAR_BONES.forEach((bn) => addBoneRot(bn, 0, 0, sh * 0.85));
-        }
+        contactShadow.scale.set(1.22, 1.35, 1.0);
+        contactShadow.material.opacity = 0.85;
       } else if (activeAction.name === "lick_paw") {
-        // Weight shift to Left (+X), lift Front Right paw toward muzzle, bow head & lick
-        motion.position.x += 0.028 * height * env;
-        motion.rotation.z -= 0.065 * env;
-        motion.rotation.x -= 0.04 * env;
-
-        // Brace supporting Front Left & Rear legs slightly
+        // Weight shifts slightly left; Front Right paw lifts cleanly under muzzle; all 4 neck joints bow deeply!
+        addBoneRot(SPINE_BONES[2], 0.08 * env, -0.12 * env, -0.09 * env);
+        addBoneRot(SPINE_BONES[3], 0.12 * env, -0.1 * env, -0.06 * env);
         addBoneRot(FL_LEG[0], -0.08 * env, 0, -0.08 * env);
-        addBoneRot(RL_LEG[0], 0.12 * env, 0, 0);
-        addBoneRot(RR_LEG[0], 0.12 * env, 0, 0);
+        addBoneRot(RL_LEG[0], 0.18 * env, 0, 0);
+        addBoneRot(RL_LEG[1], -0.22 * env, 0, 0);
+        addBoneRot(RR_LEG[0], 0.18 * env, 0, 0);
+        addBoneRot(RR_LEG[1], -0.22 * env, 0, 0);
 
-        // Lift Front Right paw up & slightly inward toward nose
-        addBoneRot(FR_LEG[0], -0.82 * env, 0.14 * env, -0.12 * env);
-        addBoneRot(FR_LEG[1], -0.52 * env, 0, 0);
+        // Lift Front Right paw up toward chest/chin
+        addBoneRot(FR_LEG[0], -0.96 * env, 0.18 * env, -0.14 * env);
+        addBoneRot(FR_LEG[1], -0.58 * env, 0, 0);
+        addBoneRot(FR_LEG[2], 0.32 * env, 0, 0);
+
+        // Deep 4-joint neck bow right down to the lifted paw + rhythmic tongue/jaw lick nods
+        const lickEnv = smoothstep(0.32, 0.65, t) * (1 - smoothstep(dur - 0.45, dur - 0.08, t));
+        const lickNod = Math.sin(t * 11.5) * 0.14 * lickEnv;
+        headRx = 0.82 * env + lickNod;
+        headRy = -0.3 * env;
+        headRz = 0.16 * env;
+        JAW_BONES.forEach((bn, idx) => addBoneRot(bn, (0.12 + Math.max(0, lickNod) * 1.2) * env * (idx === 0 ? 1 : 0.4), 0, 0));
+        LEFT_EAR_BONES.forEach((bn, idx) => addBoneRot(bn, 0.1 * env * (idx === 0 ? 1 : 0.3), 0, 0.06 * env));
+        RIGHT_EAR_BONES.forEach((bn, idx) => addBoneRot(bn, 0.1 * env * (idx === 0 ? 1 : 0.3), 0, -0.06 * env));
+        tailFreq = 4.8;
+        tailAmp = 0.2;
+      } else if (activeAction.name === "play_bow") {
+        // Real skeletal Play Bow: rear hips/legs stay TALL, spine slopes down forward, front elbows bend & stretch forward flat on carpet!
+        // Ground-contact clamp lifts/seats paws at y=0 automatically without dipping body below floor!
+        SPINE_BONES.forEach((bn, idx) => {
+          addBoneRot(bn, (idx < 2 ? 0.14 : 0.06) * env, 0, 0);
+        });
+        // Keep rear legs extended upright to hold rump high
+        addBoneRot(RL_LEG[0], -0.12 * env, 0, 0.06 * env);
+        addBoneRot(RR_LEG[0], -0.12 * env, 0, -0.06 * env);
+
+        // Drop chest by swinging front shoulders far forward & flexing elbows/wrists cleanly onto forearms
+        addBoneRot(FL_LEG[0], -0.82 * env, 0, 0.12 * env);
+        addBoneRot(FL_LEG[1], 0.56 * env, 0, 0);
+        addBoneRot(FL_LEG[2], 0.34 * env, 0, 0);
+        addBoneRot(FR_LEG[0], -0.82 * env, 0, -0.12 * env);
+        addBoneRot(FR_LEG[1], 0.56 * env, 0, 0);
         addBoneRot(FR_LEG[2], 0.34 * env, 0, 0);
 
-        // Bow head down & right toward lifted paw + gentle licking nods
-        const lickNod = Math.sin(t * 11.5) * 0.11 * smoothstep(0.35, 0.7, t) * (1 - smoothstep(dur - 0.5, dur - 0.1, t));
-        headRx = 0.44 * env + lickNod;
-        headRy = -0.24 * env;
-        headRz = 0.12 * env;
-        JAW_BONES.forEach((bn, idx) => addBoneRot(bn, (0.08 + Math.max(0, lickNod) * 1.1) * env * (idx === 0 ? 1 : 0.35), 0, 0));
-        tailFreq = 4.6;
-        tailAmp = 0.18;
-      } else if (activeAction.name === "play_bow") {
-        // Classic dog play bow: chest low near carpet, rump high, tail wagging rapidly
-        motion.rotation.x += 0.25 * env;
-        motion.position.y -= 0.08 * height * env;
-        motion.position.z += 0.04 * height * env;
-
-        // Counter-rotate rear legs so back paws stay planted while rump stays elevated
-        addBoneRot(RL_LEG[0], -0.24 * env, 0, 0);
-        addBoneRot(RL_LEG[1], 0.18 * env, 0, 0);
-        addBoneRot(RR_LEG[0], -0.24 * env, 0, 0);
-        addBoneRot(RR_LEG[1], 0.18 * env, 0, 0);
-
-        // Stretch front legs forward along floor
-        addBoneRot(FL_LEG[0], -0.56 * env, 0, 0.08 * env);
-        addBoneRot(FL_LEG[1], -0.14 * env, 0, 0);
-        addBoneRot(FL_LEG[2], 0.46 * env, 0, 0);
-        addBoneRot(FR_LEG[0], -0.56 * env, 0, -0.08 * env);
-        addBoneRot(FR_LEG[1], -0.14 * env, 0, 0);
-        addBoneRot(FR_LEG[2], 0.46 * env, 0, 0);
-
-        // Arch spine concave slightly & raise head cheerfully
-        addBoneRot(SPINE_BONES[1], -0.06 * env, 0, 0);
-        addBoneRot(SPINE_BONES[2], -0.08 * env, 0, 0);
-        headRx = -0.46 * env;
-        headRy = Math.sin(t * 3.2) * 0.1 * env;
-        tailLift = -0.32;
-        tailFreq = 13.5;
-        tailAmp = 0.34;
+        // Arch head cheerfully up at player while tail wags super fast!
+        headRx = -0.78 * env;
+        headRy = Math.sin(t * 3.4) * 0.12 * env;
+        headRz = 0.06 * env;
+        tailLift = -0.52;
+        tailFreq = 14.0;
+        tailAmp = 0.38;
       } else if (activeAction.name === "airplane_ears") {
-        earFold = Math.max(earFold, env);
-        headRx = 0.22 * env;
-        headRy = -0.26 * env;
-        headRz = -0.08 * env;
-        motion.position.y -= 0.025 * height * env;
-        tailLift = 0.28;
-        tailFreq = 1.6;
+        // Both Left & Right ear chains flare outward and sweep backward symmetrically!
+        earFold = Math.max(earFold, env * 1.15);
+        SPINE_BONES[2] && addBoneRot(SPINE_BONES[2], 0.08 * env, -0.12 * env, 0);
+        headRx = 0.28 * env;
+        headRy = -0.34 * env;
+        headRz = -0.09 * env;
+        tailLift = 0.38;
+        tailFreq = 1.5;
         tailAmp = 0.04;
       }
 
@@ -546,7 +626,7 @@ export function createRiggedBruce({
       }
     }
 
-    // 7. Apply Head/Neck, Tail, and Airplane Ear chains
+    // 4. Apply Neck/Head, Symmetrical Floppy/Airplane Ears & 7-Segment Tail
     NECK_HEAD_BONES.forEach((bn, i) => {
       const share = neckShare[i];
       addBoneRot(bn, headRx * share, headRy * share, headRz * share);
@@ -554,38 +634,72 @@ export function createRiggedBruce({
 
     if (earFold > 0.01) {
       LEFT_EAR_BONES.forEach((bn, idx) => {
-        const w = earFold * (idx === 0 ? 0.46 : 0.2);
-        addBoneRot(bn, 0.26 * w, -0.18 * w, 0.28 * w);
+        const w = earFold * (idx === 0 ? 0.52 : 0.22);
+        addBoneRot(bn, 0.34 * w, -0.22 * w, 0.34 * w);
       });
       RIGHT_EAR_BONES.forEach((bn, idx) => {
-        const w = earFold * (idx === 0 ? 0.46 : 0.2);
-        addBoneRot(bn, 0.26 * w, 0.18 * w, -0.28 * w);
+        const w = earFold * (idx === 0 ? 0.52 : 0.22);
+        addBoneRot(bn, 0.34 * w, 0.22 * w, -0.34 * w);
       });
     }
 
     TAIL_BONES.forEach((bn, idx) => {
-      const w = 0.22 + idx * 0.05;
+      const w = 0.24 + idx * 0.055;
       const wag = Math.sin(elapsed * tailFreq - idx * 0.48) * tailAmp * w;
-      const lift = (idx < 3 ? tailLift * (idx === 0 ? 0.45 : 0.28) : 0);
-      addBoneRot(bn, lift, wag, wag * 0.25);
+      const lift = idx < 3 ? tailLift * (idx === 0 ? 0.46 : 0.28) : 0;
+      addBoneRot(bn, lift, wag, wag * 0.22);
     });
 
-    // 8. Happy hop vertical spring + paw tuck
+    // 5. Happy hop spring envelope
     if (hopTimer > 0) {
       hopTimer = Math.max(0, hopTimer - dt);
       const u = 1 - hopTimer / 0.62;
-      const hopHeight = Math.sin(u * Math.PI) * 0.2 * height;
-      motion.position.y += hopHeight;
       const tuck = Math.sin(u * Math.PI);
-      motion.rotation.x -= tuck * 0.08;
+      hopAirOffset += tuck * 0.18 * height;
       contactShadow.scale.setScalar(1 - tuck * 0.18);
-      contactShadow.material.opacity = 0.92 - tuck * 0.26;
-      addBoneRot(FL_LEG[0], -0.35 * tuck, 0, 0);
-      addBoneRot(FR_LEG[0], -0.35 * tuck, 0, 0);
-      addBoneRot(FL_LEG[1], 0.45 * tuck, 0, 0);
-      addBoneRot(FR_LEG[1], 0.45 * tuck, 0, 0);
-      LEFT_EAR_BONES.forEach((bn) => addBoneRot(bn, 0, 0, 0.08 * tuck));
-      RIGHT_EAR_BONES.forEach((bn) => addBoneRot(bn, 0, 0, -0.08 * tuck));
+      contactShadow.material.opacity = 0.92 - tuck * 0.28;
+      addBoneRot(FL_LEG[0], -0.38 * tuck, 0, 0);
+      addBoneRot(FR_LEG[0], -0.38 * tuck, 0, 0);
+      addBoneRot(FL_LEG[1], 0.48 * tuck, 0, 0);
+      addBoneRot(FR_LEG[1], 0.48 * tuck, 0, 0);
+      LEFT_EAR_BONES.forEach((bn) => addBoneRot(bn, 0, 0, 0.1 * tuck));
+      RIGHT_EAR_BONES.forEach((bn) => addBoneRot(bn, 0, 0, -0.1 * tuck));
+    }
+
+    // 6. EXACT SKINNED HULL GROUND CONTACT CLAMP (Guarantees 0 floor penetration on every frame!)
+    let calibratedMinY = 0;
+    if (skinnedMeshRef && hullIndices.length > 0) {
+      motion.position.y = 0;
+      root.updateMatrixWorld(true);
+      skinnedMeshRef.skeleton?.update();
+
+      let lowestY = Infinity;
+      for (let i = 0; i < hullIndices.length; i++) {
+        skinnedMeshRef.getVertexPosition(hullIndices[i], tmpHullV);
+        tmpHullV.applyMatrix4(skinnedMeshRef.matrixWorld);
+        root.worldToLocal(tmpHullV);
+        if (tmpHullV.y < lowestY) lowestY = tmpHullV.y;
+      }
+      if (Number.isFinite(lowestY)) {
+        motion.position.y = -lowestY + hopAirOffset;
+        calibratedMinY = lowestY + motion.position.y;
+      }
+    } else {
+      motion.position.y = hopAirOffset;
+    }
+
+    lastDiag = {
+      missingCoreBones,
+      matchedBoneCount,
+      totalCoreBones: CORE_REQUIRED_BONES.length,
+      hullVertexCount: hullIndices.length,
+      activeAction: activeAction?.name || (walkGoal ? "walk" : "idle"),
+      rollAngleDeg: Math.round((motion.rotation.z * 180) / Math.PI),
+      minVertexY: Number(calibratedMinY.toFixed(4)),
+      appliedLiftY: Number(motion.position.y.toFixed(4)),
+    };
+    if (typeof window !== "undefined") {
+      window.__BRUCE_RIG_DIAG__ = lastDiag;
     }
   }
 
@@ -593,6 +707,9 @@ export function createRiggedBruce({
     destroyed = true;
     abort.abort();
     disposables.forEach((d) => d?.dispose?.());
+    if (typeof window !== "undefined") {
+      delete window.__BRUCE_RIG_DIAG__;
+    }
   }
 
   return {
@@ -608,6 +725,7 @@ export function createRiggedBruce({
     stopWalk,
     isWalking: () => Boolean(walkGoal),
     getActiveAction: () => activeAction?.name || null,
+    getDiag: () => lastDiag,
     update,
     destroy,
   };

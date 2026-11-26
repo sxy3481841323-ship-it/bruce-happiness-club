@@ -154,7 +154,8 @@ def main():
     model_types = {}
     for cid, c in id_map.items():
         if c[0] == "Model":
-            model_names[cid] = c[1][1].split("\x00")[0]
+            raw_nm = c[1][1].split("\x00")[0]
+            model_names[cid] = raw_nm.replace("::", "_").replace(":", "_")
             model_types[cid] = c[1][2]
 
     cluster_for_bone = {}
@@ -173,8 +174,8 @@ def main():
                         "transform_link": dchildren["TransformLink"].reshape(4, 4).T.astype(np.float64),
                     }
 
-    # Topological joint traversal starting from tripo::Root
-    root_bone_id = next(cid for cid, nm in model_names.items() if nm == "tripo::Root")
+    # Topological joint traversal starting from tripo_Root
+    root_bone_id = next(cid for cid, nm in model_names.items() if nm == "tripo_Root")
     joint_ids = []
 
     def dfs_joints(mid):
@@ -185,6 +186,7 @@ def main():
 
     dfs_joints(root_bone_id)
     assert len(joint_ids) == 86, f"Expected 86 joints, got {len(joint_ids)}"
+    assert all(":" not in model_names[mid] for mid in joint_ids), "Colons left in joint name!"
     joint_idx_by_id = {mid: i for i, mid in enumerate(joint_ids)}
     joint_idx_by_name = {model_names[mid]: i for i, mid in enumerate(joint_ids)}
 
@@ -198,8 +200,8 @@ def main():
         mid = joint_ids[joint_idx_by_name[name]]
         return cluster_for_bone[mid]["transform_link"][:3, 3]
 
-    pelvis_mid = 0.5 * (bone_world_pos("tripo::0_Left_Limb_0") + bone_world_pos("tripo::1_Right_Limb_0"))
-    chest_pos = bone_world_pos("tripo::0_Right_Limb_3")
+    pelvis_mid = 0.5 * (bone_world_pos("tripo_0_Left_Limb_0") + bone_world_pos("tripo_1_Right_Limb_0"))
+    chest_pos = bone_world_pos("tripo_0_Right_Limb_3")
     fwd_vec = chest_pos - pelvis_mid
     fwd_xz = np.array([fwd_vec[0], 0.0, fwd_vec[2]], dtype=np.float64)
     fwd_xz /= np.linalg.norm(fwd_xz)

@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { createLivingBruce } from "../hub3d/bruceLiving.js";
+import { mountBruceChatBar } from "../hub3d/bruceChatUi.js";
 import { sfx } from "../audio.js";
 import { feedback } from "../juice.js";
 
@@ -86,7 +87,7 @@ const HOTSPOTS = [
     id: "warehouse",
     kind: "teleport",
     title: "下一站 · 会员超市",
-    sub: "冷柜推车试吃",
+    sub: "3D 冷柜与购物车",
     code: "CLB·02",
     pos: [4.2, 9.0, -10.5],
     icon: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/><path d="M3 5h3l2.2 10h9.8l2-7H7"/></svg>`,
@@ -229,6 +230,7 @@ export function mountCoastalCafeHub(container, opts = {}) {
           <button type="button" class="trick-pill" data-trick="lick_paw">舔小爪子</button>
           <button type="button" class="trick-pill" data-trick="play_bow">伸个懒腰</button>
           <button type="button" class="trick-pill" data-trick="airplane_ears">委屈飞机耳</button>
+          <button type="button" class="trick-pill is-ai-chat" id="hub3d-btn-chat">✦ 逗它说话</button>
         </div>
         <button type="button" class="hub3d-reset-btn">⌖ 归中视角</button>
 
@@ -1366,7 +1368,7 @@ export function mountCoastalCafeHub(container, opts = {}) {
   let pokeCount = 0;
   let canvasDown = null;
 
-  const trickButtons = Array.from(container.querySelectorAll(".trick-pill"));
+  const trickButtons = Array.from(container.querySelectorAll(".trick-pill[data-trick]"));
   function highlightTrickBtn(trickId) {
     trickButtons.forEach((b) => b.classList.toggle("is-playing", b.getAttribute("data-trick") === trickId));
     later(() => {
@@ -1415,6 +1417,37 @@ export function mountCoastalCafeHub(container, opts = {}) {
     btn.addEventListener("click", onTrickClick);
     cleanups.push(() => btn.removeEventListener("click", onTrickClick));
   });
+
+  const chatCleanup = mountBruceChatBar({
+    stageEl,
+    toggleBtn: container.querySelector("#hub3d-btn-chat"),
+    getContext: () => ({
+      scene: "cafe",
+      sulking,
+      happiness,
+      owner: opts.player?.owner,
+      nickname: opts.player?.nickname,
+    }),
+    onAiResponse(res, showDelta) {
+      if (destroyed) return;
+      sayBruce(res.reply, 5400, res.cue || "BRUCE · 灵动回应");
+      const act = res.action;
+      if (act === "walk") {
+        runTrick("walk");
+      } else if (act && act !== "idle") {
+        bruce.playAction(act);
+        highlightTrickBtn(act);
+        if (act === "roll_over") sfx.playRollJoy();
+        else if (act === "play_bow") sfx.playStretchSigh();
+      }
+      if (res.sincerityDelta) {
+        opts.onSincerityDelta?.(res.sincerityDelta)?.then((applied) => {
+          if (applied) showDelta?.(applied);
+        });
+      }
+    },
+  });
+  cleanups.push(chatCleanup);
 
   const onCanvasDown = (e) => {
     if (activeActId) return;
@@ -1498,7 +1531,7 @@ export function mountCoastalCafeHub(container, opts = {}) {
 
     const w = Math.max(300, stageEl.clientWidth);
     const h = Math.max(240, stageEl.clientHeight);
-    const desiredFov = w < 640 ? 68 : w < 900 ? 58 : 50;
+    const desiredFov = w / h < 0.95 ? 62 : w < 920 ? 56 : 50;
     if (
       canvas.width !== Math.round(w * renderer.getPixelRatio()) ||
       canvas.height !== Math.round(h * renderer.getPixelRatio()) ||
@@ -1576,6 +1609,8 @@ export function mountCoastalCafeHub(container, opts = {}) {
     }
 
     bruce.update(dt, elapsed);
+    const rigDiag = bruce.getDiag?.();
+    if (rigDiag) stageEl.dataset.rigDiag = JSON.stringify(rigDiag);
     renderer.render(scene, camera);
 
     // Expose live renderer diagnostics for QA budget checks

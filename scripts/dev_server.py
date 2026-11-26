@@ -10,6 +10,8 @@ import random
 import re
 import threading
 import time
+import urllib.error
+import urllib.request
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
@@ -32,7 +34,142 @@ MIME_OVERRIDES = {
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 KV_FILE = os.path.join(ROOT_DIR, ".local_kv.json")
 CONTENT_FILE = os.path.join(ROOT_DIR, "data", "content.json")
+HUB_DEEPSEEK_FILE = os.path.join(ROOT_DIR, "data", "hub_deepseek.json")
+LOCAL_ENV_FILE = os.path.join(ROOT_DIR, ".env")
+FALLBACK_ENV_FILE = "/Users/alex/.gemini/antigravity/scratch/ai-pulse-radar/.env"
+FORBIDDEN_RE = re.compile(r"杭州|西湖|钱塘江|灵隐寺|龙井|宋城|桂花|三墩|滨江|江南|石桥|拱桥|乌篷船")
+VALID_AI_ACTIONS = {"roll_over", "lick_paw", "play_bow", "airplane_ears", "walk", "idle"}
 LOCK = threading.Lock()
+
+
+def load_deepseek_key():
+    env_map = {}
+    for p in (FALLBACK_ENV_FILE, LOCAL_ENV_FILE):
+        if os.path.exists(p):
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    for line in f:
+                        s = line.strip()
+                        if s and not s.startswith("#") and "=" in s:
+                            k, v = s.split("=", 1)
+                            env_map[k.strip()] = v.strip().strip('"').strip("'")
+            except Exception:
+                pass
+    return os.environ.get("DEEPSEEK_API_KEY") or env_map.get("DEEPSEEK_API_KEY", "")
+
+
+def fallback_bruce_ai(body):
+    mode = "suggest_names" if body.get("mode") == "suggest_names" else "chat"
+    owner = "Meya" if body.get("owner") == "Meya" else "Alex"
+    hub_data = {}
+    try:
+        if os.path.exists(HUB_DEEPSEEK_FILE):
+            with open(HUB_DEEPSEEK_FILE, "r", encoding="utf-8") as f:
+                hub_data = json.load(f)
+    except Exception:
+        pass
+    if mode == "suggest_names":
+        ob = hub_data.get("onboarding_pack", {})
+        names = ob.get("meya_names" if owner == "Meya" else "alex_names") or ["奶油领巾侠", "太阳蛋邻居", "黑胶散步家", "早八冰美式"]
+        greets = ob.get("meya_greetings" if owner == "Meya" else "alex_greetings") or ["布鲁斯正隔着门缝闻到你的味道啦，快推门进来！"]
+        return {"ok": True, "mode": "suggest_names", "owner": owner, "names": names[:6], "greeting": random.choice(greets), "source": "fallback"}
+    msg = str(body.get("message", "")).strip()
+    sulking = bool(body.get("sulking"))
+    for item in hub_data.get("offline_chat_replies", []):
+        if any(k in msg for k in item.get("keywords", [])):
+            return {
+                "ok": True,
+                "mode": "chat",
+                "reply": item["reply"],
+                "cue": item.get("cue", "BRUCE · 心有灵犀"),
+                "action": item.get("action", "roll_over"),
+                "sincerityDelta": 1 if sulking else 0,
+                "source": "fallback",
+            }
+    return {
+        "ok": True,
+        "mode": "chat",
+        "reply": "冷战期还没消气呢，除非你去零食柜拿一块肉干来哄我！" if sulking else "小耳朵动了一下！要不要让我给你翻个肚皮打滚呀？",
+        "cue": "BRUCE · 冷战傲娇" if sulking else "BRUCE · 歪头回应",
+        "action": "airplane_ears" if sulking else "roll_over",
+        "sincerityDelta": 0,
+        "source": "fallback",
+    }
+
+
+def call_deepseek_live(body):
+    key = load_deepseek_key()
+    if not key:
+        return fallback_bruce_ai(body)
+    mode = "suggest_names" if body.get("mode") == "suggest_names" else "chat"
+    owner = "Meya" if body.get("owner") == "Meya" else "Alex"
+    nickname = str(body.get("nickname") or "新邻居")[:12]
+    happiness = int(body.get("happiness", 100)) if str(body.get("happiness", "")).isdigit() else 100
+    sulking = bool(body.get("sulking") or happiness < 80)
+    scene_name = "海岸咖啡馆" if body.get("scene") == "cafe" else "顶层阳光客厅"
+
+    if mode == "suggest_names":
+        sys_p = (
+            f"你是治愈 3D 小狗游戏《布鲁斯日常 · 幸福指数俱乐部》的迎宾文案师。主角是系酒红领巾的奶油长毛腊肠犬布鲁斯，当前搭档是 {owner}。"
+            '严禁出现任何真实城市/景点/地域词。输出 JSON：{"names":[6个2-8字含汉字无空格昵称],"greeting":"1条16-30字隔门撒娇迎宾语"}。'
+        )
+        usr_p = f"请为选择了 {owner} 的新住户生成 6 个好玩可爱的中文昵称，并附一句布鲁斯的迎宾词。"
+    else:
+        sys_p = (
+            f"你是《布鲁斯日常》里的 3D 奶油长毛腊肠犬布鲁斯（系酒红真丝领巾），正和 {owner} 的伙伴「{nickname}」待在「{scene_name}」。"
+            f"当前幸福指数 {happiness}{'（<80冷战期，委屈但哄一哄也会心软）' if sulking else '（开心粘人中）'}。严禁出现任何真实城市/景点/地域词。"
+            '严格输出 JSON：{"reply":"14-36字傲娇有温度的第一人称回应","cue":"BRUCE · 四字状态","action":"roll_over|lick_paw|play_bow|airplane_ears|walk|idle","sincerityDelta":-1到3整数}'
+        )
+        usr_p = f"玩家刚刚对布鲁斯说：「{str(body.get('message', '你好'))[:80]}」"
+
+    try:
+        req = urllib.request.Request(
+            "https://api.deepseek.com/chat/completions",
+            data=json.dumps({
+                "model": "deepseek-chat",
+                "messages": [{"role": "system", "content": sys_p}, {"role": "user", "content": usr_p}],
+                "response_format": {"type": "json_object"},
+                "temperature": 0.9,
+            }).encode("utf-8"),
+            headers={"Content-Type": "application/json", "Authorization": f"Bearer {key}"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=14) as resp:
+            raw = json.loads(resp.read().decode("utf-8"))
+        parsed = json.loads(raw["choices"][0]["message"]["content"])
+        if FORBIDDEN_RE.search(json.dumps(parsed, ensure_ascii=False)):
+            return fallback_bruce_ai(body)
+        if mode == "suggest_names":
+            names = [re.sub(r"\s+", "", str(x)).strip() for x in (parsed.get("names") or [])]
+            names = [x for x in names if 2 <= len(x) <= 10 and re.search(r"[\u4e00-\u9fff]", x)]
+            if not names:
+                return fallback_bruce_ai(body)
+            return {
+                "ok": True,
+                "mode": "suggest_names",
+                "owner": owner,
+                "names": names[:6],
+                "greeting": str(parsed.get("greeting") or "").strip() or fallback_bruce_ai(body)["greeting"],
+                "source": "deepseek",
+            }
+        act = parsed.get("action", "roll_over")
+        if act not in VALID_AI_ACTIONS:
+            act = "roll_over"
+        delta = max(-1, min(3, int(round(float(parsed.get("sincerityDelta", 0))))))
+        reply = str(parsed.get("reply") or "").strip()
+        if not reply:
+            return fallback_bruce_ai(body)
+        return {
+            "ok": True,
+            "mode": "chat",
+            "reply": reply,
+            "cue": str(parsed.get("cue") or "BRUCE · 灵动回应")[:24],
+            "action": act,
+            "sincerityDelta": delta,
+            "source": "deepseek",
+        }
+    except Exception:
+        return fallback_bruce_ai(body)
 
 DEFAULT_SEED_PLAYERS = [
     {"nickname": "早八起不来星人", "owner": "Alex", "happiness": 138},
@@ -217,6 +354,9 @@ class Handler(BaseHTTPRequestHandler):
             body = self._read_json()
         except Exception:
             return self._send_json({"ok": False, "error": "Invalid JSON body"}, 400)
+
+        if path == "/api/bruce-ai":
+            return self._send_json(call_deepseek_live(body))
 
         with LOCK:
             st = load_kv()

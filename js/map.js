@@ -26,6 +26,26 @@ let activeCafeContainer = null;
 let closeModalFn = null;
 let cachedHubCopy = null;
 let hubCopyPromise = null;
+let lastSincerityAt = 0;
+
+async function applyAiSincerityDelta(rawDelta) {
+  const delta = Math.max(-1, Math.min(3, Math.round(Number(rawDelta) || 0)));
+  if (!delta) return 0;
+  const now = Date.now();
+  if (delta > 0 && now - lastSincerityAt < 20000) return 0;
+  const player = store.state.player;
+  if (!player) return 0;
+  if (delta > 0) lastSincerityAt = now;
+  const nextScore = Math.max(0, Math.min(9999, Math.round(player.happiness + delta)));
+  try {
+    const res = await apiUpdateScore(player.nickname, player.pin, player.owner, nextScore, "");
+    store.setPlayer({ ...res.player, pin: player.pin });
+    store.setLeaderboardAndTicker(res.leaderboard, res.ticker);
+    return delta;
+  } catch (_) {
+    return 0;
+  }
+}
 
 function loadHubDeepseek() {
   if (cachedHubCopy) return Promise.resolve(cachedHubCopy);
@@ -262,9 +282,11 @@ export function renderMapView(container) {
   activeHub = mountLivingRoomHub(container, {
     sulking,
     happiness: player?.happiness ?? 100,
+    player,
     content: store.state.content || {},
     getHappiness: () => store.state.player?.happiness ?? 100,
     onSettle: (result) => settleScoreAndSwap(result, "客厅陪玩"),
+    onSincerityDelta: (delta) => applyAiSincerityDelta(delta),
     onOpenShop: () => store.setView("shop"),
     onTeleportStreet: () => store.setView("street"),
     onTeleportWarehouse: () => openPreviewModal("warehouse"),
@@ -289,9 +311,11 @@ export function renderCafeView(container) {
   activeCafe = mountCoastalCafeHub(container, {
     sulking,
     happiness: player?.happiness ?? 100,
+    player,
     content: store.state.content || {},
     getHappiness: () => store.state.player?.happiness ?? 100,
     onSettle: (result) => settleScoreAndSwap(result, "海岸咖啡馆探店"),
+    onSincerityDelta: (delta) => applyAiSincerityDelta(delta),
     onOpenShop: () => store.setView("shop"),
     onBackToHub: () => store.setView("map"),
     onTeleportWarehouse: () => openPreviewModal("warehouse"),

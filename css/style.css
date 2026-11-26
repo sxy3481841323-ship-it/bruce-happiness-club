@@ -1378,11 +1378,11 @@ body.is-hub3d-act .anhedonia-banner {
   font-weight: 900;
 }
 
-/* 归家序幕：全屏真 3D 顶奢电梯 + 立体胡桃木大门 + 1 秒阳光反差 */
+/* 归家序幕：日光大理石门廊 + 棉麻拍立得迎宾门卡夹 */
 .prologue-backdrop {
   z-index: 120;
   padding: 0;
-  background: #0D0E12;
+  background: #DAD0C0;
   backdrop-filter: none;
   overflow: hidden;
   display: block;
@@ -1417,10 +1417,10 @@ body.is-hub3d-act .anhedonia-banner {
   top: calc(14px + env(safe-area-inset-top, 0px));
   right: 16px;
   z-index: 20;
-  border: 1px solid rgba(223, 190, 125, 0.44);
-  background: rgba(18, 16, 17, 0.72);
+  border: 1px solid rgba(92, 68, 42, 0.24);
+  background: rgba(252, 248, 241, 0.86);
   backdrop-filter: blur(10px);
-  color: #F4DEC0;
+  color: #3B2B22;
   font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 700;
@@ -1428,6 +1428,7 @@ body.is-hub3d-act .anhedonia-banner {
   padding: 6px 13px;
   border-radius: 999px;
   cursor: pointer;
+  box-shadow: 0 6px 18px rgba(42, 28, 16, 0.14);
 }
 
 .prologue-overlay-ui {
@@ -1439,7 +1440,7 @@ body.is-hub3d-act .anhedonia-banner {
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
-  padding: calc(18px + env(safe-area-inset-top, 0px)) 16px calc(20px + env(safe-area-inset-bottom, 0px));
+  padding: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(18px + env(safe-area-inset-bottom, 0px));
   pointer-events: none;
   opacity: 0;
   transform: translateY(12px);
@@ -1457,168 +1458,338 @@ body.is-hub3d-act .anhedonia-banner {
   transition-duration: 200ms;
 }
 
-.prologue-overlay-ui.is-foyer-ready > .door-concierge-card,
+.prologue-overlay-ui.is-foyer-ready > .sunlit-folio-card,
 .prologue-overlay-ui.is-foyer-ready > .prologue-welcome {
   pointer-events: auto;
 }
 
-.door-concierge-card {
-  width: min(392px, 100%);
-  max-height: calc(100dvh - 88px);
+/* 新住户：阳光棉麻纸面 + 拍立得双搭档卡夹 */
+.sunlit-folio-card {
+  width: min(740px, 100%);
+  max-height: calc(100dvh - 82px);
   overflow-y: auto;
-  border-radius: 14px;
-  padding: 15px 17px;
-  background: rgba(20, 15, 13, 0.8);
+  display: grid;
+  grid-template-columns: 1.04fr 0.96fr;
+  gap: 18px 22px;
+  align-items: center;
+  border-radius: 20px;
+  padding: 20px 22px;
+  background: linear-gradient(160deg, rgba(254, 250, 243, 0.96) 0%, rgba(246, 238, 224, 0.94) 100%);
   backdrop-filter: blur(18px);
-  border: 1px solid rgba(223, 190, 125, 0.44);
-  color: #FAF2E1;
-  box-shadow: 0 22px 54px rgba(0, 0, 0, 0.56);
+  border: 1px solid rgba(196, 164, 114, 0.42);
+  color: #241C18;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 24px 56px rgba(34, 22, 12, 0.24);
 }
 
-.onboarding-head h1 {
-  font-size: clamp(17px, 2.2vw, 20px);
+.folio-silk-tag {
+  background: #8B2234;
+  color: #FFF8EC;
+  border: 0;
+  letter-spacing: 0.08em;
+}
+
+.sunlit-folio-card .onboarding-head h1 {
+  font-size: clamp(18px, 2.2vw, 22px);
   font-weight: 900;
-  margin-top: 6px;
-  color: #FFF6E3;
+  margin-top: 8px;
+  color: #221915;
+  letter-spacing: -0.01em;
 }
 
-.brass-plaque-tag {
-  background: rgba(223, 190, 125, 0.16);
-  color: #EBD08F;
-  border: 1px solid rgba(223, 190, 125, 0.42);
+.sunlit-folio-card .sub-copy {
+  font-size: 12.5px;
+  color: #6B5D52;
+  margin-top: 4px;
 }
 
-.door-concierge-card .sub-copy {
-  font-size: 12px;
-  color: rgba(250, 242, 225, 0.72);
-  margin-top: 3px;
-}
-
-.owner-picker {
+.polaroid-pair {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 9px;
-  margin: 10px 0;
+  gap: 12px;
+  margin: 12px 0;
 }
 
-.owner-option {
+.polaroid-card {
+  position: relative;
   cursor: pointer;
   border-radius: 10px;
-  border: 1px solid rgba(223, 190, 125, 0.34);
-  background: rgba(34, 24, 20, 0.78);
-  padding: 9px;
-  text-align: center;
-  color: #FAF2E1;
-  transition: transform 120ms var(--ease-out), background-color 140ms ease, border-color 140ms ease;
+  border: 1px solid rgba(182, 156, 120, 0.45);
+  background: #FFFFFF;
+  padding: 7px 7px 9px;
+  text-align: left;
+  color: #241C18;
+  box-shadow: 0 8px 20px rgba(48, 32, 16, 0.1);
+  transition: transform 180ms var(--ease-out), border-color 160ms ease, box-shadow 180ms ease;
 }
 
-.owner-option input {
+.polaroid-card[data-owner="Alex"] {
+  transform: rotate(-1.6deg);
+}
+
+.polaroid-card[data-owner="Meya"] {
+  transform: rotate(1.6deg);
+}
+
+.polaroid-card input {
   display: none;
 }
 
-.owner-option.selected {
-  background: rgba(125, 30, 46, 0.64);
-  border-color: #DFBE7D;
-  box-shadow: 0 0 0 1px rgba(223, 190, 125, 0.42);
+.polaroid-card.selected {
+  transform: rotate(0deg) translateY(-2px);
+  border-color: #8B2234;
+  box-shadow: 0 0 0 2px rgba(139, 34, 52, 0.18), 0 12px 26px rgba(139, 34, 52, 0.14);
 }
 
-.owner-option img {
-  width: 56px;
-  height: 56px;
-  border-radius: 9px;
-  border: 1.5px solid #DFBE7D;
+.polaroid-photo-wrap {
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+  aspect-ratio: 1 / 0.86;
+  background: #F4EDE2;
+}
+
+.polaroid-photo-wrap img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   display: block;
-  margin: 0 auto 5px;
+}
+
+.polaroid-stamp {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #8B2234;
+  color: #FFF8EC;
+  font-size: 9.5px;
+  font-weight: 800;
+  opacity: 0;
+  transform: scale(0.86);
+  transition: opacity 160ms ease, transform 160ms var(--ease-out);
+}
+
+.polaroid-card.selected .polaroid-stamp {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.polaroid-cap {
+  padding: 6px 2px 0;
 }
 
 .owner-name {
   font-weight: 900;
   display: block;
   font-size: 13.5px;
+  color: #241C18;
 }
 
 .owner-role {
   font-size: 10.5px;
-  color: rgba(250, 242, 225, 0.72);
+  color: #7A6B5F;
+}
+
+.folio-bruce-peek {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border-radius: 12px;
+  background: rgba(235, 224, 206, 0.72);
+  border: 1px solid rgba(190, 158, 112, 0.34);
+}
+
+.peek-bruce-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid #C89B4B;
+  flex-shrink: 0;
+}
+
+.peek-bruce-quote {
+  font-size: 11.5px;
+  line-height: 1.42;
+  color: #4A392E;
+  font-weight: 600;
 }
 
 .onboarding-form {
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 11px;
 }
 
 .field-group {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
+}
+
+.field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .field-group label {
-  font-size: 11.5px;
-  font-weight: 700;
-  color: #F4DEC0;
+  font-size: 12px;
+  font-weight: 800;
+  color: #362821;
 }
 
-.field-group input {
+.ai-name-btn {
+  appearance: none;
+  border: 1px solid rgba(139, 34, 52, 0.28);
+  background: rgba(139, 34, 52, 0.08);
+  color: #8B2234;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 140ms ease, transform 110ms var(--ease-out);
+}
+
+.ai-name-btn:active {
+  transform: scale(0.95);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ai-name-btn:hover {
+    background: rgba(139, 34, 52, 0.16);
+  }
+}
+
+.sunlit-folio-card .field-group input[type="text"] {
   font-size: 16px;
-  padding: 8px 11px;
-  border-radius: 8px;
-  border: 1px solid rgba(223, 190, 125, 0.42);
-  background: rgba(14, 11, 10, 0.76);
-  color: #FFF8EB;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(168, 140, 102, 0.48);
+  background: #FFFFFF;
+  color: #241C18;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
-.field-group input::placeholder {
-  color: rgba(250, 242, 225, 0.36);
+.sunlit-folio-card .field-group input[type="text"]:focus {
+  outline: none;
+  border-color: #8B2234;
+  box-shadow: 0 0 0 3px rgba(139, 34, 52, 0.12);
 }
 
-.door-concierge-card .field-hint {
-  font-size: 10.5px;
-  color: rgba(250, 242, 225, 0.56);
+.sunlit-folio-card .field-group input::placeholder {
+  color: #A89A8C;
+  font-size: 13px;
+}
+
+/* 4 位触摸数字锁槽（兼顾键盘直输与真机可点按质感） */
+.pin-slots-wrap {
+  position: relative;
+  height: 44px;
+}
+
+.pin-native-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.02;
+  font-size: 16px;
+  z-index: 2;
+  cursor: text;
+}
+
+.pin-slots-visual {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  height: 100%;
+}
+
+.pin-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid rgba(168, 140, 102, 0.48);
+  background: #FFFFFF;
+  font-size: 18px;
+  font-weight: 900;
+  color: #8B2234;
+  transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+}
+
+.pin-slot.is-filled {
+  background: #FFF9EE;
+  border-color: #C79A44;
+}
+
+.pin-native-input:focus + .pin-slots-visual .pin-slot.is-active {
+  border-color: #8B2234;
+  box-shadow: 0 0 0 3px rgba(139, 34, 52, 0.12);
+}
+
+.sunlit-folio-card .field-hint {
+  font-size: 11px;
+  color: #7D6E62;
 }
 
 .form-error {
   font-size: 12px;
-  color: #FF8C7D;
+  color: #C93B2B;
   font-weight: 700;
 }
 
-.btn-brass-lock {
+.btn-sunlit-enter {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: linear-gradient(180deg, #F3D999 0%, #C79941 100%);
-  color: #1F1409;
-  border: 1px solid rgba(255, 244, 206, 0.72);
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.34), 0 0 18px rgba(243, 217, 153, 0.28);
+  background: linear-gradient(135deg, #982539 0%, #731828 100%);
+  color: #FFF8EC;
+  border: 1px solid rgba(255, 226, 178, 0.42);
+  border-radius: 12px;
+  box-shadow: 0 10px 26px rgba(115, 24, 40, 0.28);
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .btn-brass-lock:hover {
-    background: linear-gradient(180deg, #FCE7B2 0%, #D4A64A 100%);
+  .btn-sunlit-enter:hover {
+    background: linear-gradient(135deg, #A92B41 0%, #811C2E 100%) !important;
+    box-shadow: 0 12px 30px rgba(115, 24, 40, 0.34);
   }
 }
 
-/* 老住户底部悬浮黄铜门牌条（留出 85% 立体 3D 门廊视野） */
-.prologue-welcome {
-  width: min(440px, 100%);
+.folio-perk-note {
+  text-align: center;
+  font-size: 11px;
+  color: #6E5F54;
 }
 
-.brass-resident-dock {
+/* 老住户：暖白棉麻底部迎宾卡 */
+.prologue-welcome {
+  width: min(448px, 100%);
+}
+
+.linen-resident-dock {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 13px 15px;
-  border-radius: 14px;
-  border: 1px solid rgba(223, 190, 125, 0.48);
-  background: rgba(18, 14, 13, 0.8);
+  gap: 11px;
+  padding: 15px 17px;
+  border-radius: 16px;
+  border: 1px solid rgba(196, 164, 114, 0.45);
+  background: rgba(253, 249, 242, 0.94);
   backdrop-filter: blur(18px);
-  color: #FAF2E1;
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.52);
+  color: #241C18;
+  box-shadow: 0 20px 48px rgba(34, 22, 12, 0.24);
 }
 
 .welcome-resident-meta {
@@ -1638,7 +1809,7 @@ body.is-hub3d-act .anhedonia-banner {
   height: 44px;
   border-radius: 10px;
   object-fit: cover;
-  border: 1.5px solid #DFBE7D;
+  border: 1.5px solid #C89B4B;
 }
 
 .welcome-avatar.is-bruce {
@@ -1654,22 +1825,22 @@ body.is-hub3d-act .anhedonia-banner {
   font-size: 9.5px;
   font-weight: 800;
   letter-spacing: 0.14em;
-  color: #DFBE7D;
+  color: #8B2234;
 }
 
 .welcome-resident-name {
   font-size: 16.5px;
   font-weight: 900;
-  color: #FFF7E4;
+  color: #241C18;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .welcome-score-badge {
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 600;
-  color: rgba(250, 242, 225, 0.78);
+  color: #6B5D52;
 }
 
 .welcome-dock-actions {
@@ -1683,10 +1854,10 @@ body.is-hub3d-act .anhedonia-banner {
   appearance: none;
   border: 0;
   background: none;
-  color: rgba(244, 216, 145, 0.76);
+  color: #7D1E2E;
   font-family: var(--font-sans);
   font-size: 11.5px;
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: underline;
   cursor: pointer;
   padding: 2px;
@@ -1699,10 +1870,10 @@ body.is-hub3d-act .anhedonia-banner {
   max-width: min(92vw, 480px);
   padding: 5px 13px;
   border-radius: 99px;
-  background: rgba(14, 12, 12, 0.66);
+  background: rgba(253, 249, 242, 0.86);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(223, 190, 125, 0.24);
-  color: rgba(255, 244, 222, 0.84);
+  border: 1px solid rgba(190, 158, 112, 0.35);
+  color: #3D2E25;
   font-size: 11.5px;
   font-weight: 600;
   text-align: center;
@@ -1713,8 +1884,26 @@ body.is-hub3d-act .anhedonia-banner {
   height: 6px;
   flex-shrink: 0;
   border-radius: 50%;
-  background: #F4CF81;
-  box-shadow: 0 0 8px rgba(244, 207, 129, 0.85);
+  background: #8B2234;
+  box-shadow: 0 0 8px rgba(139, 34, 52, 0.45);
+}
+
+@media (max-width: 720px) {
+  .sunlit-folio-card {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 15px 15px;
+  }
+  .polaroid-pair {
+    gap: 9px;
+    margin: 9px 0;
+  }
+  .polaroid-photo-wrap {
+    aspect-ratio: 16 / 9;
+  }
+  .folio-bruce-peek {
+    display: none;
+  }
 }
 
 .video-placeholder-frame {

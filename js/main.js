@@ -1,5 +1,5 @@
 import { store } from "./state.js";
-import { apiGetLeaderboard, apiRegister } from "./api.js";
+import { apiAskBruce, apiGetLeaderboard, apiRegister } from "./api.js";
 import { renderMapView, stopMapLoop, renderCafeView, stopCafeLoop } from "./map.js";
 import { renderSceneView, unmountSceneView } from "./activities.js";
 import { renderShopView } from "./shop.js";
@@ -56,6 +56,78 @@ function setupPrologueStage() {
   const form = document.getElementById("onboarding-form");
   const errEl = document.getElementById("onboarding-error");
   const ownerOptions = document.querySelectorAll(".owner-option");
+  const aiNameBtn = document.getElementById("btn-ai-nickname");
+  const nickInput = document.getElementById("input-nickname");
+  const pinInput = document.getElementById("input-pin");
+  const pinSlots = Array.from(document.querySelectorAll("#pin-slots-wrap .pin-slot"));
+  const brucePeekEl = document.getElementById("onboarding-bruce-line");
+
+  let onboardingPack = {
+    alex_names: ["早八冰美式", "天台晒毛怪", "奶油领巾侠", "唱片机管家"],
+    meya_names: ["奶泡品鉴官", "太阳蛋邻居", "黑胶散步家", "云朵棉花糖"],
+    alex_greetings: ["“Alex 刚把天台阳光留好了，填个名字推门就能撸我～”"],
+    meya_greetings: ["“听见脚步声就知道是 Meya！快输暗号进来给我顺毛吧～”"],
+  };
+  let nameCursor = 0;
+
+  fetch("./data/hub_deepseek.json")
+    .then((r) => (r.ok ? r.json() : null))
+    .then((d) => {
+      if (d?.onboarding_pack) {
+        onboardingPack = { ...onboardingPack, ...d.onboarding_pack };
+        const owner = document.querySelector(".owner-picker input[name='owner']:checked")?.value || "Alex";
+        const pool = owner === "Meya" ? onboardingPack.meya_greetings : onboardingPack.alex_greetings;
+        if (brucePeekEl && Array.isArray(pool) && pool.length) {
+          brucePeekEl.textContent = `“${pool[0]}”`;
+        }
+      }
+    })
+    .catch(() => {});
+
+  const syncPinSlots = () => {
+    const digits = String(pinInput?.value || "").replace(/\D/g, "").slice(0, 4);
+    if (pinInput && pinInput.value !== digits) pinInput.value = digits;
+    pinSlots.forEach((slot, idx) => {
+      const ch = digits[idx] || "";
+      slot.textContent = ch ? "●" : "";
+      slot.classList.toggle("is-filled", Boolean(ch));
+      slot.classList.toggle("is-active", idx === Math.min(3, digits.length));
+    });
+  };
+  pinInput?.addEventListener("input", syncPinSlots);
+  syncPinSlots();
+
+  let aiSuggestBusy = false;
+  aiNameBtn?.addEventListener("click", async () => {
+    const owner = document.querySelector(".owner-picker input[name='owner']:checked")?.value || "Alex";
+    const localPool = owner === "Meya" ? onboardingPack.meya_names : onboardingPack.alex_names;
+    if (nickInput && Array.isArray(localPool) && localPool.length) {
+      nickInput.value = localPool[nameCursor % localPool.length];
+      nameCursor += 1;
+    }
+    sfx.playTap();
+    if (aiSuggestBusy) return;
+    aiSuggestBusy = true;
+    const prevTxt = aiNameBtn.textContent;
+    aiNameBtn.textContent = "✦ 起名中…";
+    try {
+      const res = await apiAskBruce({ mode: "suggest_names", owner });
+      if (Array.isArray(res?.names) && res.names.length && nickInput) {
+        const picked = res.names[Math.floor(Math.random() * res.names.length)];
+        nickInput.value = picked;
+        if (res.source === "deepseek") {
+          const targetKey = owner === "Meya" ? "meya_names" : "alex_names";
+          onboardingPack[targetKey] = [...new Set([...res.names, ...(onboardingPack[targetKey] || [])])];
+        }
+      }
+      if (res?.greeting && brucePeekEl) {
+        brucePeekEl.textContent = `“${res.greeting}”`;
+      }
+    } finally {
+      aiSuggestBusy = false;
+      aiNameBtn.textContent = prevTxt;
+    }
+  });
 
   let doorAnimating = false;
   let pawCuePlayed = false;
@@ -167,6 +239,11 @@ function setupPrologueStage() {
       ownerOptions.forEach((o) => o.classList.remove("selected"));
       opt.classList.add("selected");
       opt.querySelector("input").checked = true;
+      const owner = opt.getAttribute("data-owner") === "Meya" ? "Meya" : "Alex";
+      const pool = owner === "Meya" ? onboardingPack.meya_greetings : onboardingPack.alex_greetings;
+      if (brucePeekEl && Array.isArray(pool) && pool.length) {
+        brucePeekEl.textContent = `“${pool[Math.floor(Math.random() * pool.length)]}”`;
+      }
     });
   });
 
@@ -193,7 +270,7 @@ function setupPrologueStage() {
     const submitBtn = document.getElementById("btn-enter-game");
     const labelEl = submitBtn?.querySelector(".lock-btn-label");
     submitBtn.disabled = true;
-    if (labelEl) labelEl.textContent = "正在刻制黄铜门牌……";
+    if (labelEl) labelEl.textContent = "正在开门迎驾……";
 
     try {
       const res = await apiRegister(owner, check.nickname, pinRaw);
@@ -205,7 +282,7 @@ function setupPrologueStage() {
       errEl.classList.remove("hidden");
     } finally {
       submitBtn.disabled = false;
-      if (labelEl) labelEl.textContent = "拧开黄铜门锁 · 推门归家";
+      if (labelEl) labelEl.textContent = "按下门把 · 回家见布鲁斯";
     }
   });
 
@@ -226,6 +303,7 @@ function setupPrologueStage() {
     localStorage.removeItem("bruce_club_session_v1");
     document.getElementById("input-nickname").value = "";
     document.getElementById("input-pin").value = "";
+    syncPinSlots();
     errEl?.classList.add("hidden");
     modal?.classList.remove("is-opening");
     scene3d?.skipToFoyer();

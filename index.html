@@ -119,77 +119,107 @@
     <button class="prologue-skip-btn" id="btn-prologue-skip" type="button">跳过序幕 ›</button>
 
     <div class="prologue-overlay-ui" id="prologue-overlay-ui">
-      <!-- 状态 A：新住户 / 换号悬浮黑曜石黄铜登记卡片 -->
-      <div class="door-concierge-card" id="prologue-register-panel">
-        <div class="onboarding-head">
-          <span class="modal-pill-tag brass-plaque-tag">PH-01 · 领巾入籍名牌</span>
-          <h1>刻制门牌，推开 3D 阳光客厅</h1>
-          <p class="sub-copy">初始 100 分幸福指数既是排名积分，也是冷战期哄狗的唯一货币。</p>
+      <!-- 状态 A：阳光棉麻拍立得迎宾门卡夹（替代旧沉重深色牌） -->
+      <div class="sunlit-folio-card" id="prologue-register-panel">
+        <div class="folio-partner-col">
+          <div class="onboarding-head">
+            <span class="modal-pill-tag folio-silk-tag">SUNLIT LOFT · 阳光顶层公寓</span>
+            <h1>推门前，先让布鲁斯认出你</h1>
+            <p class="sub-copy">挑一位今天一起晒太阳的搭档，拿好门卡推开顶层客厅。</p>
+          </div>
+
+          <div class="owner-picker polaroid-pair">
+            <label class="owner-option polaroid-card selected" data-owner="Alex">
+              <input type="radio" name="owner" value="Alex" checked />
+              <div class="polaroid-photo-wrap">
+                <img src="./assets/img/owner_alex.jpg" alt="Alex" />
+                <span class="polaroid-stamp">今日搭档</span>
+              </div>
+              <div class="polaroid-cap">
+                <span class="owner-name">Alex</span>
+                <span class="owner-role">热美式与黑胶</span>
+              </div>
+            </label>
+            <label class="owner-option polaroid-card" data-owner="Meya">
+              <input type="radio" name="owner" value="Meya" />
+              <div class="polaroid-photo-wrap">
+                <img src="./assets/img/owner_meya.jpg" alt="Meya" />
+                <span class="polaroid-stamp">今日搭档</span>
+              </div>
+              <div class="polaroid-cap">
+                <span class="owner-name">Meya</span>
+                <span class="owner-role">海风与羊角包</span>
+              </div>
+            </label>
+          </div>
+
+          <div class="folio-bruce-peek">
+            <img src="./assets/img/bruce_happy.jpg" alt="布鲁斯门缝张望" class="peek-bruce-thumb" />
+            <p class="peek-bruce-quote" id="onboarding-bruce-line">“听见电梯停稳了！我是戴酒红领巾的布鲁斯，快把你的名字告诉我吧～”</p>
+          </div>
         </div>
 
-        <div class="owner-picker">
-          <label class="owner-option selected" data-owner="Alex">
-            <input type="radio" name="owner" value="Alex" checked />
-            <img src="./assets/img/owner_alex.jpg" alt="Alex" />
-            <span class="owner-name">Alex</span>
-            <span class="owner-role">男主人</span>
-          </label>
-          <label class="owner-option" data-owner="Meya">
-            <input type="radio" name="owner" value="Meya" />
-            <img src="./assets/img/owner_meya.jpg" alt="Meya" />
-            <span class="owner-name">Meya</span>
-            <span class="owner-role">女主人</span>
-          </label>
-        </div>
-
-        <form id="onboarding-form" class="onboarding-form" novalidate>
+        <form id="onboarding-form" class="onboarding-form folio-form-col" novalidate>
           <div class="field-group">
-            <label for="input-nickname">住户昵称（全服唯一 · 至少含 1 个汉字）</label>
-            <input id="input-nickname" type="text" maxlength="12" placeholder="例如：冰美式续命侠" autocomplete="off" required />
-            <small class="field-hint">不可重名，且不能是纯数字或纯英文字母。</small>
+            <div class="field-label-row">
+              <label for="input-nickname">你在俱乐部的称呼</label>
+              <button type="button" class="ai-name-btn" id="btn-ai-nickname">✦ AI 灵感起名</button>
+            </div>
+            <input id="input-nickname" type="text" maxlength="12" placeholder="起个昵称（如：晒太阳的腊肠）" autocomplete="off" required />
+            <small class="field-hint">全服唯一 · 2~12字且含中文 · 点右侧让 DeepSeek 帮起名</small>
           </div>
 
           <div class="field-group">
-            <label for="input-pin">4 位铜锁暗号（防冒用 / 跨设备归家）</label>
-            <input id="input-pin" type="password" inputmode="numeric" maxlength="4" pattern="\d{4}" placeholder="4 位数字，如 2026" required />
+            <label for="input-pin">4 位回家数字锁</label>
+            <div class="pin-slots-wrap" id="pin-slots-wrap">
+              <input id="input-pin" class="pin-native-input" type="tel" inputmode="numeric" maxlength="4" pattern="\d{4}" placeholder="2026" autocomplete="off" required />
+              <div class="pin-slots-visual" aria-hidden="true">
+                <span class="pin-slot"></span>
+                <span class="pin-slot"></span>
+                <span class="pin-slot"></span>
+                <span class="pin-slot"></span>
+              </div>
+            </div>
+            <small class="field-hint">4 位数字密码，换手机也能按原分数接着玩</small>
           </div>
 
           <p class="form-error hidden" id="onboarding-error"></p>
-          <button class="btn-pill btn-brass-lock btn-block" id="btn-enter-game" type="submit">
-            <span class="lock-glyph" aria-hidden="true">🗝</span>
-            <span class="lock-btn-label">拧开黄铜门锁 · 推门归家</span>
+          <button class="btn-pill btn-sunlit-enter btn-block" id="btn-enter-game" type="submit">
+            <span class="lock-glyph" aria-hidden="true">🐾</span>
+            <span class="lock-btn-label">按下门把 · 回家见布鲁斯</span>
           </button>
+          <p class="folio-perk-note">进门即领 <strong>100 点幸福分</strong> · 随时在俱乐部榜与好友切磋</p>
         </form>
       </div>
 
-      <!-- 状态 B：老住户底部极简黄铜门牌控制条（保留 85% 立体 3D 门廊视野） -->
+      <!-- 状态 B：老住户暖色迎宾门卡条 -->
       <div class="prologue-welcome hidden" id="prologue-welcome-panel">
-        <div class="brass-resident-dock">
+        <div class="linen-resident-dock">
           <div class="welcome-resident-meta">
             <div class="welcome-avatars">
               <img id="welcome-owner-img" class="welcome-avatar" src="./assets/img/owner_alex.jpg" alt="主人" />
               <img class="welcome-avatar is-bruce" src="./assets/img/bruce_happy.jpg" alt="布鲁斯" />
             </div>
             <div class="welcome-text-col">
-              <div class="welcome-kicker">PH-01 · 欢迎回家</div>
+              <div class="welcome-kicker">SUNLIT LOFT · 欢迎回家</div>
               <div class="welcome-resident-name" id="welcome-resident-name">Alex &amp; 新邻居</div>
               <div class="welcome-score-badge" id="welcome-score-tag">幸福指数 100 · 布鲁斯在门后等你</div>
             </div>
           </div>
 
           <div class="welcome-dock-actions">
-            <button class="btn-pill btn-brass-lock btn-block" id="btn-unlock-home" type="button">
-              <span class="lock-glyph" aria-hidden="true">🗝</span>
-              <span class="lock-btn-label">拧开 3D 铜门锁 · 推门进客厅</span>
+            <button class="btn-pill btn-sunlit-enter btn-block" id="btn-unlock-home" type="button">
+              <span class="lock-glyph" aria-hidden="true">🐾</span>
+              <span class="lock-btn-label">推开阳光大门 · 见布鲁斯</span>
             </button>
-            <button class="prologue-switch-link" id="btn-prologue-switch" type="button">更换住户名牌 / 切换账号</button>
+            <button class="prologue-switch-link" id="btn-prologue-switch" type="button">换个昵称 / 切换新住户</button>
           </div>
         </div>
       </div>
 
       <p class="foyer-paw-whisper" id="prologue-paw-whisper">
         <span class="whisper-dot"></span>
-        门缝溢出阳光客厅的暖光，直接点击 3D 大门把手也可推门归家
+        门缝已经透出金色日光，点击 3D 大门把手或右侧按钮即可回家
       </p>
     </div>
   </div>
