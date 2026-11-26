@@ -67,15 +67,19 @@ export function mountScene(container, opts = {}) {
 
 ---
 
-## 五、云端共享技能库（`.agents/skills/` · 自动挂载与跨主体调用）
+## 五、跨项目共享技能库
 
-本仓库已内置完整的 **3D / 游戏 / 高定 UI 技能体系**，供本项目协作者及外部 Agent 工具直接读取与下载调用：
+<!-- shared-agent-skills:start -->
+## 跨项目共享技能规则（所有 AI 必读）
 
-1. **目录与索引**：
-   - 技能总览与跨项目拉取指南：[`.agents/skills/README.md`](./.agents/skills/README.md)
-   - 程序化元数据索引：[`.agents/skills/registry.json`](./.agents/skills/registry.json)
-   - Antigravity 团队自动挂载清单：[`.agents/skills.json`](./.agents/skills.json)
-2. **核心任务建议挂载**：
-   - **3D 场景与四足骨骼布鲁斯**：`threejs-aaa-graphics-builder`、`threejs-animation`、`threejs-loaders`、`threejs-interaction`、`camera-systems`、`threejs-lighting`、`threejs-materials`、`threejs-shaders`
-   - **高定界面、微交互与字幕**：`antialgorithm`、`frontend-design`、`emil-design-eng`、`choreograph`、`animate`、`mobile-native`、`break-ui`、`dialogue-systems`
-   - **质检与声效**：`threejs-debug-profiler`、`threejs-qa-release`、`threejs-audio-generator`、`audio-design`、`game-feel`、`game-ui-ux`
+- 统一技能源：`https://github.com/sxy3481841323-ship-it/agent-skills`；本机位置为与本项目平级的 `../agent-skills/`。
+- 开始创意、设计、3D、动效或游戏任务前，先读 `../agent-skills/AGENTS.md` 和相应技能；若共享库尚未克隆，先克隆到该平级目录。
+- 所有新装、导入或创建的通用技能，必须完整存入 `../agent-skills/skills/<skill-name>/`，更新索引、验证后保存到共享仓库，再同步到 Agent 全局目录。不得只装在某个项目或某一台电脑后不回传。
+- 项目 `.agents/skills/` 只允许真正项目专属的技能。不要复制通用技能，也不要用本项目规则覆盖其他项目。
+- 通过 `python3 ../agent-skills/sync_skills.py --agent codex`、`--agent antigravity` 或 `--agent claude-code` 安装；其他客户端用 `--target` 指定实际技能目录。已有文件默认保留，同名冲突先核对。
+- 项目业务约束、用户明确指令和现有未提交改动始终优先。不会自动识别全局技能的客户端，应直接读取共享库中完整的技能目录。
+<!-- shared-agent-skills:end -->
+
+### 迁移记录
+
+2026-11-26：原有 49 个通用技能（包含 Antigravity 最近补充的技能）已完整汇入独立共享库；本项目保留共享入口。业务代码、协作权限和部署规则遵循本文件原有约定。
