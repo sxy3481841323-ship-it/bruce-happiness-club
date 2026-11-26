@@ -83,3 +83,104 @@
   justify-content: center;
   width: min(92vw, 520px);
 }
+
+/* CLB·02 会员制仓储大超市专属补充样式（统一 .sc3d- 前缀，烟熏黑曜石毛玻璃 + 香槟金描边，零硬黑投影） */
+.sc3d-wh-wrap {
+  --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  overflow: hidden;
+}
+
+.sc3d-wh-wrap .hub3d-stage {
+  background: radial-gradient(circle at 50% 34%, #32353d 0%, #17191e 100%);
+}
+
+.sc3d-wh-wrap .vf-corner {
+  border-color: rgba(236, 214, 162, 0.42);
+}
+
+.sc3d-wh-wrap .vf-stamp {
+  color: rgba(245, 232, 196, 0.88);
+  background: rgba(16, 15, 19, 0.62);
+  border: 1px solid rgba(223, 190, 125, 0.32);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.sc3d-wh-wrap .hub3d-settle-actions .th-btn-primary,
+.sc3d-wh-wrap .hub3d-settle-actions .th-btn-ghost {
+  appearance: none;
+  cursor: pointer;
+  padding: 9px 16px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  transition: transform 120ms cubic-bezier(0.23, 1, 0.32, 1), background 160ms ease, border-color 160ms ease;
+}
+
+.sc3d-wh-wrap .hub3d-settle-actions .th-btn-primary {
+  background: linear-gradient(135deg, #8A2033 0%, #6D1726 100%);
+  color: #FFF8EC;
+  border: 1px solid rgba(232, 199, 134, 0.68);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.34);
+}
+
+.sc3d-wh-wrap .hub3d-settle-actions .th-btn-ghost {
+  background: rgba(24, 22, 26, 0.78);
+  color: #F4E9D2;
+  border: 1px solid rgba(223, 190, 125, 0.42);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.sc3d-wh-wrap .hub3d-settle-actions .th-btn-primary:active,
+.sc3d-wh-wrap .hub3d-settle-actions .th-btn-ghost:active {
+  transform: scale(0.97);
+}
+
+/* 冷柜雾气擦拭专属交互区 */
+.sc3d-wh-frost-zone {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(192, 228, 255, 0.45);
+  background: radial-gradient(circle at 50% 45%, rgba(220, 240, 255, 0.24), rgba(140, 184, 218, 0.14));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: inset 0 0 28px rgba(196, 232, 255, 0.24);
+  transition: opacity 220ms ease, backdrop-filter 220ms ease;
+}
+
+.sc3d-wh-frost-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(235, 246, 255, 0.88);
+  text-shadow: 0 1px 8px rgba(10, 24, 42, 0.7);
+  pointer-events: none;
+}
+
+@media (max-width: 720px) {
+  .sc3d-wh-wrap .hub3d-tricks-bar {
+    gap: 2px;
+    max-width: calc(100vw - 16px);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .sc3d-wh-wrap .hub3d-tricks-bar::-webkit-scrollbar {
+    display: none;
+  }
+  .sc3d-wh-wrap .trick-pill {
+    flex-shrink: 0;
+    padding: 6px 8px;
+    font-size: 10.5px;
+  }
+}
+
