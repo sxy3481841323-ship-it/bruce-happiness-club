@@ -1,0 +1,575 @@
+/* 3D 客厅主基地与场景内互动 + 传送点（hub3d- 前缀） */
+.hub3d-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hub3d-stage {
+  position: relative;
+  width: 100%;
+  height: min(74vh, 660px);
+  min-height: 440px;
+  border-radius: 28px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #E8EEF4 0%, #F5F1E8 100%);
+  box-shadow: var(--shadow-soft);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.hub3d-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hub3d-fx-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.hub3d-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  transition: box-shadow 320ms ease, background 320ms ease;
+}
+
+.hub3d-vignette.is-warn {
+  box-shadow: inset 0 0 110px rgba(214, 66, 52, 0.72);
+  animation: hubWarnPulse 680ms ease-in-out infinite;
+}
+
+.hub3d-vignette.is-sulk {
+  background: radial-gradient(circle at 50% 45%, rgba(74, 108, 148, 0.08), rgba(22, 36, 56, 0.34));
+}
+
+@keyframes hubWarnPulse {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 1; }
+}
+
+.hub3d-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(249, 247, 242, 0.84);
+  backdrop-filter: blur(12px);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  transition: opacity 320ms ease;
+}
+
+.hub3d-loading.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hub3d-pins {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 8;
+  transition: opacity 260ms ease;
+}
+
+.hub3d-pins.is-hidden {
+  opacity: 0;
+}
+
+.hub3d-pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px 6px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  border-radius: 999px;
+  background: rgba(255, 253, 249, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 8px 24px rgba(24, 34, 48, 0.16);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 180ms var(--ease-out), background-color 180ms ease;
+}
+
+.hub3d-pin:hover {
+  transform: translate(-50%, -56%) scale(1.04);
+  background: #FFFFFF;
+}
+
+.hub3d-pin-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  background: var(--burgundy);
+  box-shadow: 0 0 0 4px rgba(142, 41, 59, 0.18);
+}
+
+.hub3d-pin.is-teleport {
+  border-color: rgba(58, 107, 82, 0.35);
+}
+
+.hub3d-pin.is-teleport .hub3d-pin-dot {
+  background: var(--cypress);
+  box-shadow: 0 0 0 4px rgba(58, 107, 82, 0.18);
+}
+
+.hub3d-pin-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
+.hub3d-pin-title {
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.hub3d-pin-sub {
+  font-size: 10.5px;
+  color: var(--ink-muted);
+}
+
+/* 布鲁斯 3D 头顶气泡独白（DeepSeek 文案驱动） */
+.hub3d-speech {
+  position: absolute;
+  z-index: 10;
+  transform: translate(-50%, -100%) scale(0.92);
+  max-width: min(76vw, 270px);
+  padding: 8px 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  background: rgba(255, 252, 245, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 10px 26px rgba(24, 34, 48, 0.16);
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.45;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 240ms ease, transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hub3d-speech::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 10px;
+  height: 10px;
+  background: rgba(255, 252, 245, 0.92);
+  border-right: 1px solid rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.85);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.hub3d-speech.is-visible {
+  opacity: 1;
+  transform: translate(-50%, -100%) scale(1);
+}
+
+.hub3d-speech.is-sulk {
+  background: rgba(26, 36, 52, 0.88);
+  border-color: rgba(180, 206, 238, 0.36);
+  color: #EAF2FC;
+}
+
+.hub3d-speech.is-sulk::after {
+  background: rgba(26, 36, 52, 0.88);
+  border-right-color: rgba(180, 206, 238, 0.36);
+  border-bottom-color: rgba(180, 206, 238, 0.36);
+}
+
+/* 右下角视角复位与左上角状态 */
+.hub3d-reset-btn {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  z-index: 9;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  background: rgba(255, 253, 249, 0.85);
+  backdrop-filter: blur(14px);
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-pill);
+}
+
+.hub3d-hint {
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--ink-muted);
+}
+
+/* 客厅内 3D 近景互动 UI 叠层 */
+.hub3d-act-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: none;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.hub3d-act-overlay.is-active {
+  display: block;
+}
+
+.hub3d-act-top {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.hub3d-act-top > * {
+  pointer-events: auto;
+}
+
+.hub3d-glass-pill {
+  border: 1px solid rgba(255, 255, 255, 0.36);
+  border-radius: 999px;
+  background: rgba(22, 26, 32, 0.64);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: #FFFDF8;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 7px 14px;
+  cursor: pointer;
+}
+
+.hub3d-act-prompt {
+  position: absolute;
+  top: 62px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(88vw, 480px);
+  text-align: center;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #FFFFFF;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.75);
+  pointer-events: none;
+}
+
+.hub3d-brush-zone {
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  transform: translate(-50%, -50%);
+  width: 48%;
+  height: 50%;
+  max-width: 400px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(255, 240, 200, 0.45);
+  background: radial-gradient(circle, rgba(255, 232, 180, 0.08), transparent 70%);
+  pointer-events: none;
+}
+
+.hub3d-progress {
+  position: absolute;
+  bottom: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(64%, 280px);
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hub3d-progress-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #F4C86A, #FFE8AF);
+  transition: width 70ms linear;
+}
+
+.hub3d-hazard-btn {
+  position: absolute;
+  right: 16px;
+  bottom: 56px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 190, 180, 0.5);
+  background: rgba(132, 34, 28, 0.72);
+  backdrop-filter: blur(14px);
+  color: #FFEAE6;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.hub3d-props-row {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: min(94%, 460px);
+}
+
+.hub3d-prop-btn {
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.36);
+  background: rgba(22, 26, 32, 0.68);
+  backdrop-filter: blur(14px);
+  color: #FFFDF8;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.hub3d-prop-btn.is-done {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.hub3d-ball-btn {
+  position: absolute;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%);
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  background: radial-gradient(circle at 35% 30%, #EEFF8C, #A6C82B);
+  color: #243210;
+  font-size: 11px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  cursor: grab;
+  touch-action: none;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.38);
+}
+
+.hub3d-phone-banner {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translate(-50%, -140%);
+  z-index: 18;
+  width: min(56%, 290px);
+  padding: 9px 13px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(24, 27, 32, 0.88);
+  backdrop-filter: blur(20px);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hub3d-phone-banner.is-shown {
+  transform: translate(-50%, 2px);
+}
+
+.hub3d-phone-app {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #3D7EFF, #2856D6);
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 800;
+  flex: 0 0 auto;
+}
+
+.hub3d-phone-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.hub3d-phone-title {
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.hub3d-phone-text {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hub3d-settle {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translate(-50%, 16px);
+  z-index: 20;
+  width: min(92%, 440px);
+  padding: 16px 18px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  background: rgba(22, 26, 30, 0.84);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  color: #FFFDF8;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 280ms ease, transform 280ms ease;
+}
+
+.hub3d-settle.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  pointer-events: auto;
+}
+
+.hub3d-settle-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+
+.hub3d-settle-delta {
+  font-size: 22px;
+  font-weight: 800;
+  color: #F6D892;
+}
+
+.hub3d-settle-delta.is-neg {
+  color: #FF8E82;
+}
+
+.hub3d-settle-line {
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.hub3d-settle-status {
+  font-size: 12px;
+  color: rgba(255, 248, 232, 0.74);
+  margin-bottom: 12px;
+}
+
+.hub3d-settle-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hub3d-swap-banner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 22;
+  padding: 18px 26px;
+  border-radius: 24px;
+  background: rgba(22, 26, 30, 0.82);
+  border: 1.5px solid rgba(246, 216, 146, 0.7);
+  backdrop-filter: blur(20px);
+  color: #FFFDF8;
+  text-align: center;
+  display: none;
+}
+
+.hub3d-swap-banner.is-visible {
+  display: block;
+}
+
+.hub3d-swap-num {
+  font-size: 42px;
+  font-weight: 800;
+  color: #FFE7A8;
+}
+
+/* 环球旅行传送弹窗标签页 */
+.tp-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.tp-tab {
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--hairline);
+  background: var(--bg-soft);
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tp-tab.is-active {
+  background: var(--burgundy);
+  color: #FFFFFF;
+  border-color: var(--burgundy);
+}
+
+@media (max-width: 560px) {
+  .hub3d-stage {
+    height: 66vh;
+    min-height: 400px;
+    border-radius: 22px;
+  }
+  .hub3d-pin {
+    padding: 4px 9px 4px 7px;
+    gap: 5px;
+  }
+  .hub3d-pin-title {
+    font-size: 11px;
+  }
+  .hub3d-pin-sub {
+    display: none;
+  }
+  .hub3d-speech {
+    font-size: 11.5px;
+    padding: 6px 11px;
+    max-width: min(72vw, 220px);
+  }
+}

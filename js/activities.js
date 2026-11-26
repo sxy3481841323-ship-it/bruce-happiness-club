@@ -118,7 +118,7 @@ export function renderSceneView(container, sceneType) {
           <h2>${zoneTitle}</h2>
           <p>${zoneDesc}</p>
         </div>
-        <button class="btn-pill" id="btn-scene-to-map" type="button">返回大地图</button>
+        <button class="btn-pill" id="btn-scene-to-map" type="button">返回 3D 客厅</button>
       </div>
 
       <div class="lobby-grid">

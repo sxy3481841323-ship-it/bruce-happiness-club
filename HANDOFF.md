@@ -124,5 +124,22 @@ for f in js/*.js js/theater/*.js functions/api/*.js; do node --check "$f" || exi
    - [`PRODUCTION_BRIEF.md`](./PRODUCTION_BRIEF.md)：含 1 张新版无地域大地图 + 5 幕首帧与分支视频的完整中文提示词与布鲁斯垫图指南。
    - [`scripts/optimize_clips.py`](./scripts/optimize_clips.py)：将 `assets/clips_raw/<id>/*.mp4` 批量压成 720p/30fps/H.264（`<= 1.2 MB`）输出到 `assets/clips/<id>/`。
 5. **旧模块处置说明**：
-   - `js/cinematic/`、`js/map3d.js`、`js/renderer.js`、`js/bruce3d.js`、`js/materials3d.js`、`cinematic-preview.html`、`map3d-preview.html` 已从主游戏停用，但文件完整保留在仓库中供参考；`assets/models/` 与 `assets/clips_raw/` 已加入 `.gitignore` 不入库。
+   - `js/cinematic/`、`js/map3d.js`、`js/renderer.js`、`js/bruce3d.js`、`js/materials3d.js`、`cinematic-preview.html`、`map3d-preview.html` 已从主游戏停用，但文件完整保留在仓库中供参考；`assets/clips_raw/` 已加入 `.gitignore` 不入库。
+
+---
+
+## 七、2026-11-26 · 真 3D 阳光客厅主基地 + 点击传送 + DeepSeek 实时气泡文案
+
+在路线 A 基础上，主入口（`导航「客厅」`）进一步升级为**单场景真 3D 客厅主基地 + 客厅内近景互动 + 点击传送去远方**：
+
+1. **轻量化真 3D 资产（已全部入库 `assets/models/`）**：
+   - `assets/models/living_room.glb`（`4.19 MB`、`23,230` 三角面、无压缩扩展依赖）：基于真实极简客厅白昼空间优化贴图并配置程序化室内 IBL 环境光与窗外天光。
+   - `assets/models/bruce.glb`（`2.42 MB`、`66,935` 三角面、无压缩扩展依赖）：对原始 `89.39 MB` 混元 3D 奶油长毛腊肠犬完成 UV 保边减面与贴图压缩；由 `js/hub3d/bruceLiving.js` 通过 GPU `onBeforeCompile` 实时驱动呼吸、目光跟随、飞机耳预警、摇尾、歪头与开心跳跃，并自动剔除底盘扁平底座与内置隐形射线点击体（`BruceHitbox`）。
+2. **3D 客厅主基地与传送体系（`js/hub3d/roomHub.js` + `css/hub3d.css` + `js/map.js`）**：
+   - **客厅内 3 项近景陪伴**（无需切屏，直接在 3D 客厅拉近运镜游玩）：`home_brush`（阳光顺毛）、`home_rain_vinyl`（雨窗擦爪盖毯听黑胶）、`home_hide_seek`（3D 网球物理弹跳抛球寻宝），统一结算幸福指数、冷战氛围切换与高位换分金色光环。
+   - **3 处点击传送热区**：`出门 · 林荫小街`（跳至街区双幕剧场，支持一键`返回 3D 客厅`）、`传送 · 会员超市`（二期预留弹窗）、`传送 · 环球旅行`（北欧峡湾 / 阳光海岸 / 雪山牧场 / 白帆游艇四标签弹窗）。
+   - **后续扩充新 3D 场景指南**：只需将轻量 `.glb` 放入 `assets/models/` 并在 `js/map.js` 的 `onTeleportWarehouse` / `onTeleportGlobal` / `street` 中挂载对应新场景模块即可平滑替换。
+3. **DeepSeek API 实时角色内心戏工厂（`scripts/gen_hub_deepseek.py` → `data/hub_deepseek.json`）**：
+   - 构建期离线读取本地 `.env` 调用 `deepseek-chat`（前端零暴露 Key，且经过禁词正则校对），产出 `thought_bubbles`（开心发呆、冷战哼唧、戳一戳互动、顺毛享受、飞机耳、雨窗、追球 8 组场景气泡）、`portal_hover`（传送门悬停感应词）和 `destination_wishes`（5 个远方目的地第一人称心愿单）。
+   - 在 3D 客厅中可直接**点击布鲁斯本体**触发实时头顶气泡独白，并在传送弹窗内查看布鲁斯的第一人称心愿。
 
