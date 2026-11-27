@@ -23,6 +23,13 @@ if os.path.join(ROOT_DIR, "scripts") not in sys.path:
     sys.path.insert(0, os.path.join(ROOT_DIR, "scripts"))
 from penthouse_kit.tex_cafe_coastal import make_malibu_coastal_panorama, make_coastal_wave_photo_tex
 from penthouse_kit.tex_wine_and_cafe import make_fine_wine_label_tex, make_celadon_sage_tile_tex
+from penthouse_kit.tex_oldmoney_surfaces import (
+    make_marmorino_boiserie_tex,
+    make_handknotted_salon_rug_tex,
+    make_loft_aubusson_rug_tex,
+)
+from penthouse_kit.tex_pbr import make_fluted_walnut_tex, make_travertine_tex
+from cafe_kit_oldmoney import build_cafe_oldmoney_millwork
 
 
 # ---------------------------------------------------------------------------
@@ -589,11 +596,22 @@ def build_scene():
     t_wine_0 = add_tex(make_fine_wine_label_tex(512, variant=0), "JPEG", 92)
     t_wine_1 = add_tex(make_fine_wine_label_tex(512, variant=1), "JPEG", 92)
     t_wine_2 = add_tex(make_fine_wine_label_tex(512, variant=2), "JPEG", 92)
+    t_marmorino = add_tex(make_marmorino_boiserie_tex(768), "JPEG", 88)
+    t_walnut_fluted = add_tex(make_fluted_walnut_tex(512), "JPEG", 88)
+    t_travertine = add_tex(make_travertine_tex(512), "JPEG", 88)
+    t_rug_salon = add_tex(make_handknotted_salon_rug_tex(1024), "JPEG", 90)
+    t_rug_aubusson = add_tex(make_loft_aubusson_rug_tex(1024), "JPEG", 90)
 
     # Materials
     m_floor = add_mat("SageTileFloor", (1, 1, 1, 1), roughness=0.25, metalness=0.04, tex_idx=t_tile)
     m_brick = add_mat("WhiteBrickWall", (1, 1, 1, 1), roughness=0.86, metalness=0.0, tex_idx=t_brick)
-    m_wall_white = add_mat("PlasterWhite", (0.91, 0.90, 0.88, 1.0), roughness=0.74, metalness=0.0)
+    m_wall_white = add_mat("MarmorinoLimestone", (1, 1, 1, 1), roughness=0.68, metalness=0.0, tex_idx=t_marmorino)
+    m_walnut_fluted = add_mat("WalnutFluted", (1, 1, 1, 1), roughness=0.44, metalness=0.04, tex_idx=t_walnut_fluted)
+    m_walnut_dark = add_mat("WalnutDarkSolid", (0.22, 0.14, 0.09, 1.0), roughness=0.42, metalness=0.04)
+    m_travertine = add_mat("RomanTravertine", (1, 1, 1, 1), roughness=0.58, metalness=0.02, tex_idx=t_travertine)
+    m_rug_salon = add_mat("SalonSilkWoolCarpet", (1, 1, 1, 1), roughness=0.86, metalness=0.0, tex_idx=t_rug_salon)
+    m_rug_aubusson = add_mat("AubussonBorderCarpet", (1, 1, 1, 1), roughness=0.86, metalness=0.0, tex_idx=t_rug_aubusson)
+    m_glass_reed = add_mat("ReedTransomGlass", (0.94, 0.90, 0.80, 0.72), roughness=0.22, metalness=0.05, double_sided=True, alpha_mode="BLEND")
     m_soffit_dark = add_mat("DarkCharcoalWood", (0.07, 0.07, 0.08, 1.0), roughness=0.52, metalness=0.08)
     m_black_metal = add_mat("MatteBlackMetal", (0.06, 0.065, 0.075, 1.0), roughness=0.34, metalness=0.76)
     m_chrome = add_mat("BrushedChrome", (0.82, 0.84, 0.87, 1.0), roughness=0.22, metalness=0.92)
@@ -654,23 +672,23 @@ def build_scene():
     b_brick = mb("RightBrickWall", m_brick)
     b_brick.add_quad((11.5, 0.0, -7.4), (11.5, 0.0, 11.5), (11.5, 15.6, 11.5), (11.5, 15.6, -7.4),
                      uv_scale=(18.9 / 5.4, 15.6 / 5.4))
-    # - Smooth matte white right wall zones: back Z [-22.2, -7.4] and front Z [11.5, 20.2]
+    # - Textured warm French Marmorino limestone right wall zones: back Z [-22.2, -7.4] and front Z [11.5, 20.2]
     b_wall = mb("WallsAndColumns", m_wall_white)
-    b_wall.add_quad((11.5, 0.0, -22.2), (11.5, 0.0, -7.4), (11.5, 15.6, -7.4), (11.5, 15.6, -22.2))
-    b_wall.add_quad((11.5, 0.0, 11.5), (11.5, 0.0, 20.2), (11.5, 15.6, 20.2), (11.5, 15.6, 11.5))
+    b_wall.add_quad((11.5, 0.0, -22.2), (11.5, 0.0, -7.4), (11.5, 15.6, -7.4), (11.5, 15.6, -22.2), uv_scale=(3.0, 2.5))
+    b_wall.add_quad((11.5, 0.0, 11.5), (11.5, 0.0, 20.2), (11.5, 15.6, 20.2), (11.5, 15.6, 11.5), uv_scale=(2.0, 2.5))
     # Rear enclosure behind curtain X [+1.2, +11.5], Z=-22.2
-    b_wall.add_quad((1.2, 0.0, -22.2), (11.5, 0.0, -22.2), (11.5, 15.6, -22.2), (1.2, 15.6, -22.2))
-    # Front wall behind camera Z=+20.2 (so reverse orbit looks clean)
-    b_wall.add_quad((11.5, 0.0, 20.2), (-11.5, 0.0, 20.2), (-11.5, 16.4, 20.2), (11.5, 16.4, 20.2))
+    b_wall.add_quad((1.2, 0.0, -22.2), (11.5, 0.0, -22.2), (11.5, 15.6, -22.2), (1.2, 15.6, -22.2), uv_scale=(2.2, 2.5))
+    # Front wall behind camera Z=+20.2 (boiserie & roastery bookcase portal added below!)
+    b_wall.add_quad((11.5, 0.0, 20.2), (-11.5, 0.0, 20.2), (-11.5, 16.4, 20.2), (11.5, 16.4, 20.2), uv_scale=(4.6, 2.8))
 
-    # Left structural white pilasters & header beams along X=-11.4
+    # Left structural limestone pilasters & header beams along X=-11.4
     for pz in (11.8, 2.0, -9.8, -21.8):
-        b_wall.add_box(-11.4, 7.6, pz, 1.15, 15.2, 1.15)
-    # Back-center white pillar separating glass wall and sheer curtain
-    b_wall.add_box(1.3, 7.6, -21.8, 1.0, 15.2, 1.0)
-    # Left & back white header beams
-    b_wall.add_box(-11.4, 15.1, -1.0, 1.15, 2.2, 42.4)
-    b_wall.add_box(-5.0, 15.1, -21.8, 13.0, 2.2, 1.05)
+        b_wall.add_box(-11.4, 7.6, pz, 1.15, 15.2, 1.15, uv_tile=5.0)
+    # Back-center pillar separating glass wall and sheer curtain
+    b_wall.add_box(1.3, 7.6, -21.8, 1.0, 15.2, 1.0, uv_tile=5.0)
+    # Left & back header beams
+    b_wall.add_box(-11.4, 15.1, -1.0, 1.15, 2.2, 42.4, uv_tile=5.0)
+    b_wall.add_box(-5.0, 15.1, -21.8, 13.0, 2.2, 1.05, uv_tile=5.0)
 
     # Geometric abstract painting on smooth right wall (z = -12.6, y = 8.4)
     b_art = mb("GeoArt", m_art)
@@ -1293,6 +1311,22 @@ def build_scene():
     add_palm_tree(-14.0, -28.0, height=15.2, lean_x=1.6, lean_z=1.8)
     add_palm_tree(-5.2, -29.0, height=14.6, lean_x=-1.4, lean_z=1.5)
     add_palm_tree(1.8, -28.5, height=15.5, lean_x=-1.8, lean_z=1.2)
+
+    # Old-Money Boiserie, Coffee Library South Portal, Shadow-Box GeoArt Frame & Hand-Knotted Carpets
+    om_mats = {
+        "marmorino": m_wall_white,
+        "walnut_fluted": m_walnut_fluted,
+        "walnut_dark": m_walnut_dark,
+        "brass": m_brass,
+        "travertine": m_travertine,
+        "rug_salon": m_rug_salon,
+        "rug_aubusson": m_rug_aubusson,
+        "warm_glow": m_led_warm,
+        "glass_reed": m_glass_reed,
+        "ceramic": m_pot_white,
+        "oak": m_oak,
+    }
+    build_cafe_oldmoney_millwork(mb, om_mats)
 
     # ------------------------------------------------------------------
     # Compile Binary glTF 2.0 (.glb)

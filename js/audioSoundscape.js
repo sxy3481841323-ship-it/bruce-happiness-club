@@ -6,11 +6,14 @@ export function createSoundscapeController(ensureCtxFn, isMutedFn) {
   let desiredOpts = { floor: "1f", sulking: false };
   let hifiOn = false;
   let vinylMode = false;
+  let tvChannel = "regatta";
   let sceneNodes = null;
   let sceneTimers = [];
   let hifiNodes = null;
   let hifiTimer = null;
   let vinylTimer = null;
+  let tvNodes = null;
+  let tvTimers = [];
   let stopped = false;
 
   const now = () => (ctx ? ctx.currentTime : 0);
@@ -162,6 +165,171 @@ export function createSoundscapeController(ensureCtxFn, isMutedFn) {
 
   function _stopVinyl() {
     if (vinylTimer) { clearTimeout(vinylTimer); vinylTimer = null; }
+  }
+
+  function _tvFloorMul() {
+    if (desiredScene !== "penthouse" || desiredOpts.sulking) return 0.0001;
+    if (desiredOpts.floor === "terrace") return 0.15;
+    if (desiredOpts.floor === "2f") return 0.38;
+    return 1.0;
+  }
+
+  function _hifiTargetGain() {
+    return tvChannel === "chamber" ? 0.025 : 0.045;
+  }
+
+  function _stopTvAudio() {
+    _clearTimers(tvTimers);
+    const prev = tvNodes;
+    tvNodes = null;
+    if (prev) {
+      safe(() => {
+        const t = now();
+        prev.gain.gain.cancelScheduledValues(t);
+        prev.gain.gain.setValueAtTime(Math.max(0.0001, prev.gain.gain.value), t);
+        prev.gain.gain.linearRampToValueAtTime(0.0001, t + 0.22);
+        setTimeout(() => safe(() => {
+          prev.sources.forEach((s) => { try { s.stop(); } catch (e) {} });
+          prev.gain.disconnect();
+        }), 280);
+      });
+    }
+    if (hifiNodes) _ramp(hifiNodes.gain.gain, 0.045, 0.45);
+  }
+
+  function _startTvAudio() {
+    _stopTvAudio();
+    if (stopped || desiredScene !== "penthouse" || isMutedFn() || desiredOpts.sulking) return;
+    const c = _ensureCtx();
+    if (!c) return;
+    const buf = _ensureNoiseBuffers(c);
+    const gain = c.createGain();
+    gain.gain.value = 0.0001;
+    gain.connect(master);
+
+    const sources = [];
+    const baseGain = 0.12;
+    tvNodes = { gain, sources, baseGain };
+    _ramp(gain.gain, baseGain * _tvFloorMul(), 0.45);
+    if (hifiNodes) _ramp(hifiNodes.gain.gain, _hifiTargetGain(), 0.45);
+
+    if (tvChannel === "regatta") {
+      const breeze = c.createBufferSource();
+      breeze.buffer = buf.pink;
+      breeze.loop = true;
+      const bp = c.createBiquadFilter();
+      bp.type = "bandpass";
+      bp.frequency.value = 520;
+      bp.Q.value = 1.25;
+      const bg = c.createGain();
+      bg.gain.value = 0.11;
+      breeze.connect(bp).connect(bg).connect(gain);
+      breeze.start();
+      sources.push(breeze);
+
+      const triggerRigging = () => {
+        if (desiredScene !== "penthouse" || tvChannel !== "regatta" || isMutedFn() || !tvNodes) return;
+        const mul = _tvFloorMul();
+        if (Math.random() < 0.52) {
+          playTone(Math.random() < 0.5 ? 1046.5 : 1318.5, 0.85, 0.006 * mul, "sine");
+        } else {
+          playNoiseBurst("brown", 230, 1.0, 0.34, 0.022 * mul, "lowpass");
+        }
+        tvTimers.push(setTimeout(triggerRigging, 3100 + Math.random() * 2100));
+      };
+      tvTimers.push(setTimeout(triggerRigging, 900));
+    } else if (tvChannel === "auction") {
+      const air = c.createBufferSource();
+      air.buffer = buf.brown;
+      air.loop = true;
+      const lp = c.createBiquadFilter();
+      lp.type = "lowpass";
+      lp.frequency.value = 220;
+      const ag = c.createGain();
+      ag.gain.value = 0.045;
+      air.connect(lp).connect(ag).connect(gain);
+      air.start();
+      sources.push(air);
+
+      let tock = false;
+      const tick = () => {
+        if (desiredScene !== "penthouse" || tvChannel !== "auction" || isMutedFn() || !tvNodes) return;
+        const mul = _tvFloorMul();
+        tock = !tock;
+        playNoiseBurst("white", tock ? 3450 : 3100, 3.6, 0.012, 0.0085 * mul, "bandpass");
+      };
+      tvTimers.push(setInterval(tick, 250));
+    } else if (tvChannel === "equestrian") {
+      const meadow = c.createBufferSource();
+      meadow.buffer = buf.pink;
+      meadow.loop = true;
+      const bp = c.createBiquadFilter();
+      bp.type = "bandpass";
+      bp.frequency.value = 640;
+      bp.Q.value = 0.85;
+      const mg = c.createGain();
+      mg.gain.value = 0.07;
+      meadow.connect(bp).connect(mg).connect(gain);
+      meadow.start();
+      sources.push(meadow);
+
+      const stride = () => {
+        if (desiredScene !== "penthouse" || tvChannel !== "equestrian" || isMutedFn() || !tvNodes) return;
+        const mul = _tvFloorMul();
+        [0, 190, 385].forEach((delayMs, i) => {
+          tvTimers.push(setTimeout(() => {
+            if (desiredScene !== "penthouse" || tvChannel !== "equestrian" || isMutedFn()) return;
+            playNoiseBurst("brown", 180 + i * 28, 1.1, 0.075, 0.022 * mul, "lowpass");
+          }, delayMs));
+        });
+        tvTimers.push(setTimeout(stride, 1480 + Math.random() * 260));
+      };
+      tvTimers.push(setTimeout(stride, 420));
+    } else if (tvChannel === "chamber") {
+      const bodyFilter = c.createBiquadFilter();
+      bodyFilter.type = "lowpass";
+      bodyFilter.frequency.value = 360;
+      bodyFilter.Q.value = 2.1;
+      bodyFilter.connect(gain);
+
+      const doubleStops = [
+        [87.31, 130.81],
+        [82.41, 123.47],
+        [73.42, 110.00],
+        [65.41, 98.00],
+      ];
+      let cIdx = 0;
+      const playCello = () => {
+        if (desiredScene !== "penthouse" || tvChannel !== "chamber" || isMutedFn() || !tvNodes) return;
+        const pair = doubleStops[cIdx % doubleStops.length];
+        cIdx++;
+        const t = now();
+        pair.forEach((freq, idx) => {
+          const saw = c.createOscillator();
+          saw.type = idx === 0 ? "sawtooth" : "triangle";
+          saw.frequency.value = freq;
+          const vib = c.createOscillator();
+          vib.type = "sine";
+          vib.frequency.value = 5.1;
+          const vibG = c.createGain();
+          vibG.gain.value = idx === 0 ? 0.75 : 1.05;
+          vib.connect(vibG).connect(saw.frequency);
+
+          const env = c.createGain();
+          env.gain.setValueAtTime(0.0001, t);
+          env.gain.linearRampToValueAtTime(idx === 0 ? 0.14 : 0.10, t + 0.55);
+          env.gain.exponentialRampToValueAtTime(0.0001, t + 3.55);
+
+          saw.connect(env).connect(bodyFilter);
+          saw.start(t);
+          vib.start(t);
+          saw.stop(t + 3.65);
+          vib.stop(t + 3.65);
+        });
+        tvTimers.push(setTimeout(playCello, 3750));
+      };
+      playCello();
+    }
   }
 
   function _hearthMul() {
@@ -345,7 +513,7 @@ export function createSoundscapeController(ensureCtxFn, isMutedFn) {
     gain.gain.value = 0.0001;
     gain.connect(master);
     hifiNodes = { gain };
-    _ramp(gain.gain, 0.045, 1.2);
+    _ramp(gain.gain, _hifiTargetGain(), 1.2);
     const chords = [
       [174.61, 261.63, 329.63, 392.00],
       [164.81, 246.94, 329.63, 392.00],
@@ -395,12 +563,14 @@ export function createSoundscapeController(ensureCtxFn, isMutedFn) {
     _stopScene();
     _stopHifi();
     _stopVinyl();
+    _stopTvAudio();
     if (isMutedFn()) return;
     const c = _ensureCtx();
     if (!c) return;
     _ramp(master.gain, 0.16, 0.35);
     if (desiredScene === "penthouse") {
       _startPenthouse();
+      _startTvAudio();
       if (hifiOn) _startHifi();
     } else if (desiredScene === "cafe") {
       _startCafe();
@@ -423,6 +593,7 @@ export function createSoundscapeController(ensureCtxFn, isMutedFn) {
       _stopScene();
       _stopHifi();
       _stopVinyl();
+      _stopTvAudio();
     },
     setFloor(floorId) {
       desiredOpts.floor = floorId === "terrace" ? "terrace" : floorId === "2f" ? "2f" : "1f";
@@ -433,6 +604,26 @@ export function createSoundscapeController(ensureCtxFn, isMutedFn) {
           safe(() => sceneNodes.surfGain.gain.setTargetAtTime(_breezeMul(), now(), 0.45));
         }
       }
+      if (tvNodes && tvNodes.gain) {
+        safe(() => tvNodes.gain.gain.setTargetAtTime(tvNodes.baseGain * _tvFloorMul(), now(), 0.35));
+      }
+    },
+    setTvChannel(channelId) {
+      const valid = ["regatta", "auction", "equestrian", "chamber"].includes(channelId) ? channelId : "regatta";
+      if (tvChannel !== valid) {
+        tvChannel = valid;
+        if (desiredScene === "penthouse" && !isMutedFn() && ctx) {
+          _startTvAudio();
+        } else if (hifiNodes) {
+          _ramp(hifiNodes.gain.gain, _hifiTargetGain(), 0.45);
+        }
+      } else if (desiredScene === "penthouse" && !isMutedFn() && ctx && !tvNodes) {
+        _startTvAudio();
+      }
+      return tvChannel;
+    },
+    getTvChannel() {
+      return { id: tvChannel, floorMul: Number(_tvFloorMul().toFixed(2)) };
     },
     toggleHifi(forceBool) {
       hifiOn = typeof forceBool === "boolean" ? forceBool : !hifiOn;
@@ -507,6 +698,7 @@ export function createSoundscapeController(ensureCtxFn, isMutedFn) {
         _ramp(master.gain, 0.0001, 0.3);
         _stopHifi();
         _stopVinyl();
+        _stopTvAudio();
       } else {
         _ramp(master.gain, 0.16, 0.4);
         _applyScene();
@@ -517,13 +709,17 @@ export function createSoundscapeController(ensureCtxFn, isMutedFn) {
       if (!c) return;
       if (!isMutedFn()) _ramp(master.gain, 0.16, 0.4);
       if (desiredScene !== "none" && !sceneNodes) _applyScene();
-      else if (hifiOn && desiredScene === "penthouse" && !hifiNodes) _startHifi();
+      else {
+        if (desiredScene === "penthouse" && !tvNodes) _startTvAudio();
+        if (hifiOn && desiredScene === "penthouse" && !hifiNodes) _startHifi();
+      }
     },
     stopAll() {
       stopped = true;
       _stopScene();
       _stopHifi();
       _stopVinyl();
+      _stopTvAudio();
       if (master) {
         _ramp(master.gain, 0.0001, 0.2);
         setTimeout(() => safe(() => master.disconnect()), 300);

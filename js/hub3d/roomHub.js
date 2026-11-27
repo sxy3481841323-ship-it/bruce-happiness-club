@@ -69,6 +69,14 @@ const HOTSPOTS = [
     icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M6.5 7.5c3 3 3 6 0 9M17.5 7.5c-3 3-3 6 0 9"/></svg>`,
   },
   {
+    id: "terrace_sunset_cuddle",
+    kind: "act",
+    title: "并肩看落日",
+    sub: "+2 分 · 纯享海风慢时光",
+    pos: [1.4, 1.38, -22.2],
+    icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v3M4.9 6.9l2.1 2.1M19.1 6.9l-2.1 2.1M3 14h18"/><path d="M7 14a5 5 0 0 1 10 0"/><path d="M5 18h14"/></svg>`,
+  },
+  {
     id: "street",
     kind: "teleport",
     title: "出门 · 海岸烘焙室",
@@ -125,6 +133,17 @@ const DEFAULT_HUB_COPY = {
       "穿过敞开的玻璃移门出来啦！坐在这张软绵绵的羊羔绒沙发上看海落日好舒服。",
       "夕阳把海面染成香槟金色，海鸥从栏杆外掠过，海风吹起酒红丝巾了～",
     ],
+    sunset_cuddle_lines: [
+      "燕麦色羊羔绒沙发宽了一寸，布鲁斯把下巴搁在膝头，一起看金波碎成细鳞。",
+      "海鸥掠过露台栏杆，布鲁斯耳朵动了动，远处白帆正把夕阳裁成两半。",
+      "勃艮第丝巾蹭过手背，布鲁斯眯着眼，听潮声把黄昏推近又拉远。",
+    ],
+    tv_audio_lines: {
+      regatta: "帆船赛实况里海浪轻涌，帆布低响，远处传来黄铜缆绳轻鸣。",
+      auction: "日内瓦陀飞轮以 4Hz 极轻滴答走时，丝绒预展厅一片静谧。",
+      equestrian: "皇家草皮上三拍马蹄沉稳踏落，草原微风漫过亚麻声学格栅。",
+      chamber: "大提琴双音夜曲与哈曼爵士柔声共鸣，温暖流淌整座挑空客厅。",
+    },
     lucky_meteor: [
       "快看海平线上那道流星！布鲁斯摇着尾巴替你许愿，幸运指数加了一个吉利数字！",
       "暮色里流星悄然掠过，这一定是今天最治愈的幸运时刻。",
@@ -317,9 +336,17 @@ export function mountLivingRoomHub(container, opts = {}) {
         <div class="hub3d-lucky-toast" id="hub3d-lucky-toast" role="status" aria-live="polite">
           <span class="lucky-star-badge" aria-hidden="true">✦</span>
           <div class="lucky-toast-body">
-            <div class="lucky-toast-title">幸运时刻 · 流星掠过海平线</div>
+            <div class="lucky-toast-title" id="hub3d-lucky-title">幸运时刻 · 流星掠过海平线</div>
             <div class="lucky-toast-sub" id="hub3d-lucky-sub">布鲁斯仰头许愿 · 幸福指数 +18</div>
           </div>
+        </div>
+        <div class="hub3d-sunset-pill" id="hub3d-sunset-pill" aria-live="polite" aria-hidden="true">
+          <div class="sunset-pill-row">
+            <span class="sunset-pill-dot" aria-hidden="true">🌅</span>
+            <span class="sunset-pill-label" id="sunset-pill-label">露台慢时光 · 并肩静赏落日余晖</span>
+            <button type="button" class="sunset-pill-done" id="btn-sunset-finish-now">完成 +2</button>
+          </div>
+          <div class="sunset-pill-track"><div class="sunset-pill-fill" id="sunset-pill-fill"></div></div>
         </div>
         <div class="hub3d-keyholder">
           <button type="button" class="keyholder-btn" aria-expanded="false">
@@ -410,6 +437,7 @@ export function mountLivingRoomHub(container, opts = {}) {
           <button type="button" class="trick-pill" data-trick="lick_paw">舔小爪子</button>
           <button type="button" class="trick-pill" data-trick="play_bow">伸个懒腰</button>
           <button type="button" class="trick-pill" data-trick="airplane_ears">委屈飞机耳</button>
+          <button type="button" class="trick-pill is-sunset-cuddle" id="hub3d-btn-sunset-cuddle" title="在宽阔露台羊羔绒大沙发并肩静看夕阳 (+2)">🌅 陪看落日</button>
           <button type="button" class="trick-pill is-ai-chat" id="hub3d-btn-chat">✦ 逗它说话</button>
         </div>
         <button type="button" class="hub3d-reset-btn">⌖ 归中视角</button>
@@ -472,7 +500,12 @@ export function mountLivingRoomHub(container, opts = {}) {
   const tvOsdCodeEl = container.querySelector("#tv-osd-code");
   const tvOsdTitleEl = container.querySelector("#tv-osd-title");
   const luckyToastEl = container.querySelector("#hub3d-lucky-toast");
+  const luckyTitleEl = container.querySelector("#hub3d-lucky-title");
   const luckySubEl = container.querySelector("#hub3d-lucky-sub");
+  const sunsetPillEl = container.querySelector("#hub3d-sunset-pill");
+  const sunsetPillFillEl = container.querySelector("#sunset-pill-fill");
+  const sunsetFinishBtn = container.querySelector("#btn-sunset-finish-now");
+  const sunsetCuddleBtn = container.querySelector("#hub3d-btn-sunset-cuddle");
   const speechEl = container.querySelector(".hub3d-speech");
   const speechCueEl = speechEl?.querySelector(".speech-cue");
   const speechLineEl = speechEl?.querySelector(".speech-line");
@@ -885,6 +918,7 @@ export function mountLivingRoomHub(container, opts = {}) {
     floor_1f_greet: "BRUCE · 一楼阳光厅",
     floor_2f_greet: "BRUCE · 二楼私享阁楼",
     terrace_greet: "BRUCE · 夕照观海露台",
+    sunset_cuddle_lines: "TERRACE · 并肩慢时光",
     lucky_meteor: "LUCKY · 海平线流星时刻",
     tv_art_swap: "BRUCE · 私享频道",
     patron_card_depart: "BRUCE · 玄关出发",
@@ -978,12 +1012,16 @@ export function mountLivingRoomHub(container, opts = {}) {
     if (conciergeMoodTag) conciergeMoodTag.textContent = duskMode ? "DUSK LAMP" : "SUNSET";
     if (conciergeTvTag) conciergeTvTag.textContent = oldMoneyTv.getChannel().code;
     conciergePantryBtn?.classList.toggle("hidden", !sulking);
+    const tvAudio = sfx.getTvChannel?.() || { id: oldMoneyTv.getChannel().id, floorMul: 1 };
     stageEl.dataset.soundscapeDiag = JSON.stringify({
       scene: "penthouse",
       floor: activeFloor,
       hifiOn: hifiActive,
       duskMode,
       muted: sfx.muted,
+      tvChannel: oldMoneyTv.getChannel().id,
+      tvAudioChannel: tvAudio.id,
+      tvFloorMul: tvAudio.floorMul,
     });
   };
 
@@ -999,6 +1037,7 @@ export function mountLivingRoomHub(container, opts = {}) {
 
   function cycleTvChannel(elapsed = performance.now() / 1000) {
     const ch = oldMoneyTv.nextChannel(elapsed);
+    sfx.setTvChannel?.(ch.id);
     syncConciergeUi();
     showTvOsd(ch);
     return ch;
@@ -1022,6 +1061,7 @@ export function mountLivingRoomHub(container, opts = {}) {
       sayBruce("lucky_meteor", 4800, "LUCKY · 幸运时刻");
       const applied = await opts.onLuckyBonus?.(bonus);
       const shownBonus = applied?.bonus ?? bonus;
+      if (luckyTitleEl) luckyTitleEl.textContent = "幸运时刻 · 流星掠过海平线";
       if (luckySubEl) {
         luckySubEl.textContent = applied?.newScore
           ? `布鲁斯仰头摇尾许愿 · 幸福指数 +${shownBonus}（当前 ${applied.newScore}）`
@@ -1931,7 +1971,136 @@ export function mountLivingRoomHub(container, opts = {}) {
     };
   }
 
+  let sunsetCuddleActive = false;
+  let sunsetCuddleTimer = null;
+  let sunsetCuddleRaf = null;
+
+  async function finishSunsetCuddleMoment() {
+    if (!sunsetCuddleActive) return;
+    sunsetCuddleActive = false;
+    if (sunsetCuddleTimer) {
+      clearTimeout(sunsetCuddleTimer);
+      timers.delete(sunsetCuddleTimer);
+      sunsetCuddleTimer = null;
+    }
+    if (sunsetCuddleRaf) {
+      cancelAnimationFrame(sunsetCuddleRaf);
+      sunsetCuddleRaf = null;
+    }
+    if (destroyed) return;
+    sunsetPillEl?.classList.remove("is-visible");
+    sunsetPillEl?.setAttribute("aria-hidden", "true");
+    if (sunsetPillFillEl) sunsetPillFillEl.style.width = "0%";
+    pinsLayer.classList.remove("is-hidden");
+    controls.enabled = true;
+
+    const line = pickRandom(
+      hubCopy?.thought_bubbles?.sunset_cuddle_lines,
+      "海风拂过露台燕麦色羊羔绒沙发，布鲁斯静静靠着你眺望落日余晖。",
+    );
+    sfx.playSuccess();
+    bruce.setMood("happy");
+    bruce.triggerHappyHop();
+    const rect = stageEl.getBoundingClientRect();
+    spawnFxParticles(rect.width * 0.5, rect.height * 0.46, "gold", 20);
+
+    try {
+      await opts.onSettle?.({
+        activityId: "terrace_sunset_cuddle",
+        title: "露台并肩看落日",
+        outcome: "win",
+        delta: 2,
+        triggerSwapCandidate: false,
+        tickerMsg: "",
+        summaryLine: line,
+      });
+    } catch (_) {}
+    if (destroyed) return;
+
+    const nextScore = opts.getHappiness?.() ?? Math.min(9999, happiness + 2);
+    happiness = nextScore;
+    sulking = nextScore < 80;
+    sayBruce(line, 5200, "TERRACE · 并肩看落日 +2");
+
+    if (luckyTitleEl) luckyTitleEl.textContent = "露台慢时光 · 并肩看落日";
+    if (luckySubEl) {
+      luckySubEl.textContent = `零干扰静赏夕照 · 幸福指数 +2（当前 ${nextScore}）`;
+    }
+    if (luckyToastEl) {
+      luckyToastEl.classList.add("is-visible");
+      if (luckyToastTimer) clearTimeout(luckyToastTimer);
+      luckyToastTimer = later(() => luckyToastEl.classList.remove("is-visible"), 4400);
+    }
+  }
+
+  function startSunsetCuddleMoment() {
+    if (destroyed || activeActId || sunsetCuddleActive) return;
+    if (sulking) {
+      opts.onOpenShop?.();
+      return;
+    }
+    sunsetCuddleActive = true;
+    setKeyholderOpen(false);
+    setConciergeOpen(false);
+    pinsLayer.classList.add("is-hidden");
+
+    activeFloor = "terrace";
+    floorButtons.forEach((btn) => btn.classList.toggle("is-active", btn.getAttribute("data-floor") === "terrace"));
+    floorPlane.constant = -(FLOOR_PRESETS.terrace?.floorY || 0);
+    sfx.setFloorAmbience("terrace");
+    meteorCtrl.notifyZone("terrace");
+    syncConciergeUi();
+
+    bruce.stopWalk();
+    bruce.root.position.set(1.22, 0.56, -22.42);
+    bruce.root.rotation.y = Math.PI * 0.88;
+    bruce.setMood("happy");
+    bruce.triggerHappyHop();
+    sfx.playStretchSigh();
+    sayBruce("sunset_cuddle_lines", 5000, "TERRACE · 并肩慢时光");
+
+    const rect = stageEl.getBoundingClientRect();
+    spawnFxParticles(rect.width * 0.48, rect.height * 0.56, "warm", 16);
+
+    controls.enabled = false;
+    flyCamera(new THREE.Vector3(3.38, 1.84, -19.72), new THREE.Vector3(-0.25, 1.12, -26.8), 850, () => {
+      if (!destroyed) controls.enabled = true;
+    });
+
+    if (sunsetPillEl) {
+      sunsetPillEl.classList.add("is-visible");
+      sunsetPillEl.setAttribute("aria-hidden", "false");
+    }
+    const durationMs = 4200;
+    const t0 = performance.now();
+    const stepFill = (now) => {
+      if (!sunsetCuddleActive || destroyed) return;
+      const pct = Math.min(100, ((now - t0) / durationMs) * 100);
+      if (sunsetPillFillEl) sunsetPillFillEl.style.width = `${pct.toFixed(1)}%`;
+      if (pct < 100) sunsetCuddleRaf = requestAnimationFrame(stepFill);
+    };
+    sunsetCuddleRaf = requestAnimationFrame(stepFill);
+    sunsetCuddleTimer = later(() => finishSunsetCuddleMoment(), durationMs);
+  }
+
+  sunsetCuddleBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    sfx.playTap();
+    feedback("small", e.clientX, e.clientY);
+    startSunsetCuddleMoment();
+  });
+
+  sunsetFinishBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    sfx.playTap();
+    finishSunsetCuddleMoment();
+  });
+
   function handleHotspotClick(spot) {
+    if (spot.id === "terrace_sunset_cuddle") {
+      startSunsetCuddleMoment();
+      return;
+    }
     if (spot.kind === "act") {
       if (sulking) {
         opts.onOpenShop?.();
@@ -2177,7 +2346,8 @@ export function mountLivingRoomHub(container, opts = {}) {
         if (hitObj === tvScreenMesh && tvScreenMat) {
           const ch = cycleTvChannel();
           spawnFxParticles(e.clientX - stageRect.left, e.clientY - stageRect.top, "gold", 12);
-          sayBruce("tv_art_swap", 3800, `TV · ${ch.code}`);
+          const audioLine = hubCopy?.tv_audio_lines?.[ch.id];
+          sayBruce(audioLine || "tv_art_swap", 4000, `TV · ${ch.code}`);
           return;
         }
         if (lampClickMeshes.includes(hitObj)) {
@@ -2437,6 +2607,8 @@ export function mountLivingRoomHub(container, opts = {}) {
       nextTvChannel: () => cycleTvChannel(elapsed),
       toggleDusk: () => toggleSunsetDuskMood(),
       triggerMeteor: (b = null) => meteorCtrl.triggerNow(b),
+      startSunsetCuddle: () => startSunsetCuddleMoment(),
+      finishSunsetCuddle: () => finishSunsetCuddleMoment(),
     };
     if (Math.floor(elapsed * 2) !== Math.floor((elapsed - dt) * 2)) {
       stageEl.dataset.penthouseDiag = JSON.stringify(pDiag);
@@ -2508,6 +2680,7 @@ export function mountLivingRoomHub(container, opts = {}) {
   };
 
   sfx.setSceneAmbience("penthouse", { floor: activeFloor, sulking });
+  sfx.setTvChannel(oldMoneyTv.getChannel().id);
   syncConciergeUi();
   rafId = requestAnimationFrame(tick);
 
@@ -2526,6 +2699,8 @@ export function mountLivingRoomHub(container, opts = {}) {
     destroy() {
       if (destroyed) return;
       destroyed = true;
+      sunsetCuddleActive = false;
+      if (sunsetCuddleRaf) cancelAnimationFrame(sunsetCuddleRaf);
       sfx.setVinylMode(false);
       sfx.clearSceneAmbience("penthouse");
       delete window.__BRUCE_PENTHOUSE_DIAG__;

@@ -167,6 +167,12 @@ export function mountCoastalCafeHub(container, opts = {}) {
         if (json.cafe_thought_bubbles) {
           cafeCopy = { ...DEFAULT_CAFE_COPY, ...json.cafe_thought_bubbles };
         }
+        if (Array.isArray(json.cafe_boiserie_lines) && json.cafe_boiserie_lines.length) {
+          cafeCopy = {
+            ...cafeCopy,
+            idle_happy: [...(cafeCopy.idle_happy || []), ...json.cafe_boiserie_lines],
+          };
+        }
       }
     })
     .catch(() => {});
@@ -386,6 +392,11 @@ export function mountCoastalCafeHub(container, opts = {}) {
   const loungeFillLight = new THREE.PointLight(0xfff3de, 0.72, 22, 1.4);
   loungeFillLight.position.set(-5.0, 9.5, -2.0);
   scene.add(loungeFillLight);
+
+  // Warm wash illuminating the South Roastery Boiserie & Walnut Bookcase Wall (Z=+20.2) for 360° orbit
+  const southBoiserieLight = new THREE.PointLight(0xffe1b5, 1.05, 24, 1.35);
+  southBoiserieLight.position.set(1.2, 8.8, 13.8);
+  scene.add(southBoiserieLight);
 
   // Subtle architectural glass panes fitted into left & back curtain wall openings
   const glassMat = new THREE.MeshPhysicalMaterial({
@@ -1624,6 +1635,12 @@ export function mountCoastalCafeHub(container, opts = {}) {
       textures: renderer.info.memory.textures,
       dpr: renderer.getPixelRatio(),
       loaded: loadingEl.classList.contains("is-hidden"),
+      setOrbitPose: (pos, target) => {
+        camTween = null;
+        camera.position.fromArray(pos);
+        controls.target.fromArray(target);
+        controls.update();
+      },
     };
     window.__BRUCE_CAFE_DIAG__ = diagObj;
     if (Math.floor(elapsed * 2) !== Math.floor((elapsed - dt) * 2)) {

@@ -288,8 +288,8 @@ async function settleScoreAndSwap(result, fallbackReason) {
   const delta = Number.isFinite(result?.delta) ? result.delta : 0;
   const nextScore = Math.max(0, Math.min(9999, Math.round(prevScore + delta)));
 
-  let tickerMsg = "";
-  if (prevScore >= 80 && nextScore < 80) {
+  let tickerMsg = typeof result?.tickerMsg === "string" ? result.tickerMsg : "";
+  if (!tickerMsg && prevScore >= 80 && nextScore < 80) {
     const templates = store.state.content?.ticker_templates?.collapse || [];
     tickerMsg = formatTemplate(pickRandom(templates), {
       player: latestPlayer.nickname,

@@ -57,6 +57,14 @@ class SoundEngine {
     this.soundscape.setFloor(floorId);
   }
 
+  setTvChannel(channelId) {
+    return this.soundscape.setTvChannel(channelId);
+  }
+
+  getTvChannel() {
+    return this.soundscape.getTvChannel();
+  }
+
   toggleHifi(forceBool) {
     return this.soundscape.toggleHifi(forceBool);
   }
