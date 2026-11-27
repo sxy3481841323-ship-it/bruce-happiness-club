@@ -36,6 +36,14 @@ from penthouse_kit.tex_artworks import (
     make_vinyl_cover_tex,
     make_patron_card_tex,
 )
+from penthouse_kit.tex_luxury_props import (
+    make_evian_label_tex,
+    make_concierge_screen_tex,
+    make_foyer_mirror_tex,
+    make_foyer_medallion_tex,
+    make_fire_ember_tex,
+    make_charred_bark_tex,
+)
 from penthouse_kit.arch_shell import build_arch_shell
 from penthouse_kit.mod_salon_seating import build_salon_seating
 from penthouse_kit.mod_media_fireplace import build_media_fireplace
@@ -61,6 +69,12 @@ def build_duplex():
     gal_arts = make_gallery_travel_artworks()
     vinyl_cover_img = make_vinyl_cover_tex(1024)
     patron_card_img = make_patron_card_tex(1024, 640)
+    evian_label_img = make_evian_label_tex(512, 256)
+    concierge_screen_img = make_concierge_screen_tex(512, 320)
+    foyer_mirror_img = make_foyer_mirror_tex(1024)
+    foyer_medallion_img = make_foyer_medallion_tex(1024)
+    fire_ember_img = make_fire_ember_tex(512, 256)
+    charred_bark_img = make_charred_bark_tex(512, 256)
 
     mats = {
         "oak": ctx.tex_mat("HerringboneOak", oak_img, roughness=0.44, metalness=0.04, quality=92),
@@ -98,6 +112,15 @@ def build_duplex():
         "gal_2": ctx.tex_mat("CollectorGallery2", gal_arts[1], roughness=0.34, quality=94, emissive=(0.06, 0.06, 0.06)),
         "gal_3": ctx.tex_mat("CollectorGallery3", gal_arts[2], roughness=0.34, quality=94, emissive=(0.06, 0.06, 0.06)),
         "gal_4": ctx.tex_mat("CollectorGallery4", gal_arts[3], roughness=0.34, quality=94, emissive=(0.06, 0.06, 0.06)),
+        "evian_label": ctx.tex_mat("EvianAlpineLabel", evian_label_img, roughness=0.32, metalness=0.02, quality=94),
+        "concierge_screen": ctx.tex_mat("ConciergeOLED", concierge_screen_img, roughness=0.22, metalness=0.05, quality=94, emissive=(0.75, 0.72, 0.65)),
+        "foyer_mirror": ctx.tex_mat("FoyerSmokedMirror", foyer_mirror_img, roughness=0.06, metalness=0.88, quality=94, emissive=(0.12, 0.11, 0.09)),
+        "foyer_medallion": ctx.tex_mat("FoyerStoneMedallion", foyer_medallion_img, roughness=0.18, metalness=0.06, quality=92),
+        "fire_ember": ctx.tex_mat("FireEmberBed", fire_ember_img, roughness=0.45, metalness=0.0, quality=92, emissive=(0.95, 0.42, 0.10)),
+        "charred_bark": ctx.tex_mat("CharredOakBark", charred_bark_img, roughness=0.82, metalness=0.0, quality=90, emissive=(0.24, 0.06, 0.01)),
+        "glass_smoke": ctx.color_mat("SmokedBorosilicateGlass", (0.14, 0.15, 0.17, 0.34), roughness=0.06, metalness=0.15, alpha_blend=True, double_sided=True),
+        "crystal_glass": ctx.color_mat("ClearCrystalGlass", (0.74, 0.89, 0.96, 0.44), roughness=0.05, metalness=0.12, alpha_blend=True, double_sided=True),
+        "orchid_white": ctx.color_mat("PhalaenopsisOrchid", (0.98, 0.97, 0.95, 1.0), roughness=0.45, metalness=0.02),
     }
 
     build_arch_shell(ctx, mats)
@@ -109,7 +132,11 @@ def build_duplex():
     build_entry_and_niches(ctx, mats)
 
     info = ctx.export_glb(OUT_GLB)
-    for req in ("SkyCyclorama", "GalleryTVScreen", "ArcLampBulb", "EntryPatronCard"):
+    for req in (
+        "SkyCyclorama", "GalleryTVScreen", "ArcLampBulb", "EntryPatronCard",
+        "FireplaceEmbers", "FireplaceLogs", "HiFiGlassDome",
+        "ConciergePager1F", "ConciergePager2F", "EvianBottles1F",
+    ):
         assert req in info["mesh_names"], f"Missing required mesh {req}"
     assert info["size_mb"] <= 15.0, f"GLB exceeds 15 MB cap: {info['size_mb']} MB"
     print(

@@ -62,17 +62,17 @@ export const FLOOR_PRESETS = {
   '2f': {
     id: '2f',
     label: '2F · 阳光阁楼',
-    camPos: [-0.4, 12.8, 5.2],
-    target: [-9.4, 11.0, -6.2],
+    camPos: [-0.2, 13.0, 6.8],
+    target: [-8.6, 10.8, -3.6],
     floorY: 9.24,
     brucePos: [-8.0, 9.24, -4.2],
     bruceRot: 0.82,
-    walkBounds: { minX: -10.8, maxX: -5.0, minZ: -8.5, maxZ: 1.5 },
+    walkBounds: { minX: -10.8, maxX: -5.0, minZ: -8.5, maxZ: 1.1 },
     walkSpots: [
       [-8.0, -4.2],
       [-9.4, -7.2],
       [-6.2, -1.8],
-      [-9.8, 0.4]
+      [-9.8, 0.2]
     ]
   }
 };

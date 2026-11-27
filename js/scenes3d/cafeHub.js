@@ -6,8 +6,8 @@ import { mountBruceChatBar } from "../hub3d/bruceChatUi.js";
 import { sfx } from "../audio.js";
 import { feedback } from "../juice.js";
 
-const OVERVIEW_CAM = new THREE.Vector3(-0.3, 6.4, 18.6);
-const OVERVIEW_TARGET = new THREE.Vector3(-0.3, 4.7, -5.0);
+const OVERVIEW_CAM = new THREE.Vector3(-1.5, 5.8, 20.2);
+const OVERVIEW_TARGET = new THREE.Vector3(1.1, 4.5, -4.2);
 const FLOOR_Y = 0.0;
 
 const BRUCE_HOME_POS = new THREE.Vector3(-1.35, FLOOR_Y, 3.2);
@@ -354,8 +354,8 @@ export function mountCoastalCafeHub(container, opts = {}) {
   controls.maxDistance = 26.5;
   controls.minPolarAngle = 0.72;
   controls.maxPolarAngle = 1.46;
-  controls.minAzimuthAngle = -0.95;
-  controls.maxAzimuthAngle = 0.95;
+  controls.minAzimuthAngle = -1.08;
+  controls.maxAzimuthAngle = 1.08;
   controls.update();
 
   // Coastal Daylight + Warm Bar/Pendant Lighting Rig

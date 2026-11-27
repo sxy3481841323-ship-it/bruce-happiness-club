@@ -22,6 +22,7 @@ import sys
 if os.path.join(ROOT_DIR, "scripts") not in sys.path:
     sys.path.insert(0, os.path.join(ROOT_DIR, "scripts"))
 from penthouse_kit.tex_cafe_coastal import make_malibu_coastal_panorama, make_coastal_wave_photo_tex
+from penthouse_kit.tex_wine_and_cafe import make_fine_wine_label_tex, make_celadon_sage_tile_tex
 
 
 # ---------------------------------------------------------------------------
@@ -576,8 +577,8 @@ def build_scene():
         materials.append(mat)
         return idx
 
-    # Textures (High-Res 15 MB Quiet Luxury Standard)
-    t_tile = add_tex(make_sage_tile_tex(1024), "JPEG", 90)
+    # Textures (High-Res 15 MB Quiet Luxury + 1:1 Sketchfab Reference)
+    t_tile = add_tex(make_celadon_sage_tile_tex(1024), "JPEG", 92)
     t_brick = add_tex(make_white_brick_tex(1024), "JPEG", 90)
     t_marble = add_tex(make_marble_tex(1024, 512), "JPEG", 90)
     t_oak = add_tex(make_oak_tex(512), "JPEG", 88)
@@ -585,6 +586,9 @@ def build_scene():
     t_art = add_tex(make_coastal_wave_photo_tex(1024), "JPEG", 94)
     t_coast = add_tex(make_malibu_coastal_panorama(4096, 2048), "JPEG", 95)
     t_latte = add_tex(make_latte_art_tex(256), "JPEG", 88)
+    t_wine_0 = add_tex(make_fine_wine_label_tex(512, variant=0), "JPEG", 92)
+    t_wine_1 = add_tex(make_fine_wine_label_tex(512, variant=1), "JPEG", 92)
+    t_wine_2 = add_tex(make_fine_wine_label_tex(512, variant=2), "JPEG", 92)
 
     # Materials
     m_floor = add_mat("SageTileFloor", (1, 1, 1, 1), roughness=0.25, metalness=0.04, tex_idx=t_tile)
@@ -608,8 +612,8 @@ def build_scene():
     m_leaf_bright = add_mat("FoliageBright", (0.25, 0.54, 0.21, 1.0), roughness=0.52, double_sided=True)
     m_palm_trunk = add_mat("PalmTrunk", (0.38, 0.31, 0.24, 1.0), roughness=0.86)
     m_palm_frond = add_mat("PalmFronds", (0.20, 0.46, 0.18, 1.0), roughness=0.60, double_sided=True)
-    m_flower_pink = add_mat("FlowerPink", (0.94, 0.92, 0.88, 1.0), roughness=0.72)
-    m_flower_coral = add_mat("FlowerCoral", (0.92, 0.87, 0.78, 1.0), roughness=0.72)
+    m_flower_pink = add_mat("FlowerPink", (0.88, 0.34, 0.72, 1.0), roughness=0.68)
+    m_flower_coral = add_mat("FlowerCoral", (0.94, 0.45, 0.48, 1.0), roughness=0.68)
     m_boardwalk = add_mat("BoardwalkTimber", (0.56, 0.48, 0.40, 1.0), roughness=0.84)
     m_coast_bg = add_mat("CoastalBackdrop", (1, 1, 1, 1), roughness=1.0, emissive=None, tex_idx=t_coast, double_sided=True)
     m_art = add_mat("GeoPainting", (1, 1, 1, 1), roughness=0.45, tex_idx=t_art)
@@ -619,8 +623,13 @@ def build_scene():
     m_pastry_glass = add_mat("PastryGlass", (0.88, 0.95, 0.98, 0.22), roughness=0.08, metalness=0.05, double_sided=True, alpha_mode="BLEND")
     m_pastry_gold = add_mat("PastryGold", (0.84, 0.58, 0.28, 1.0), roughness=0.58)
     m_pastry_cream = add_mat("PastryCream", (0.94, 0.89, 0.78, 1.0), roughness=0.48)
-    m_bottle_dark = add_mat("WineBottle", (0.12, 0.16, 0.11, 1.0), roughness=0.14, metalness=0.05)
+    m_bottle_dark = add_mat("WineBottle", (0.09, 0.14, 0.09, 1.0), roughness=0.14, metalness=0.06)
     m_label_red = add_mat("BottleLabel", (0.76, 0.18, 0.16, 1.0), roughness=0.55)
+    m_wine_wrap_0 = add_mat("WineWrapChateau", (1, 1, 1, 1), roughness=0.38, metalness=0.02, tex_idx=t_wine_0)
+    m_wine_wrap_1 = add_mat("WineWrapBeaune", (1, 1, 1, 1), roughness=0.38, metalness=0.02, tex_idx=t_wine_1)
+    m_wine_wrap_2 = add_mat("WineWrapBarolo", (1, 1, 1, 1), roughness=0.38, metalness=0.02, tex_idx=t_wine_2)
+    m_ruby_wine = add_mat("RubyWineLiquid", (0.24, 0.02, 0.04, 0.90), roughness=0.08, metalness=0.04, alpha_mode="BLEND")
+    m_foil_cap = add_mat("BottleCapsule", (0.64, 0.12, 0.14, 1.0), roughness=0.32, metalness=0.55)
     m_latte_top = add_mat("LatteFoam", (1, 1, 1, 1), roughness=0.42, tex_idx=t_latte)
     m_brass = add_mat("BrassSign", (0.86, 0.71, 0.42, 1.0), roughness=0.26, metalness=0.88)
 
@@ -874,12 +883,41 @@ def build_scene():
     for (fx, fy, fz, fr) in [(4.45, 6.62, 2.80, 0.09), (4.37, 6.57, 2.84, 0.075), (4.53, 6.54, 2.76, 0.08)]:
         b_pink.add_sphere(fx, fy, fz, fr, fr * 0.85, fr, rings=5, segs=8)
 
+    # Bordeaux wine bottle builder helper (dark glass + fine vintage wrap label + foil capsule)
     b_bottle = mb("WineBottles", m_bottle_dark)
-    b_label = mb("BottleLabels", m_label_red)
-    b_bottle.add_cylinder(4.15, 4.42, 5.1, 0.14, 0.14, 0.65, segs=12)
-    b_bottle.add_cylinder(4.15, 5.07, 5.1, 0.14, 0.05, 0.22, segs=12)
-    b_bottle.add_cylinder(4.15, 5.29, 5.1, 0.05, 0.05, 0.22, segs=10)
-    b_label.add_cylinder(4.15, 4.60, 5.1, 0.145, 0.145, 0.28, segs=12)
+    b_cap = mb("WineBottleCapsules", m_foil_cap)
+    b_wine_wraps = [
+        mb("WineLabelChateau", m_wine_wrap_0),
+        mb("WineLabelBeaune", m_wine_wrap_1),
+        mb("WineLabelBarolo", m_wine_wrap_2),
+    ]
+    b_ruby = mb("RubyWineLiquid", m_ruby_wine)
+
+    def add_wine_bottle(bx, by, bz, scale=1.0, variant=0):
+        b_bottle.add_lathe(bx, by, bz, [
+            (0.0, 0.0), (0.145 * scale, 0.0), (0.150 * scale, 0.56 * scale),
+            (0.115 * scale, 0.68 * scale), (0.052 * scale, 0.78 * scale),
+            (0.048 * scale, 0.96 * scale), (0.055 * scale, 0.99 * scale), (0.0, 0.99 * scale)
+        ], segs=14)
+        b_wine_wraps[variant % 3].add_cylinder(
+            bx, by + 0.14 * scale, bz, 0.154 * scale, 0.154 * scale, 0.34 * scale,
+            segs=14, cap_top=False, cap_bot=False
+        )
+        b_cap.add_cylinder(bx, by + 0.80 * scale, bz, 0.052 * scale, 0.054 * scale, 0.195 * scale, segs=12)
+
+    def add_wine_glass(gx, gy, gz, poured=False, scale=1.0):
+        b_glass.add_cylinder(gx, gy, gz, 0.11 * scale, 0.11 * scale, 0.025 * scale, segs=12)
+        b_glass.add_cylinder(gx, gy + 0.025 * scale, gz, 0.018 * scale, 0.016 * scale, 0.22 * scale, segs=8)
+        b_glass.add_lathe(gx, gy + 0.24 * scale, gz, [
+            (0.0, 0.0), (0.06 * scale, 0.02 * scale), (0.135 * scale, 0.12 * scale),
+            (0.125 * scale, 0.25 * scale), (0.105 * scale, 0.32 * scale)
+        ], segs=12)
+        if poured:
+            b_ruby.add_cylinder(gx, gy + 0.27 * scale, gz, 0.07 * scale, 0.12 * scale, 0.10 * scale, segs=12)
+
+    # Prominent front-bar red-wine bottle & tasting glass between showcase and POS register (X=4.18, Z=0.65)
+    add_wine_bottle(4.18, 4.42, 0.65, scale=1.05, variant=0)
+    add_wine_glass(4.02, 4.42, 0.12, poured=True, scale=0.95)
 
     # POS Register on front bar (Z = -6.8)
     b_black.add_box(4.15, 4.55, -6.8, 0.85, 0.26, 0.95)
@@ -933,19 +971,51 @@ def build_scene():
             b_black.add_box(10.48, sy, zc, 0.075, 0.075, bw)
             b_black.add_box(11.38, sy, zc, 0.075, 0.075, bw)
             if sy < y_levels[-1]:
-                b_walnut.add_box(10.93, sy + 0.01, zc, 0.84, 0.05, bw - 0.12)
+                b_black.add_box(10.93, sy + 0.01, zc, 0.86, 0.055, bw - 0.10)
 
-    # Stocked wine bottles (red/cream labels), clear stemmed glasses & white ceramic vessels
-    for (bz, by) in [(-1.4, 6.24), (-0.9, 6.24), (2.7, 8.24), (3.1, 8.24), (5.2, 7.94), (5.6, 7.94), (0.6, 9.74)]:
-        b_bottle.add_cylinder(10.90, by, bz, 0.13, 0.13, 0.56, segs=10)
-        b_bottle.add_cylinder(10.90, by + 0.56, bz, 0.13, 0.045, 0.24, segs=10)
-        b_label.add_cylinder(10.90, by + 0.16, bz, 0.134, 0.134, 0.24, segs=10)
-    for (gz, gy) in [(0.4, 6.24), (1.0, 6.24), (1.5, 6.24), (3.8, 6.24), (6.2, 7.94), (6.6, 7.94)]:
-        b_glass.add_cylinder(10.88, gy, gz, 0.09, 0.09, 0.03, segs=10)
-        b_glass.add_cylinder(10.88, gy + 0.03, gz, 0.02, 0.02, 0.16, segs=8)
-        b_glass.add_cylinder(10.88, gy + 0.19, gz, 0.06, 0.11, 0.18, segs=10)
-    for (kz, ky) in [(2.9, 6.24), (5.8, 6.24), (0.9, 7.64), (3.3, 10.14)]:
-        b_pot.add_cylinder(10.92, ky, kz, 0.19, 0.14, 0.40, segs=12)
+    # Stocked wine bottles (Bordeaux/Pinot Noir with fine textured cream/gold labels) & crystal stemware
+    rack_bottles = [
+        (-1.45, 6.24, 0), (-0.92, 6.24, 1), (-0.42, 6.24, 2),
+        (0.55, 9.74, 0), (1.05, 9.74, 1),
+        (2.65, 8.24, 2), (3.15, 8.24, 0), (3.65, 8.24, 1),
+        (5.05, 7.94, 0), (5.55, 7.94, 2), (6.05, 7.94, 1),
+        (4.95, 9.64, 1), (5.45, 9.64, 0),
+    ]
+    for (bz, by, var) in rack_bottles:
+        add_wine_bottle(10.88, by, bz, scale=1.02, variant=var)
+
+    for (gz, gy) in [(0.35, 6.24), (0.85, 6.24), (1.35, 6.24), (2.75, 6.24), (3.35, 6.24), (3.95, 6.24), (6.45, 7.94), (6.85, 7.94)]:
+        add_wine_glass(10.86, gy, gz, poured=False, scale=0.88)
+
+    for (kz, ky) in [(3.0, 10.14), (5.8, 6.24), (0.9, 7.64)]:
+        b_pot.add_cylinder(10.92, ky, kz, 0.21, 0.14, 0.46, segs=14)
+
+    # Right Marble Countertop Sommelier Red-Wine Tasting Station + Coffee Bean Dispenser & Kettle
+    # Front-right marble curve return (X=7.2..9.6, Z=6.8..8.3, Y=4.42)
+    for (bx, bz, var) in [(7.65, 7.85, 0), (8.25, 7.95, 1), (8.82, 7.72, 2), (9.85, 4.35, 0)]:
+        add_wine_bottle(bx, 4.42 if bx < 9.2 else 4.34, bz, scale=1.08, variant=var)
+    # Crystal Wine Decanter filled with deep ruby wine on right front counter (X=7.65, Y=4.42, Z=6.85)
+    b_glass.add_lathe(7.65, 4.42, 6.85, [
+        (0.0, 0.0), (0.24, 0.0), (0.30, 0.14), (0.24, 0.30), (0.10, 0.44), (0.08, 0.68), (0.11, 0.74)
+    ], segs=18)
+    b_ruby.add_lathe(7.65, 4.43, 6.85, [
+        (0.0, 0.0), (0.21, 0.0), (0.26, 0.12), (0.21, 0.24), (0.0, 0.24)
+    ], segs=16)
+    add_wine_glass(6.95, 4.42, 7.15, poured=True, scale=1.0)
+    add_wine_glass(7.25, 4.42, 6.65, poured=True, scale=1.0)
+    add_wine_glass(7.95, 4.42, 6.45, poured=False, scale=1.0)
+    # Back-right Sommelier reserve bottles near brick counter (X=9.85, Z=-2.8..-1.8)
+    add_wine_bottle(9.85, 4.34, -2.75, scale=1.06, variant=1)
+    add_wine_bottle(9.85, 4.34, -2.25, scale=1.06, variant=2)
+    # Glass coffee-bean dispenser & matte-black pour-over kettle on right counter
+    b_oak_work.add_cylinder(9.75, 4.34, 3.85, 0.34, 0.34, 0.14, segs=16)
+    b_glass.add_cylinder(9.75, 4.48, 3.85, 0.28, 0.28, 0.72, segs=16)
+    b_walnut.add_cylinder(9.75, 4.49, 3.85, 0.25, 0.25, 0.46, segs=16)
+    b_black.add_cylinder(9.75, 5.20, 3.85, 0.30, 0.30, 0.08, segs=16)
+    b_black.add_lathe(6.25, 4.42, 5.55, [
+        (0.0, 0.0), (0.22, 0.0), (0.20, 0.16), (0.14, 0.38), (0.16, 0.42), (0.0, 0.42)
+    ], segs=14)
+    b_black.add_curved_tube([(6.05, 4.52, 5.55), (5.82, 4.72, 5.55), (5.75, 4.86, 5.55)], [0.025, 0.020, 0.016], segs=6)
 
     # ------------------------------------------------------------------
     # 6. 7 Caramel-Tan Round Barstools along the Curved Bar
@@ -1138,8 +1208,10 @@ def build_scene():
         x0, z0 = arc_bg[i]
         x1, z1 = arc_bg[i + 1]
         u0, u1 = i / (n_bg - 1), (i + 1) / (n_bg - 1)
-        b_coast.add_tri_raw((x0, -2.0, z0), (x1, -2.0, z1), (x1, 26.0, z1), (u0, 1.0), (u1, 1.0), (u1, 0.0))
-        b_coast.add_tri_raw((x0, -2.0, z0), (x1, 26.0, z1), (x0, 26.0, z0), (u0, 1.0), (u1, 0.0), (u0, 0.0))
+        # Note glTF exporter flips uv_y = 1.0 - uv_y: so (u, 0.0) at y_bot=-4.0 -> v_gltf=1.0 (sand bottom),
+        # and (u, 1.0) at y_top=22.0 -> v_gltf=0.0 (sky zenith top). Ocean horizon v=0.58 sits at y=4.6!
+        b_coast.add_tri_raw((x0, -4.0, z0), (x1, -4.0, z1), (x1, 22.0, z1), (u0, 0.0), (u1, 0.0), (u1, 1.0))
+        b_coast.add_tri_raw((x0, -4.0, z0), (x1, 22.0, z1), (x0, 22.0, z0), (u0, 0.0), (u1, 1.0), (u0, 1.0))
 
     # Exterior low planter bed + boardwalk deck + wooden seaside fence
     b_board = mb("BoardwalkTimber", m_boardwalk)

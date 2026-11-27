@@ -123,8 +123,24 @@ const DEFAULT_HUB_COPY = {
       "亚麻光影落在画布上，这间客厅就是本汪的私人画廊。",
     ],
     patron_card_depart: [
-      "玄关洞石托盘里的 07 号记账卡拿稳啦，出门去挑野生帝王鲑。",
-      "黑胡桃盘里这张卡揣好，今天顺路在 ELOWEN 带两盒草饲冻干。",
+      "对纹大理石壁灯亮起，白兰地皮托盘上，07号卡片静候。",
+      "白兰花影里，皮托盘托着07号卡，门厅灯已暖。",
+      "门厅灯光转暖，白兰地皮托盘上07号卡泛着微光。"
+    ],
+    concierge_call: [
+      "轻按黄铜对讲器，B1 司机车已备妥，随时可以出发。",
+      "晚间餐点已备好，布鲁斯正凑在依云玻璃水瓶旁嗅闻。",
+      "大理石桌旁轻点一下，管家与司机均已在岗候命。"
+    ],
+    hifi_toggle: [
+      "轻触烟色玻璃穹顶，哈曼音室暖晕如环抱般亮起。",
+      "半透声学穹顶透出微光，低音在人字拼橡木地上轻漾。",
+      "指尖轻叩音柱，360度暖光环与澄澈中频温柔铺开。"
+    ],
+    fireplace_warm: [
+      "劈好的橡木柴在火膛里轻响，橙色余烬缓缓跳跃。",
+      "布鲁斯蜷在罗马洞石壁炉边，歪头看跃动的橡木火光。",
+      "壁炉里的实木新炭正旺，琥珀暖意漫过整面石沿。"
     ],
     lamp_toggle: [
       "香槟金钓鱼灯一亮，整个大理石客厅瞬间温柔起来啦。",
@@ -392,6 +408,7 @@ export function mountLivingRoomHub(container, opts = {}) {
   const sunnySkyTex = loadSrgbTex("./assets/textures/sky_sunny.jpg", false);
   const rainySkyTex = loadSrgbTex("./assets/textures/sky_rainy.jpg", false);
   const patronCardTex = loadSrgbTex("./assets/textures/patron_card.jpg", false);
+  const flameTex = loadSrgbTex("./assets/textures/fireplace_flame.png", true);
   const tvArtTexs = [
     loadSrgbTex("./assets/textures/tv_art_1.jpg", false),
     loadSrgbTex("./assets/textures/tv_art_2.jpg", false),
@@ -405,6 +422,11 @@ export function mountLivingRoomHub(container, opts = {}) {
   let arcLampMesh = null;
   let patronCardMesh = null;
   let patronCardMat = null;
+  let fireplaceEmberMesh = null;
+  const conciergeMeshes = [];
+  const hifiMeshes = [];
+  const fireplaceMeshes = [];
+  let departSkipFn = null;
 
   const initOv = getFloorOverview("1f");
   const camera = new THREE.PerspectiveCamera(48, 16 / 10, 0.2, 180);
@@ -447,6 +469,75 @@ export function mountLivingRoomHub(container, opts = {}) {
   const warmLampLight = new THREE.PointLight(0xffb969, 0.0, 24, 1.35);
   warmLampLight.position.set(10.6, 4.8, 2.8);
   scene.add(warmLampLight);
+
+  // Grand Foyer console & bronze mirror warm wash light
+  const foyerSpotLight = new THREE.PointLight(0xffe6bf, 1.55, 14, 1.3);
+  foyerSpotLight.position.set(-12.2, 4.8, 6.6);
+  scene.add(foyerSpotLight);
+
+  // Dynamic Wood-Burning Fireplace Rig (1F Hearth: X=14.02, Y=1.70, Z=-3.5..-0.1)
+  const fireplaceLight = new THREE.PointLight(0xff7d2b, 2.35, 17, 1.35);
+  fireplaceLight.position.set(13.25, 2.08, -1.8);
+  scene.add(fireplaceLight);
+
+  const flameGroup = new THREE.Group();
+  const flameGeo = new THREE.PlaneGeometry(0.62, 0.72);
+  const flameMats = [];
+  const flameRibbons = [];
+  const flameZList = [-3.42, -2.90, -2.36, -1.80, -1.24, -0.70, -0.18];
+  for (let i = 0; i < flameZList.length; i++) {
+    const fm = new THREE.MeshBasicMaterial({
+      map: flameTex,
+      transparent: true,
+      opacity: 0.88,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+      toneMapped: false,
+    });
+    const mesh = new THREE.Mesh(flameGeo, fm);
+    const fz = flameZList[i];
+    const fx = 14.06 + ((i % 2 === 0 ? -1 : 1) * 0.06);
+    mesh.position.set(fx, 1.98, fz);
+    mesh.rotation.y = -Math.PI * 0.5 + (i % 3 - 1) * 0.16;
+    flameGroup.add(mesh);
+    flameMats.push(fm);
+    flameRibbons.push({
+      mesh,
+      mat: fm,
+      baseX: fx,
+      baseZ: fz,
+      phase: i * 1.17,
+      speed: 5.8 + (i % 3) * 1.4,
+      baseScale: 0.88 + (i % 3) * 0.14,
+    });
+  }
+  scene.add(flameGroup);
+
+  const sparkCount = 28;
+  const sparkPos = new Float32Array(sparkCount * 3);
+  const sparkMeta = [];
+  for (let i = 0; i < sparkCount; i++) {
+    const sx = 13.86 + ((i * 0.13) % 0.42);
+    const sy = 1.66 + ((i * 0.27) % 0.72);
+    const sz = -3.70 + ((i * 0.43) % 3.80);
+    sparkPos[i * 3] = sx;
+    sparkPos[i * 3 + 1] = sy;
+    sparkPos[i * 3 + 2] = sz;
+    sparkMeta.push({ baseX: sx, baseZ: sz, speed: 0.48 + (i % 5) * 0.14, phase: i * 0.73 });
+  }
+  const sparkGeo = new THREE.BufferGeometry();
+  sparkGeo.setAttribute("position", new THREE.BufferAttribute(sparkPos, 3));
+  const sparkMat = new THREE.PointsMaterial({
+    color: 0xffa63d,
+    size: 0.068,
+    transparent: true,
+    opacity: 0.88,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  });
+  const sparkPoints = new THREE.Points(sparkGeo, sparkMat);
+  scene.add(sparkPoints);
 
   // Subtle floating sunlit dust motes in the double-height atrium
   const moteCount = 42;
@@ -595,6 +686,16 @@ export function mountLivingRoomHub(container, opts = {}) {
           if (obj.name === "ArcLampBulb") {
             arcLampMesh = obj;
           }
+          if (obj.name === "FireplaceEmbers") {
+            fireplaceEmberMesh = obj;
+            fireplaceMeshes.push(obj);
+          } else if (obj.name === "FireplaceLogs") {
+            fireplaceMeshes.push(obj);
+          } else if (/^Concierge(Pager|Screen)/i.test(obj.name)) {
+            conciergeMeshes.push(obj);
+          } else if (/^(HiFiTower|HiFiGlassDome|HiFiHaloRing|LoftAuraSpeaker)/i.test(obj.name)) {
+            hifiMeshes.push(obj);
+          }
           const isGlass = /Glass/i.test(obj.name) || /Glass/i.test(obj.material?.name || "");
           obj.castShadow = !isGlass;
           obj.receiveShadow = !isGlass;
@@ -633,6 +734,9 @@ export function mountLivingRoomHub(container, opts = {}) {
     floor_2f_greet: "BRUCE · 二楼私享阁楼",
     tv_art_swap: "BRUCE · 馆藏赏画",
     patron_card_depart: "BRUCE · 玄关出发",
+    concierge_call: "BRUCE · 管家专线",
+    hifi_toggle: "BRUCE · 声学琉璃",
+    fireplace_warm: "BRUCE · 炉火微醺",
     lamp_toggle: "BRUCE · 暖光氛围",
     click_poke: "BRUCE · 歪头看你",
     click_poke_sulk: "BRUCE · 别扭哼声",
@@ -1423,8 +1527,8 @@ export function mountLivingRoomHub(container, opts = {}) {
     }
 
     if (spot.id === "street") {
-      flyCamera(new THREE.Vector3(-8.5, 4.6, 5.8), new THREE.Vector3(-14.6, 3.6, 2.2), 520, () => {
-        opts.onTeleportStreet?.();
+      flyCamera(new THREE.Vector3(-8.8, 4.3, 4.8), new THREE.Vector3(-14.6, 3.6, 2.2), 880, () => {
+        later(() => opts.onTeleportStreet?.(), 850);
       });
       return;
     }
@@ -1440,20 +1544,38 @@ export function mountLivingRoomHub(container, opts = {}) {
   }
 
   function triggerPatronCardDeparture() {
-    if (destroyed || activeActId) return;
+    if (destroyed || activeActId || departSkipFn) return;
     if (activeFloor !== "1f") switchFloor("1f", { animate: false, greet: false });
     controls.enabled = false;
     setKeyholderOpen(false);
-    sayBruce("patron_card_depart", 2400);
+    sayBruce("patron_card_depart", 3600);
+    let done = false;
+    const finishDepart = () => {
+      if (done || destroyed) return;
+      done = true;
+      departSkipFn = null;
+      controls.enabled = true;
+      opts.onTeleportWarehouse?.();
+    };
+    // Stage 1: Panoramic Grand Foyer Alcove sweep (950ms + 450ms pause)
     flyCamera(
-      new THREE.Vector3(-11.85, 2.58, 6.72),
-      new THREE.Vector3(-13.92, 1.78, 6.40),
-      680,
+      new THREE.Vector3(-9.5, 3.25, 6.55),
+      new THREE.Vector3(-14.1, 2.55, 6.55),
+      950,
       () => {
         later(() => {
-          controls.enabled = true;
-          opts.onTeleportWarehouse?.();
-        }, 340);
+          if (done || destroyed) return;
+          // Stage 2: Macro push-in onto the tilted NO. 07 House Card in cognac leather tray (850ms + 1900ms dwell)
+          flyCamera(
+            new THREE.Vector3(-12.55, 2.36, 6.66),
+            new THREE.Vector3(-13.90, 1.83, 6.44),
+            850,
+            () => {
+              departSkipFn = finishDepart;
+              later(finishDepart, 1900);
+            },
+          );
+        }, 450);
       },
     );
   }
@@ -1553,6 +1675,10 @@ export function mountLivingRoomHub(container, opts = {}) {
     canvasDown = { x: e.clientX, y: e.clientY };
   };
   const onCanvasClick = (e) => {
+    if (departSkipFn) {
+      departSkipFn();
+      return;
+    }
     if (activeActId) return;
     const dist = canvasDown ? Math.hypot(e.clientX - canvasDown.x, e.clientY - canvasDown.y) : 0;
     canvasDown = null;
@@ -1591,8 +1717,15 @@ export function mountLivingRoomHub(container, opts = {}) {
       }
     }
 
-    // Tactile collector pieces: Gallery Art TV, Champagne Arched Lamp & Entry NO.07 Card
-    const interactiveMeshes = [tvScreenMesh, arcLampMesh, patronCardMesh].filter(Boolean);
+    // Tactile collector pieces: Gallery Art TV, Champagne Arched Lamp, Entry NO.07 Card, Concierge Pagers, Harman Speakers & Firebox
+    const interactiveMeshes = [
+      tvScreenMesh,
+      arcLampMesh,
+      patronCardMesh,
+      ...conciergeMeshes,
+      ...hifiMeshes,
+      ...fireplaceMeshes,
+    ].filter(Boolean);
     if (interactiveMeshes.length > 0) {
       const propHits = raycaster.intersectObjects(interactiveMeshes, false);
       if (propHits.length > 0) {
@@ -1603,6 +1736,21 @@ export function mountLivingRoomHub(container, opts = {}) {
         if (hitObj === patronCardMesh) {
           spawnFxParticles(e.clientX - stageRect.left, e.clientY - stageRect.top, "gold", 12);
           triggerPatronCardDeparture();
+          return;
+        }
+        if (conciergeMeshes.includes(hitObj)) {
+          spawnFxParticles(e.clientX - stageRect.left, e.clientY - stageRect.top, "gold", 14);
+          sayBruce("concierge_call", 4200, "BRUCE · 管家专线");
+          return;
+        }
+        if (hifiMeshes.includes(hitObj)) {
+          spawnFxParticles(e.clientX - stageRect.left, e.clientY - stageRect.top, "note", 14);
+          sayBruce("hifi_toggle", 4000, "BRUCE · 声学琉璃");
+          return;
+        }
+        if (fireplaceMeshes.includes(hitObj)) {
+          spawnFxParticles(e.clientX - stageRect.left, e.clientY - stageRect.top, "warm", 16);
+          sayBruce("fireplace_warm", 4000, "BRUCE · 炉火微醺");
           return;
         }
         if (hitObj === tvScreenMesh && tvScreenMat) {
@@ -1741,6 +1889,38 @@ export function mountLivingRoomHub(container, opts = {}) {
       rainGeo.attributes.position.needsUpdate = true;
     }
 
+    // Dynamic wood-burning fireplace flames, rising ember sparks, & hearth flicker
+    const flicker =
+      Math.sin(elapsed * 9.3) * 0.22 +
+      Math.sin(elapsed * 17.1 + 1.4) * 0.14 +
+      Math.cos(elapsed * 5.7) * 0.12;
+    fireplaceLight.intensity = 2.30 + flicker * 0.95;
+    if (fireplaceEmberMesh?.material) {
+      fireplaceEmberMesh.material.emissiveIntensity = 0.95 + flicker * 0.35;
+    }
+    for (let i = 0; i < flameRibbons.length; i++) {
+      const f = flameRibbons[i];
+      const w1 = Math.sin(elapsed * f.speed + f.phase);
+      const w2 = Math.cos(elapsed * (f.speed * 1.43) + f.phase * 0.7);
+      const hScale = f.baseScale * (0.94 + w1 * 0.20 + w2 * 0.10);
+      f.mesh.scale.set(f.baseScale * (0.90 + w2 * 0.12), hScale, 1.0);
+      f.mesh.position.y = 1.66 + 0.33 * hScale;
+      f.mesh.position.z = f.baseZ + w2 * 0.035;
+      f.mesh.position.x = f.baseX + w1 * 0.02;
+      f.mat.opacity = 0.74 + Math.max(0, w1) * 0.24;
+    }
+    const spArr = sparkGeo.attributes.position.array;
+    for (let i = 0; i < sparkCount; i++) {
+      const m = sparkMeta[i];
+      spArr[i * 3 + 1] += m.speed * dt;
+      spArr[i * 3] = m.baseX + Math.sin(elapsed * 4.2 + m.phase) * 0.04;
+      spArr[i * 3 + 2] = m.baseZ + Math.cos(elapsed * 3.1 + m.phase) * 0.06;
+      if (spArr[i * 3 + 1] > 2.44) {
+        spArr[i * 3 + 1] = 1.65 + (i % 3) * 0.04;
+      }
+    }
+    sparkGeo.attributes.position.needsUpdate = true;
+
     // 3D Tennis ball physics bounce on 1F rug (y=0.42)
     if (ballAnim && ballAnim.active) {
       ballAnim.vy -= 14.0 * dt;
@@ -1873,10 +2053,15 @@ export function mountLivingRoomHub(container, opts = {}) {
       sunnySkyTex.dispose();
       rainySkyTex.dispose();
       patronCardTex.dispose();
+      flameTex.dispose();
       tvArtTexs.forEach((t) => t.dispose());
       skyCycloramaMat?.dispose?.();
       tvScreenMat?.dispose?.();
       patronCardMat?.dispose?.();
+      flameGeo.dispose();
+      flameMats.forEach((m) => m.dispose());
+      sparkGeo.dispose();
+      sparkMat.dispose();
       envRT.dispose();
       moteGeo.dispose();
       moteMat.dispose();
