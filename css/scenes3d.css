@@ -184,3 +184,193 @@
   }
 }
 
+/* 白帆游艇码头 · 静奢海事控件 */
+.sc3d-yacht-wrap .hub3d-stage {
+  background: radial-gradient(circle at 55% 28%, #213d59 0%, #101d2c 100%);
+}
+
+.sc3d-yacht-wrap .vf-corner {
+  border-color: rgba(180, 154, 114, 0.45);
+}
+
+.sc3d-yacht-wrap .vf-stamp {
+  color: rgba(239, 224, 198, 0.88);
+  background: rgba(16, 26, 38, 0.64);
+  border: 1px solid rgba(180, 154, 114, 0.36);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.sc3d-yacht-cam-strip {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  max-width: calc(100vw - 190px);
+}
+
+.sc3d-yacht-pill {
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(180, 154, 114, 0.38);
+  background: rgba(16, 28, 42, 0.72);
+  color: #EFE0C6;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background 140ms ease, border-color 140ms ease, transform 120ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.sc3d-yacht-pill:hover {
+  border-color: rgba(213, 200, 175, 0.72);
+  background: rgba(20, 39, 59, 0.88);
+}
+
+.sc3d-yacht-pill.is-active {
+  background: rgba(180, 154, 114, 0.24);
+  border-color: rgba(239, 224, 198, 0.85);
+  color: #FFFDF8;
+}
+
+.sc3d-yacht-pill.is-skip {
+  background: rgba(101, 44, 57, 0.86);
+  border-color: rgba(239, 224, 198, 0.52);
+  color: #FFF6EE;
+}
+
+.sc3d-yacht-pill:active {
+  transform: scale(0.97);
+}
+
+.sc3d-yacht-drone-bar {
+  position: absolute;
+  left: 16px;
+  bottom: 68px;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 5px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(180, 154, 114, 0.34);
+  background: rgba(14, 24, 36, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.sc3d-yacht-crest {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: #B49A72;
+  flex-shrink: 0;
+}
+
+.sc3d-yacht-drone-status {
+  position: absolute;
+  top: 56px;
+  left: 16px;
+  z-index: 16;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(180, 154, 114, 0.42);
+  background: rgba(14, 24, 36, 0.82);
+  color: #EFE0C6;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: opacity 220ms ease;
+}
+
+.sc3d-yacht-drone-status.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sc3d-yacht-fade {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  background: #0e1a27;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 250ms ease;
+}
+
+.sc3d-yacht-fade.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sc3d-yacht-wrap.is-drone-playing .hub3d-pins,
+.sc3d-yacht-wrap.is-drone-playing .hub3d-tricks-bar,
+.sc3d-yacht-wrap.is-drone-playing .hub3d-reset-btn,
+.sc3d-yacht-wrap.is-drone-playing .sc3d-yacht-cam-strip {
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+/* In full app (#view-scene covers viewport under .hud-bar), push yacht top controls cleanly below .hud-bar */
+#view-scene .sc3d-yacht-cam-strip {
+  top: 108px;
+  left: 16px;
+}
+
+#view-scene .sc3d-yacht-wrap .vf-stamp {
+  top: 112px;
+  right: 16px;
+  left: auto;
+}
+
+#view-scene .sc3d-yacht-drone-status {
+  top: 150px;
+  left: 16px;
+}
+
+.sc3d-yacht-wrap .hub3d-speech {
+  z-index: 20;
+}
+
+@media (max-width: 860px) {
+  .sc3d-yacht-cam-strip {
+    max-width: calc(100vw - 148px);
+    gap: 4px;
+  }
+  #view-scene .sc3d-yacht-cam-strip {
+    top: 104px;
+    max-width: calc(100vw - 32px);
+  }
+  #view-scene .sc3d-yacht-wrap .vf-stamp {
+    display: none;
+  }
+  .sc3d-yacht-pill {
+    padding: 5px 8px;
+    font-size: 10.5px;
+  }
+  .sc3d-yacht-drone-bar {
+    left: 10px;
+    bottom: 64px;
+    max-width: calc(100vw - 20px);
+  }
+}
+

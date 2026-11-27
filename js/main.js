@@ -1,6 +1,15 @@
 import { store } from "./state.js";
 import { apiAskBruce, apiGetLeaderboard, apiRegister } from "./api.js";
-import { renderMapView, stopMapLoop, renderCafeView, stopCafeLoop, renderWarehouseView, stopWarehouseLoop } from "./map.js";
+import {
+  renderMapView,
+  stopMapLoop,
+  renderCafeView,
+  stopCafeLoop,
+  renderWarehouseView,
+  stopWarehouseLoop,
+  renderYachtView,
+  stopYachtLoop,
+} from "./map.js";
 import { renderSceneView, unmountSceneView } from "./activities.js";
 import { renderShopView } from "./shop.js";
 import { renderLeaderboardDrawer, renderTicker } from "./leaderboard.js";
@@ -29,16 +38,21 @@ function syncUiFromState(state) {
   if (state.view !== "map") stopMapLoop();
   if (state.view !== "street") stopCafeLoop();
   if (state.view !== "warehouse") stopWarehouseLoop();
+  if (state.view !== "yacht") stopYachtLoop();
   if (state.view !== "home") unmountSceneView();
 
   viewMap.classList.toggle("hidden", state.view !== "map");
-  viewScene.classList.toggle("hidden", state.view !== "home" && state.view !== "street" && state.view !== "warehouse");
+  viewScene.classList.toggle(
+    "hidden",
+    state.view !== "home" && state.view !== "street" && state.view !== "warehouse" && state.view !== "yacht",
+  );
   viewShop.classList.toggle("hidden", state.view !== "shop");
   document.getElementById("btn-nav-map")?.classList.toggle("is-active", state.view === "map");
 
   if (state.view === "map") renderMapView(viewMap);
   else if (state.view === "street") renderCafeView(viewScene);
   else if (state.view === "warehouse") renderWarehouseView(viewScene);
+  else if (state.view === "yacht") renderYachtView(viewScene);
   else if (state.view === "home") renderSceneView(viewScene, "home");
   else if (state.view === "shop") renderShopView(viewShop);
 }
@@ -413,12 +427,16 @@ async function boot() {
     document.getElementById("btn-nav-shop")?.classList.toggle("is-active", state.view === "shop");
     document.getElementById("btn-nav-map")?.classList.toggle(
       "is-active",
-      state.view === "map" || state.view === "street" || state.view === "warehouse",
+      state.view === "map" || state.view === "street" || state.view === "warehouse" || state.view === "yacht",
     );
     renderTicker(state.ticker);
     renderLeaderboardDrawer();
 
-    if (viewChanged || playerChanged || (scoreChanged && (state.view === "shop" || state.view === "map" || state.view === "street" || state.view === "warehouse"))) {
+    if (
+      viewChanged ||
+      playerChanged ||
+      (scoreChanged && (state.view === "shop" || state.view === "map" || state.view === "street" || state.view === "warehouse" || state.view === "yacht"))
+    ) {
       lastView = state.view;
       lastAct = state.activeActivityId;
       lastNick = state.player?.nickname || "";

@@ -3,6 +3,7 @@ import { apiTriggerSwap, apiUpdateScore } from "./api.js";
 import { mountLivingRoomHub } from "./hub3d/roomHub.js";
 import { mountCoastalCafeHub } from "./scenes3d/cafeHub.js";
 import { mountWarehouseHub } from "./scenes3d/warehouseHub.js";
+import { mountYachtHub, preloadYachtAssets } from "./scenes3d/yachtHub.js";
 
 const PREVIEW_TITLES = {
   park: "树影公园",
@@ -26,6 +27,10 @@ let activeCafe = null;
 let activeCafeContainer = null;
 let activeWarehouse = null;
 let activeWarehouseContainer = null;
+let activeYacht = null;
+let activeYachtContainer = null;
+let savedPenthouseAnchor = null;
+let yachtAutoIntroPending = true;
 let closeModalFn = null;
 let cachedHubCopy = null;
 let hubCopyPromise = null;
@@ -164,17 +169,22 @@ export function openGlobalTeleportModal() {
       <ul id="tp-dest-perks"></ul>
     </div>
     <div class="modal-footer-row">
-      <span class="soft-hint">二期接入对应 3D 景区模型后即可直接传送出发</span>
-      <button class="btn-pill btn-primary" id="btn-close-preview" type="button">返回 3D 客厅</button>
+      <span class="soft-hint">可从二楼相框查看远途航线，或直达私人柚木泊位</span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-pill hidden" id="btn-launch-yacht-modal" type="button">启程前往白帆泊位 →</button>
+        <button class="btn-pill btn-primary" id="btn-close-preview" type="button">返回 3D 客厅</button>
+      </div>
     </div>
   `;
 
+  const launchYachtBtn = card.querySelector("#btn-launch-yacht-modal");
   const renderDest = (destId) => {
     activeId = destId;
     const item = (content?.remote_previews || []).find((p) => p.id === destId);
     card.querySelectorAll(".tp-tab").forEach((t) => {
       t.classList.toggle("is-active", t.getAttribute("data-dest") === activeId);
     });
+    launchYachtBtn?.classList.toggle("hidden", destId !== "yacht");
     card.querySelector("#tp-dest-title").textContent = PREVIEW_TITLES[destId] || destId;
     card.querySelector("#tp-dest-teaser").textContent = item?.teaser || "";
     const wishEl = card.querySelector("#tp-dest-wish");
@@ -191,6 +201,16 @@ export function openGlobalTeleportModal() {
       ul.append(li);
     }
   };
+
+  launchYachtBtn?.addEventListener("click", () => {
+    closeModalFn?.();
+    if (activeHub?.departToYacht) {
+      activeHub.departToYacht();
+    } else {
+      yachtAutoIntroPending = true;
+      preloadYachtAssets().then(() => store.setView("yacht")).catch(() => {});
+    }
+  });
 
   card.querySelectorAll(".tp-tab").forEach((t) => {
     t.addEventListener("click", () => renderDest(t.getAttribute("data-dest")));
@@ -229,6 +249,15 @@ export function stopWarehouseLoop() {
     activeWarehouse = null;
   }
   activeWarehouseContainer = null;
+}
+
+export function stopYachtLoop() {
+  closeModalFn?.();
+  if (activeYacht) {
+    activeYacht.destroy();
+    activeYacht = null;
+  }
+  activeYachtContainer = null;
 }
 
 async function settleScoreAndSwap(result, fallbackReason) {
@@ -291,17 +320,29 @@ export function renderMapView(container) {
   stopMapLoop();
   activeContainer = container;
 
+  const restoreAnchor = savedPenthouseAnchor;
+  savedPenthouseAnchor = null;
+
   activeHub = mountLivingRoomHub(container, {
     sulking,
     happiness: player?.happiness ?? 100,
     player,
     content: store.state.content || {},
+    restoreAnchor,
     getHappiness: () => store.state.player?.happiness ?? 100,
     onSettle: (result) => settleScoreAndSwap(result, "客厅陪玩"),
     onSincerityDelta: (delta) => applyAiSincerityDelta(delta),
     onOpenShop: () => store.setView("shop"),
     onTeleportStreet: () => store.setView("street"),
     onTeleportWarehouse: () => store.setView("warehouse"),
+    onSavePenthouseAnchor: (anchor) => {
+      savedPenthouseAnchor = anchor;
+    },
+    onPreloadYacht: (o) => preloadYachtAssets(o),
+    onTeleportYacht: () => {
+      yachtAutoIntroPending = true;
+      store.setView("yacht");
+    },
     onTeleportGlobal: () => openGlobalTeleportModal(),
   });
 }
@@ -359,5 +400,37 @@ export function renderWarehouseView(container) {
     onOpenShop: () => store.setView("shop"),
     onBackToHub: () => store.setView("map"),
     onTeleportStreet: () => store.setView("street"),
+  });
+}
+
+export function renderYachtView(container) {
+  if (!container) return;
+  const sulking = store.isSulking();
+  const player = store.state.player;
+
+  if (activeYacht && activeYachtContainer === container && container.querySelector(".hub3d-stage")) {
+    activeYacht.setContext({ happiness: player?.happiness ?? 100, content: store.state.content });
+    activeYacht.setSulking(sulking);
+    return;
+  }
+
+  stopYachtLoop();
+  activeYachtContainer = container;
+  const autoStartIntro = yachtAutoIntroPending;
+  yachtAutoIntroPending = false;
+
+  activeYacht = mountYachtHub(container, {
+    sulking,
+    happiness: player?.happiness ?? 100,
+    player,
+    content: store.state.content || {},
+    autoStartIntro,
+    getHappiness: () => store.state.player?.happiness ?? 100,
+    onSettle: (result) => settleScoreAndSwap(result, "白帆游艇泊位时光"),
+    onSincerityDelta: (delta) => applyAiSincerityDelta(delta),
+    onOpenShop: () => store.setView("shop"),
+    onBackToHub: () => store.setView("map"),
+    onTeleportStreet: () => store.setView("street"),
+    onTeleportWarehouse: () => store.setView("warehouse"),
   });
 }

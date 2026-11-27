@@ -438,7 +438,9 @@ export function mountLivingRoomHub(container, opts = {}) {
   const swapNumEl = container.querySelector(".hub3d-swap-num");
   const swapMsgEl = container.querySelector(".hub3d-swap-msg");
 
-  let activeFloor = "1f";
+  let activeFloor = opts.restoreAnchor?.floor && FLOOR_PRESETS[opts.restoreAnchor.floor]
+    ? opts.restoreAnchor.floor
+    : "1f";
   const getFloorOverview = (fl = activeFloor) => {
     const preset = FLOOR_PRESETS[fl] || FLOOR_PRESETS["1f"];
     return {
@@ -514,12 +516,14 @@ export function mountLivingRoomHub(container, opts = {}) {
   const fireplaceMeshes = [];
   let departSkipFn = null;
 
-  const initOv = getFloorOverview("1f");
+  const initOv = getFloorOverview(activeFloor);
   const camera = new THREE.PerspectiveCamera(48, 16 / 10, 0.2, 180);
-  camera.position.copy(initOv.cam);
+  if (Array.isArray(opts.restoreAnchor?.camPos)) camera.position.fromArray(opts.restoreAnchor.camPos);
+  else camera.position.copy(initOv.cam);
 
   const controls = new OrbitControls(camera, canvas);
-  controls.target.copy(initOv.target);
+  if (Array.isArray(opts.restoreAnchor?.target)) controls.target.fromArray(opts.restoreAnchor.target);
+  else controls.target.copy(initOv.target);
   controls.enableDamping = true;
   controls.dampingFactor = 0.07;
   controls.enablePan = false;
@@ -691,10 +695,13 @@ export function mountLivingRoomHub(container, opts = {}) {
   }
   scene.add(swapRingsGroup);
 
-  // Living 86-bone Bruce positioned cleanly on 1F sunlit rug
+  // Living 86-bone Bruce positioned cleanly on 1F sunlit rug (or restored anchor)
   const bruce = createLivingBruce({ modelUrl: "./assets/models/bruce_rigged.glb", height: 2.55 });
-  bruce.root.position.set(...initOv.preset.brucePos);
-  bruce.root.rotation.y = initOv.preset.bruceRot;
+  if (Array.isArray(opts.restoreAnchor?.brucePos)) bruce.root.position.fromArray(opts.restoreAnchor.brucePos);
+  else bruce.root.position.set(...initOv.preset.brucePos);
+  bruce.root.rotation.y = Number.isFinite(opts.restoreAnchor?.bruceRot)
+    ? opts.restoreAnchor.bruceRot
+    : initOv.preset.bruceRot;
   bruce.setMood(sulking ? "sulk" : "happy");
   scene.add(bruce.root);
 
@@ -942,6 +949,40 @@ export function mountLivingRoomHub(container, opts = {}) {
     opts.onOpenShop?.();
   });
 
+  let yachtDepartBusy = false;
+  async function departToYachtMarina(preloadOpts = {}) {
+    if (destroyed || activeActId || yachtDepartBusy) return false;
+    yachtDepartBusy = true;
+    const marinaBtn = conciergePopoverEl?.querySelector('[data-concierge="chauffeur-marina"]');
+    const marinaTag = marinaBtn?.querySelector(".concierge-act-tag");
+    if (marinaTag) marinaTag.textContent = "PRELOADING…";
+    sfx.playChauffeurReady();
+    sayBruce("B1 司机正在备车，已接通白帆泊位长，正在预载柚木浮桥与单桅帆船……", 8000, "CHAUFFEUR · B1 备车预载");
+    try {
+      await (opts.onPreloadYacht ? opts.onPreloadYacht(preloadOpts) : Promise.resolve());
+      if (destroyed) return false;
+      opts.onSavePenthouseAnchor?.({
+        floor: activeFloor,
+        camPos: camera.position.toArray(),
+        target: controls.target.toArray(),
+        brucePos: bruce.root.position.toArray(),
+        bruceRot: bruce.root.rotation.y,
+      });
+      setConciergeOpen(false);
+      yachtDepartBusy = false;
+      if (marinaTag) marinaTag.textContent = "FLY·04";
+      opts.onTeleportYacht?.();
+      return true;
+    } catch (err) {
+      yachtDepartBusy = false;
+      if (marinaTag) marinaTag.textContent = "FLY·04";
+      controls.enabled = true;
+      sfx.playFail();
+      sayBruce("泊位预载暂未接通，请稍后再试，客厅一切已为你保留。", 4200, "CHAUFFEUR · 预载中断");
+      return false;
+    }
+  }
+
   conciergePopoverEl?.querySelectorAll("[data-concierge]").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -986,10 +1027,7 @@ export function mountLivingRoomHub(container, opts = {}) {
         sayBruce("chauffeur_market_lines", 3600, "CHAUFFEUR · 持 07 号卡出发");
         later(() => triggerPatronCardDeparture(), 380);
       } else if (action === "chauffeur-marina") {
-        setConciergeOpen(false);
-        sfx.playConciergeBell();
-        sayBruce("chauffeur_marina_lines", 3800, "MARINA · 私人泊位专线");
-        later(() => opts.onTeleportGlobal?.(), 320);
+        departToYachtMarina();
       }
     });
   });
@@ -2274,6 +2312,7 @@ export function mountLivingRoomHub(container, opts = {}) {
   rafId = requestAnimationFrame(tick);
 
   return {
+    departToYacht: (o) => departToYachtMarina(o),
     setSulking(nextSulk) {
       applyAtmosphere(nextSulk, false);
     },

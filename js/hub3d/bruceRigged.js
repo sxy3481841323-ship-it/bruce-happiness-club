@@ -186,7 +186,9 @@ function sampleHullVertexIndices(geometry) {
 export function createRiggedBruce({
   modelUrl = "./assets/models/bruce_rigged.glb",
   height = 2.55,
+  scarf = false,
 } = {}) {
+  const scaleRatio = height / 2.55;
   const root = new THREE.Group();
   root.name = "RiggedBruce";
 
@@ -202,7 +204,7 @@ export function createRiggedBruce({
     depthWrite: false,
   });
   const contactShadow = new THREE.Mesh(shadowGeo, shadowMat);
-  contactShadow.position.y = 0.015;
+  contactShadow.position.y = Math.max(0.003, 0.015 * scaleRatio);
   root.add(contactShadow);
 
   const disposables = [shadowTex, shadowGeo, shadowMat];
@@ -210,6 +212,8 @@ export function createRiggedBruce({
 
   let destroyed = false;
   let mood = "happy";
+  let restingPose = null;
+  let windAmount = 0.0;
   let gazeYaw = 0;
   let gazePitch = 0;
   let pettingBoost = 0;
@@ -226,6 +230,8 @@ export function createRiggedBruce({
   let missingCoreBones = [];
   let matchedBoneCount = 0;
   let lastDiag = null;
+  let scarfPivot1 = null;
+  let scarfPivot2 = null;
 
   const state = { ...MOOD_PRESETS.happy };
   const rigBones = new Map();
@@ -320,6 +326,44 @@ export function createRiggedBruce({
         console.error("RiggedBruce missing core bones:", missingCoreBones);
       }
 
+      if (scarf) {
+        const scarfMat = new THREE.MeshStandardMaterial({
+          color: 0x652c39,
+          roughness: 0.42,
+          metalness: 0.04,
+          side: THREE.DoubleSide,
+        });
+        const neckRec = rigBones.get("tripo_Head_0") || rigBones.get("tripo_0_Right_Limb_3");
+        if (neckRec?.bone) {
+          const collarGeo = new THREE.TorusGeometry(0.115, 0.022, 10, 24);
+          collarGeo.rotateX(Math.PI * 0.44);
+          const collar = new THREE.Mesh(collarGeo, scarfMat);
+          collar.position.set(0.0, -0.015, 0.012);
+          collar.castShadow = true;
+          neckRec.bone.add(collar);
+
+          scarfPivot1 = new THREE.Group();
+          scarfPivot1.position.set(0.0, -0.028, -0.095);
+          const seg1Geo = new THREE.BoxGeometry(0.068, 0.01, 0.11);
+          seg1Geo.translate(0, 0, -0.055);
+          const seg1 = new THREE.Mesh(seg1Geo, scarfMat);
+          seg1.castShadow = true;
+          scarfPivot1.add(seg1);
+
+          scarfPivot2 = new THREE.Group();
+          scarfPivot2.position.set(0, 0, -0.105);
+          const seg2Geo = new THREE.BoxGeometry(0.052, 0.008, 0.095);
+          seg2Geo.translate(0, 0, -0.047);
+          const seg2 = new THREE.Mesh(seg2Geo, scarfMat);
+          seg2.castShadow = true;
+          scarfPivot2.add(seg2);
+
+          scarfPivot1.add(scarfPivot2);
+          neckRec.bone.add(scarfPivot1);
+          disposables.push(scarfMat, collarGeo, seg1Geo, seg2Geo);
+        }
+      }
+
       return true;
     } catch (err) {
       if (!destroyed && err?.name !== "AbortError") {
@@ -331,6 +375,14 @@ export function createRiggedBruce({
 
   function setMood(nextMood) {
     if (MOOD_PRESETS[nextMood]) mood = nextMood;
+  }
+
+  function setResting(poseName) {
+    restingPose = poseName || null;
+  }
+
+  function setWind(amount) {
+    windAmount = THREE.MathUtils.clamp(Number(amount) || 0, 0, 1.5);
   }
 
   function lookAtNormalized(nx, ny) {
@@ -387,11 +439,12 @@ export function createRiggedBruce({
     state.breath = damp(state.breath, preset.breath, 5.0, dt);
 
     // Locomotion toward walkGoal
+    const arriveDist = Math.max(0.015, 0.07 * scaleRatio);
     if (walkGoal) {
       const dx = walkGoal.x - root.position.x;
       const dz = walkGoal.z - root.position.z;
       const dist = Math.hypot(dx, dz);
-      if (dist <= 0.07) {
+      if (dist <= arriveDist) {
         const doneCb = walkGoal.onArrive;
         walkGoal = null;
         doneCb?.();
@@ -399,11 +452,11 @@ export function createRiggedBruce({
         walkBlend = damp(walkBlend, 1.0, 11.0, dt);
         const desiredYaw = Math.atan2(dx, dz);
         root.rotation.y = dampAngle(root.rotation.y, desiredYaw, 8.5, dt);
-        const speed = 2.55 * (walkGoal.speedScale || 1.0);
+        const speed = 2.55 * scaleRatio * (walkGoal.speedScale || 1.0);
         const step = Math.min(dist, speed * dt);
         root.position.x += (dx / dist) * step;
         root.position.z += (dz / dist) * step;
-        walkPhase += step * 5.8;
+        walkPhase += (step / Math.max(0.12, scaleRatio)) * 5.8;
 
         const stepIdx = Math.floor(walkPhase / Math.PI);
         if (stepIdx !== prevStepIndex) {
@@ -626,11 +679,66 @@ export function createRiggedBruce({
       }
     }
 
-    // 4. Apply Neck/Head, Symmetrical Floppy/Airplane Ears & 7-Segment Tail
+    // 3b. Sustained low-amplitude resting postures (e.g., yacht cushion & saloon banquette nap)
+    if (!activeAction && !walkGoal && restingPose === "chest_down") {
+      addBoneRot(FL_LEG[0], -0.46, 0, 0.14);
+      addBoneRot(FL_LEG[1], 0.92, 0, 0);
+      addBoneRot(FR_LEG[0], -0.46, 0, -0.14);
+      addBoneRot(FR_LEG[1], 0.92, 0, 0);
+      addBoneRot(RL_LEG[0], -0.38, 0, 0.12);
+      addBoneRot(RL_LEG[1], 0.82, 0, 0);
+      addBoneRot(RR_LEG[0], -0.38, 0, -0.12);
+      addBoneRot(RR_LEG[1], 0.82, 0, 0);
+      headRx = 0.08 + breathWave * 0.018;
+      tailAmp = 0.08;
+      tailFreq = 2.4;
+      contactShadow.scale.set(1.12, 1.18, 1.0);
+    } else if (!activeAction && !walkGoal && restingPose === "curl_nap") {
+      addBoneRot(FL_LEG[0], -0.52, 0, 0.16);
+      addBoneRot(FL_LEG[1], 0.98, 0, 0);
+      addBoneRot(FR_LEG[0], -0.52, 0, -0.16);
+      addBoneRot(FR_LEG[1], 0.98, 0, 0);
+      addBoneRot(RL_LEG[0], -0.42, 0, 0.14);
+      addBoneRot(RL_LEG[1], 0.88, 0, 0);
+      addBoneRot(RR_LEG[0], -0.42, 0, -0.14);
+      addBoneRot(RR_LEG[1], 0.88, 0, 0);
+      SPINE_BONES.forEach((bn, idx) => addBoneRot(bn, 0.02, 0.065 * (idx + 1), 0));
+      headRx = 0.24 + breathWave * 0.015;
+      headRy = 0.26;
+      tailAmp = 0.05;
+      tailFreq = 1.6;
+      contactShadow.scale.set(1.16, 1.12, 1.0);
+    }
+
+    // 4. Apply Neck/Head, Symmetrical Floppy/Airplane Ears, Breeze & 7-Segment Tail
     NECK_HEAD_BONES.forEach((bn, i) => {
       const share = neckShare[i];
       addBoneRot(bn, headRx * share, headRy * share, headRz * share);
     });
+
+    if (windAmount > 0.01) {
+      const wWave = Math.sin(elapsed * 3.1) * windAmount;
+      LEFT_EAR_BONES.forEach((bn, idx) => {
+        if (idx >= 2) addBoneRot(bn, 0.02 * wWave, 0.025 * windAmount, (0.045 + idx * 0.015) * wWave);
+      });
+      RIGHT_EAR_BONES.forEach((bn, idx) => {
+        if (idx >= 2) addBoneRot(bn, -0.02 * wWave, -0.025 * windAmount, (-0.045 - idx * 0.015) * wWave);
+      });
+      addBoneScale(SPINE_BONES[2], 1 + 0.012 * wWave, 1, 1 + 0.01 * wWave);
+    }
+    if (scarfPivot1 && scarfPivot2) {
+      const wBase = 0.12 + windAmount * 0.22;
+      scarfPivot1.rotation.set(
+        -0.18 + Math.sin(elapsed * 2.8) * 0.06 * wBase,
+        Math.sin(elapsed * 2.3) * 0.18 * wBase,
+        Math.cos(elapsed * 2.6) * 0.08 * wBase,
+      );
+      scarfPivot2.rotation.set(
+        Math.sin(elapsed * 3.4 - 0.7) * 0.11 * wBase,
+        Math.sin(elapsed * 3.1 - 0.9) * 0.24 * wBase,
+        Math.cos(elapsed * 3.2) * 0.09 * wBase,
+      );
+    }
 
     if (earFold > 0.01) {
       LEFT_EAR_BONES.forEach((bn, idx) => {
@@ -717,6 +825,8 @@ export function createRiggedBruce({
     hitTarget: motion,
     ready,
     setMood,
+    setResting,
+    setWind,
     lookAtNormalized,
     setPetting,
     triggerHappyHop,

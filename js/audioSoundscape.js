@@ -280,6 +280,47 @@ export function createSoundscapeController(ensureCtxFn, isMutedFn) {
     sceneTimers.push(setTimeout(overtone, 3000));
   }
 
+  function _startYacht() {
+    const c = _ensureCtx();
+    if (!c) return;
+    const buf = _ensureNoiseBuffers(c);
+    const gain = c.createGain();
+    gain.gain.value = 0.0001;
+    gain.connect(master);
+    const lap = c.createBufferSource();
+    lap.buffer = buf.brown;
+    lap.loop = true;
+    const lp = c.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.value = 210;
+    lp.Q.value = 0.8;
+    const lg = c.createGain();
+    lg.gain.value = 0.085;
+    lap.connect(lp).connect(lg).connect(gain);
+    lap.start();
+    const breeze = c.createBufferSource();
+    breeze.buffer = buf.pink;
+    breeze.loop = true;
+    const bp = c.createBiquadFilter();
+    bp.type = "bandpass";
+    bp.frequency.value = 680;
+    bp.Q.value = 0.55;
+    const bg = c.createGain();
+    bg.gain.value = 0.018;
+    breeze.connect(bp).connect(bg).connect(gain);
+    breeze.start();
+    sceneNodes = { gain, sources: [lap, breeze] };
+    _ramp(gain.gain, 0.13, 0.9);
+    const hullCreak = () => {
+      if (desiredScene !== "yacht" || isMutedFn()) return;
+      const t = now();
+      safe(() => lp.frequency.setTargetAtTime(165 + Math.random() * 140, t, 1.2));
+      if (Math.random() < 0.45) playTone(520 + Math.random() * 110, 0.55, 0.006, "sine");
+      sceneTimers.push(setTimeout(hullCreak, 3600 + Math.random() * 2400));
+    };
+    sceneTimers.push(setTimeout(hullCreak, 2500));
+  }
+
   function _startHifi() {
     const c = _ensureCtx();
     if (!c || desiredScene !== "penthouse" || isMutedFn()) return;
@@ -349,6 +390,8 @@ export function createSoundscapeController(ensureCtxFn, isMutedFn) {
       _startCafe();
     } else if (desiredScene === "warehouse") {
       _startWarehouse();
+    } else if (desiredScene === "yacht") {
+      _startYacht();
     }
   }
 

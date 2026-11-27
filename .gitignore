@@ -6,3 +6,4 @@ __pycache__/
 node_modules/
 test-results/
 assets/clips_raw/
+scripts/yacht_kit/.tex_cache/
