@@ -294,7 +294,7 @@ function setupPrologueStage() {
   });
 
   skipBtn?.addEventListener("click", () => {
-    if (currentMode === "welcome") {
+    if (currentMode === "welcome" || store.state.player) {
       openDoorAndEnter(true);
     } else {
       scene3d?.skipToFoyer();
@@ -408,13 +408,17 @@ async function boot() {
       document.getElementById("hud-rank").textContent = myRow ? `第 ${myRow.rank} 名` : "未上榜";
     }
 
-    document.getElementById("anhedonia-banner").classList.toggle("hidden", !sulking);
+    document.getElementById("anhedonia-banner").classList.toggle("hidden", !sulking || state.view === "shop");
     document.getElementById("btn-nav-shop").classList.toggle("hidden", !sulking);
-    document.getElementById("btn-nav-map")?.classList.toggle("is-active", state.view === "map" || state.view === "street");
+    document.getElementById("btn-nav-shop")?.classList.toggle("is-active", state.view === "shop");
+    document.getElementById("btn-nav-map")?.classList.toggle(
+      "is-active",
+      state.view === "map" || state.view === "street" || state.view === "warehouse",
+    );
     renderTicker(state.ticker);
     renderLeaderboardDrawer();
 
-    if (viewChanged || playerChanged || (scoreChanged && (state.view === "shop" || state.view === "map" || state.view === "street"))) {
+    if (viewChanged || playerChanged || (scoreChanged && (state.view === "shop" || state.view === "map" || state.view === "street" || state.view === "warehouse"))) {
       lastView = state.view;
       lastAct = state.activeActivityId;
       lastNick = state.player?.nickname || "";

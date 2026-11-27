@@ -142,6 +142,36 @@ const DEFAULT_HUB_COPY = {
       "布鲁斯蜷在罗马洞石壁炉边，歪头看跃动的橡木火光。",
       "壁炉里的实木新炭正旺，琥珀暖意漫过整面石沿。"
     ],
+    butler_water_lines: [
+      "管家旋开冰镇燧石玻璃瓶盖，水珠沿瓶身滑落，在洞石桌面上洇开一小片深色。",
+      "水晶杯壁凝着细密水雾，布鲁斯踱过来，酒红围巾角轻轻扫过胡桃木桌沿。",
+      "他把杯子往桌心推了推，布鲁斯低头嗅了嗅杯口，围巾穗子垂在洞石上。",
+      "冰水注入杯中发出细响，布鲁斯歪头看着气泡上升，酒红围巾映着窗光。"
+    ],
+    butler_pantry_lines: [
+      "管家拉开冷藏抽屉，冷气漫过指尖，布鲁斯在脚边仰头等着那几片切好的肉。",
+      "瓷碟里码着薄切冷肉，布鲁斯鼻尖凑近碟沿，围巾一角搭在胡桃木柜门上。"
+    ],
+    chauffeur_cafe_lines: [
+      "B1 门廊传来短促信号，车已泊在楼下，海岸烘焙室的香气正温着等候。",
+      "司机发来消息：车头朝外，暖风已开，准备出发前往海岸烘焙室。"
+    ],
+    chauffeur_market_lines: [
+      "B1 门廊里司机靠着车门，手边备好冷柜冰袋，只等拿上 07 号宅卡出发 ELOWEN。",
+      "地下门廊回声很轻，07 号宅卡从玄关托盘拾起，司机已准备驶向 ELOWEN 市集。"
+    ],
+    chauffeur_marina_lines: [
+      "司机接通白帆游艇码头泊位长，柚木栈桥晒得暖烘烘，海风正好。",
+      "泊位长传来消息：海风清透，私家浮桥与单桅帆船正待靠岸登船。"
+    ],
+    hifi_on_lines: [
+      "烟色玻璃穹顶亮起暖光，电钢琴的爵士音符不紧不慢地铺满客厅。",
+      "哈曼烟色玻璃罩微微发热，琴键声像午后光线一样缓缓漫过胡桃木地板。"
+    ],
+    hifi_off_lines: [
+      "声场缓缓收拢，最后一个琴音沉入午后，客厅只剩窗外的海风。",
+      "烟色玻璃穹顶暗下去，电钢琴余韵散尽，布鲁斯在洞石地面上趴平身子。"
+    ],
     lamp_toggle: [
       "香槟金钓鱼灯一亮，整个大理石客厅瞬间温柔起来啦。",
       "啪嗒切换客厅光影模式！你喜欢亮堂日光还是暖灯氛围？",
@@ -264,13 +294,62 @@ export function mountLivingRoomHub(container, opts = {}) {
           <button type="button" class="keyholder-btn" aria-expanded="false">
             <span class="keyholder-fob" aria-hidden="true">🔑</span>
             <span>出门钥匙夹</span>
-            <span class="keyholder-count">3</span>
+            <span class="keyholder-count">4</span>
           </button>
           <div class="keyholder-tray" role="menu" aria-label="出门传送目的地">
             <div class="keyholder-tray-head">
               <span>OUTING KEY HOLDER</span>
-              <span>点击传送</span>
+              <span>内线 / 出门</span>
             </div>
+          </div>
+        </div>
+        <div class="hub3d-concierge-popover" id="hub3d-concierge-popover" role="dialog" aria-label="管家与专车内线" aria-hidden="true">
+          <div class="concierge-head">
+            <div>
+              <div class="concierge-kicker" id="concierge-floor-label">HOUSE CONCIERGE · 1F SALON</div>
+              <div class="concierge-title">宅邸管家与 B1 车队内线</div>
+            </div>
+            <button type="button" class="concierge-close" id="btn-concierge-close" aria-label="关闭内线面板">×</button>
+          </div>
+          <div class="concierge-grid">
+            <button type="button" class="concierge-action-btn" data-concierge="water">
+              <span class="concierge-act-main">
+                <span class="concierge-act-name">管家侍水 · 现开冰镇依云</span>
+                <span class="concierge-act-sub">燧石玻璃瓶注入水晶杯 · 唤布鲁斯凑近桌旁</span>
+              </span>
+              <span class="concierge-act-tag">SERVICE</span>
+            </button>
+            <button type="button" class="concierge-action-btn" data-concierge="hifi" id="btn-concierge-hifi">
+              <span class="concierge-act-main">
+                <span class="concierge-act-name">哈曼声场 · 午后爵士四和弦</span>
+                <span class="concierge-act-sub">烟色琉璃音室暖晕 · 控制客厅与阁楼漫反射乐声</span>
+              </span>
+              <span class="concierge-act-tag" id="concierge-hifi-tag">STANDBY</span>
+            </button>
+            <button type="button" class="concierge-action-btn" data-concierge="chauffeur-cafe">
+              <span class="concierge-act-main">
+                <span class="concierge-act-name">B1 专车 · 海岸烘焙室</span>
+                <span class="concierge-act-sub">司机已就位 · 前往山羊奶微泡吧台</span>
+              </span>
+              <span class="concierge-act-tag">OUT·01</span>
+            </button>
+            <button type="button" class="concierge-action-btn" data-concierge="chauffeur-market">
+              <span class="concierge-act-main">
+                <span class="concierge-act-name">B1 专车 · 携 07 号卡赴 ELOWEN</span>
+                <span class="concierge-act-sub">先入玄关拾起宅卡 · 直达有机买手食集</span>
+              </span>
+              <span class="concierge-act-tag">ELW·02</span>
+            </button>
+            <button type="button" class="concierge-action-btn" data-concierge="chauffeur-marina">
+              <span class="concierge-act-main">
+                <span class="concierge-act-name">私人泊位 · 游艇与远航专线</span>
+                <span class="concierge-act-sub">联络泊位长 · 查看白帆码头与远途航线</span>
+              </span>
+              <span class="concierge-act-tag">FLY·04</span>
+            </button>
+            <button type="button" class="concierge-pantry-cta hidden" id="btn-concierge-pantry">
+              布鲁斯低于 80 分 · 前往私厨鲜食冷柜挑一份手感鲜食 →
+            </button>
           </div>
         </div>
         <div class="hub3d-speech" aria-live="polite">
@@ -322,7 +401,7 @@ export function mountLivingRoomHub(container, opts = {}) {
           <span>正在走进布鲁斯的阳光客厅……</span>
         </div>
       </div>
-      <p class="hub3d-hint">轻点地面带走布鲁斯 · 右侧可切换 1F/2F · 点击画框电视或钓鱼灯可换画/开灯</p>
+      <p class="hub3d-hint">轻点地面唤布鲁斯 · 点桌面对讲机呼管家与专车 · 点壁炉/哈曼音响/画框皆可互动</p>
     </div>
   `;
 
@@ -336,6 +415,12 @@ export function mountLivingRoomHub(container, opts = {}) {
   const keyholderEl = container.querySelector(".hub3d-keyholder");
   const keyholderBtn = container.querySelector(".keyholder-btn");
   const keyholderTray = container.querySelector(".keyholder-tray");
+  const conciergePopoverEl = container.querySelector("#hub3d-concierge-popover");
+  const conciergeFloorLabelEl = container.querySelector("#concierge-floor-label");
+  const conciergeCloseBtn = container.querySelector("#btn-concierge-close");
+  const conciergeHifiBtn = container.querySelector("#btn-concierge-hifi");
+  const conciergeHifiTag = container.querySelector("#concierge-hifi-tag");
+  const conciergePantryBtn = container.querySelector("#btn-concierge-pantry");
   const speechEl = container.querySelector(".hub3d-speech");
   const speechCueEl = speechEl?.querySelector(".speech-cue");
   const speechLineEl = speechEl?.querySelector(".speech-line");
@@ -425,6 +510,7 @@ export function mountLivingRoomHub(container, opts = {}) {
   let fireplaceEmberMesh = null;
   const conciergeMeshes = [];
   const hifiMeshes = [];
+  const hifiHaloMats = [];
   const fireplaceMeshes = [];
   let departSkipFn = null;
 
@@ -695,6 +781,10 @@ export function mountLivingRoomHub(container, opts = {}) {
             conciergeMeshes.push(obj);
           } else if (/^(HiFiTower|HiFiGlassDome|HiFiHaloRing|LoftAuraSpeaker)/i.test(obj.name)) {
             hifiMeshes.push(obj);
+            if (/HaloRing/i.test(obj.name) && obj.material?.clone) {
+              obj.material = obj.material.clone();
+              hifiHaloMats.push(obj.material);
+            }
           }
           const isGlass = /Glass/i.test(obj.name) || /Glass/i.test(obj.material?.name || "");
           obj.castShadow = !isGlass;
@@ -735,7 +825,14 @@ export function mountLivingRoomHub(container, opts = {}) {
     tv_art_swap: "BRUCE · 馆藏赏画",
     patron_card_depart: "BRUCE · 玄关出发",
     concierge_call: "BRUCE · 管家专线",
+    butler_water_lines: "CONCIERGE · 管家侍水",
+    butler_pantry_lines: "CONCIERGE · 私厨备餐",
+    chauffeur_cafe_lines: "CHAUFFEUR · B1 专车",
+    chauffeur_market_lines: "CHAUFFEUR · B1 专车",
+    chauffeur_marina_lines: "MARINA · 私人泊位",
     hifi_toggle: "BRUCE · 声学琉璃",
+    hifi_on_lines: "HARMAN · 爵士声场开启",
+    hifi_off_lines: "HARMAN · 声场静默",
     fireplace_warm: "BRUCE · 炉火微醺",
     lamp_toggle: "BRUCE · 暖光氛围",
     click_poke: "BRUCE · 歪头看你",
@@ -801,8 +898,104 @@ export function mountLivingRoomHub(container, opts = {}) {
   }, 7000);
   cleanups.push(() => clearInterval(idleTimerId));
 
-  // Folding keyholder toggle
+  // Folding keyholder toggle + House Concierge & B1 Chauffeur Intercom
+  const syncConciergeUi = () => {
+    if (conciergeFloorLabelEl) {
+      conciergeFloorLabelEl.textContent =
+        activeFloor === "2f" ? "HOUSE CONCIERGE · 2F LOFT" : "HOUSE CONCIERGE · 1F SALON";
+    }
+    const hifiActive = sfx.isHifiOn();
+    conciergeHifiBtn?.classList.toggle("is-active", hifiActive);
+    if (conciergeHifiTag) conciergeHifiTag.textContent = hifiActive ? "PLAYING · JAZZ" : "STANDBY";
+    conciergePantryBtn?.classList.toggle("hidden", !sulking);
+    stageEl.dataset.soundscapeDiag = JSON.stringify({
+      scene: "penthouse",
+      floor: activeFloor,
+      hifiOn: hifiActive,
+      muted: sfx.muted,
+    });
+  };
+
+  const setConciergeOpen = (open, sourceFloor = activeFloor) => {
+    if (open) {
+      setKeyholderOpen(false);
+      if (conciergeFloorLabelEl) {
+        const fl = sourceFloor === "2f" ? "2F LOFT" : "1F SALON";
+        conciergeFloorLabelEl.textContent = `HOUSE CONCIERGE · ${fl}`;
+      }
+      syncConciergeUi();
+    }
+    conciergePopoverEl?.classList.toggle("is-open", Boolean(open));
+    conciergePopoverEl?.setAttribute("aria-hidden", open ? "false" : "true");
+  };
+
+  conciergeCloseBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    sfx.playTap();
+    setConciergeOpen(false);
+  });
+
+  conciergePantryBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    sfx.playTap();
+    setConciergeOpen(false);
+    opts.onOpenShop?.();
+  });
+
+  conciergePopoverEl?.querySelectorAll("[data-concierge]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (destroyed || activeActId) return;
+      const action = btn.getAttribute("data-concierge");
+      feedback("small", e.clientX, e.clientY);
+      const rect = stageEl.getBoundingClientRect();
+
+      if (action === "water") {
+        setConciergeOpen(false);
+        sfx.playConciergeBell();
+        later(() => sfx.playGlassPour(), 320);
+        const is2F = activeFloor === "2f";
+        flyCamera(
+          is2F ? new THREE.Vector3(-8.2, 11.65, 0.95) : new THREE.Vector3(2.15, 2.55, 2.1),
+          is2F ? new THREE.Vector3(-5.85, 10.55, 3.25) : new THREE.Vector3(4.25, 1.25, -1.55),
+          880,
+          () => {
+            if (!is2F) walkBruceTo(3.6, 1.55, { silent: true });
+            else walkBruceTo(-6.3, 0.95, { silent: true });
+            later(() => bruce.playAction("lick_paw"), 650);
+          },
+        );
+        spawnFxParticles(rect.width * 0.56, rect.height * 0.54, "water", 16);
+        sayBruce("butler_water_lines", 4600, "CONCIERGE · 管家侍水");
+      } else if (action === "hifi") {
+        const on = sfx.toggleHifi();
+        syncConciergeUi();
+        sfx.playTap();
+        spawnFxParticles(rect.width * 0.65, rect.height * 0.45, on ? "note" : "warm", 14);
+        sayBruce(on ? "hifi_on_lines" : "hifi_off_lines", 4200, on ? "HARMAN · 爵士声场开启" : "HARMAN · 声场静默");
+      } else if (action === "chauffeur-cafe") {
+        setConciergeOpen(false);
+        sfx.playChauffeurReady();
+        sayBruce("chauffeur_cafe_lines", 3400, "CHAUFFEUR · B1 专车就绪");
+        flyCamera(new THREE.Vector3(-8.8, 4.3, 4.8), new THREE.Vector3(-14.6, 3.6, 2.2), 880, () => {
+          later(() => opts.onTeleportStreet?.(), 650);
+        });
+      } else if (action === "chauffeur-market") {
+        setConciergeOpen(false);
+        sfx.playChauffeurReady();
+        sayBruce("chauffeur_market_lines", 3600, "CHAUFFEUR · 持 07 号卡出发");
+        later(() => triggerPatronCardDeparture(), 380);
+      } else if (action === "chauffeur-marina") {
+        setConciergeOpen(false);
+        sfx.playConciergeBell();
+        sayBruce("chauffeur_marina_lines", 3800, "MARINA · 私人泊位专线");
+        later(() => opts.onTeleportGlobal?.(), 320);
+      }
+    });
+  });
+
   const setKeyholderOpen = (open) => {
+    if (open) setConciergeOpen(false);
     keyholderEl?.classList.toggle("is-open", open);
     keyholderBtn?.setAttribute("aria-expanded", open ? "true" : "false");
   };
@@ -814,6 +1007,9 @@ export function mountLivingRoomHub(container, opts = {}) {
   const onDocClickCloseKey = (e) => {
     if (keyholderEl && !keyholderEl.contains(e.target)) {
       setKeyholderOpen(false);
+    }
+    if (conciergePopoverEl && !conciergePopoverEl.contains(e.target)) {
+      setConciergeOpen(false);
     }
   };
   document.addEventListener("click", onDocClickCloseKey);
@@ -843,6 +1039,31 @@ export function mountLivingRoomHub(container, opts = {}) {
     });
     return { spot, btn, world: new THREE.Vector3(...spot.pos) };
   });
+
+  if (keyholderTray) {
+    const conciergeQuick = document.createElement("button");
+    conciergeQuick.type = "button";
+    conciergeQuick.className = "keyholder-item";
+    conciergeQuick.setAttribute("data-spot", "concierge");
+    conciergeQuick.innerHTML = `
+      <span class="stub-main">
+        <span class="stub-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 17h14"/><path d="M7 17a5 5 0 0 1 10 0"/><path d="M12 12V9"/><circle cx="12" cy="8" r="1"/></svg></span>
+        <span class="stub-text">
+          <span class="stub-title">内线 · 管家与 B1 车队</span>
+          <span class="stub-sub">侍水 / 哈曼声场 / 专车直达</span>
+        </span>
+      </span>
+      <span class="stub-code">INT·00</span>
+    `;
+    keyholderTray.appendChild(conciergeQuick);
+    conciergeQuick.addEventListener("click", (e) => {
+      e.stopPropagation();
+      feedback("small", e.clientX, e.clientY);
+      sfx.playConciergeBell();
+      setConciergeOpen(true, activeFloor);
+      sayBruce("concierge_call", 3600, "BRUCE · 管家专线");
+    });
+  }
 
   HOTSPOTS.filter((s) => s.kind === "teleport").forEach((spot) => {
     if (!keyholderTray) return;
@@ -918,6 +1139,8 @@ export function mountLivingRoomHub(container, opts = {}) {
       const subEl = btn.querySelector(".dot-sub");
       if (subEl) subEl.textContent = sulking ? "先哄好布鲁斯" : spot.sub;
     });
+    sfx.setSceneAmbience("penthouse", { floor: activeFloor, sulking: Boolean(sulkMode) });
+    syncConciergeUi();
   }
 
   function flyCamera(toPos, toTarget, durationMs = 740, onDone = null) {
@@ -957,6 +1180,8 @@ export function mountLivingRoomHub(container, opts = {}) {
       if (!sulking) bruce.triggerHappyHop();
       sayBruce(fl === "2f" ? "floor_2f_greet" : "floor_1f_greet", 4200);
     }
+    sfx.setFloorAmbience(fl);
+    syncConciergeUi();
   }
 
   floorButtons.forEach((btn) => {
@@ -996,6 +1221,7 @@ export function mountLivingRoomHub(container, opts = {}) {
   }
 
   function exitInRoomActivity() {
+    sfx.setVinylMode(false);
     actCleanup?.();
     actCleanup = null;
     activeActId = null;
@@ -1023,6 +1249,12 @@ export function mountLivingRoomHub(container, opts = {}) {
   btnActBack.addEventListener("click", () => {
     sfx.playTap();
     exitInRoomActivity();
+  });
+
+  btnReplay.addEventListener("click", () => {
+    if (sulking || !activeActId) return;
+    sfx.playTap();
+    startInRoomActivity(activeActId, false);
   });
 
   btnDone.addEventListener("click", () => {
@@ -1217,7 +1449,7 @@ export function mountLivingRoomHub(container, opts = {}) {
 
       const projected = Math.max(0, happiness + delta);
       btnReplay.hidden = projected < 80;
-      btnDone.textContent = projected < 80 ? "去零食急救柜" : "回到客厅全景";
+      btnDone.textContent = projected < 80 ? "去私厨鲜食柜" : "回到客厅全景";
       settleEl.classList.add("is-visible");
 
       const triggerSwapCandidate = isWin && Math.random() < def.swapProb;
@@ -1239,8 +1471,8 @@ export function mountLivingRoomHub(container, opts = {}) {
 
         if (sulking) {
           applyAtmosphere(true, false);
-          statusEl.textContent = `幸福指数跌至 ${finalScore}（<80），布鲁斯进入冷战`;
-          btnDone.textContent = "去零食急救柜";
+          statusEl.textContent = `幸福指数跌至 ${finalScore}（<80），布鲁斯正生闷气`;
+          btnDone.textContent = "去私厨鲜食柜";
         } else {
           statusEl.textContent = `当前幸福指数 · ${finalScore}`;
           btnDone.textContent = "回到客厅全景";
@@ -1280,12 +1512,6 @@ export function mountLivingRoomHub(container, opts = {}) {
         }
       }
     };
-
-    listen(btnReplay, "click", () => {
-      if (sulking) return;
-      sfx.playTap();
-      startInRoomActivity(actId, false);
-    });
 
     actLater(() => triggerPhone(false), 1800 + Math.random() * 1400);
 
@@ -1412,7 +1638,13 @@ export function mountLivingRoomHub(container, opts = {}) {
         }
         btn.classList.add("is-done");
         step += 1;
-        sfx.playTap();
+        if (prop === "tonearm") {
+          sfx.playVinylDrop();
+          sfx.setVinylMode(true);
+          syncConciergeUi();
+        } else {
+          sfx.playTap();
+        }
         warmLampLight.intensity = 1.0 + step * 0.85;
         bruce.triggerHappyHop();
         const r = stageEl.getBoundingClientRect();
@@ -1442,7 +1674,7 @@ export function mountLivingRoomHub(container, opts = {}) {
       actPromptEl.textContent = "按住网球向上甩出！丢到客厅地板上";
       actBodyEl.innerHTML = `
         <div class="hub3d-ball-btn">BALL</div>
-        <button type="button" class="hub3d-hazard-btn">SPEAKER · 低音炮</button>
+        <button type="button" class="hub3d-hazard-btn">BLOWER · 高速吹风筒</button>
       `;
       const ballBtn = actBodyEl.querySelector(".hub3d-ball-btn");
       const speakerBtn = actBodyEl.querySelector(".hub3d-hazard-btn");
@@ -1599,13 +1831,13 @@ export function mountLivingRoomHub(container, opts = {}) {
     }, 2400);
   }
 
-  function walkBruceTo(rawX, rawZ) {
+  function walkBruceTo(rawX, rawZ, { silent = false } = {}) {
     const b = getFloorOverview(activeFloor).preset.walkBounds;
     const tx = THREE.MathUtils.clamp(rawX, b.minX, b.maxX);
     const tz = THREE.MathUtils.clamp(rawZ, b.minZ, b.maxZ);
     triggerFloorRipple(tx, tz);
     bruce.walkTo(tx, tz, { speedScale: sulking ? 0.65 : 1.0 });
-    sayBruce(sulking ? "walk_sulk" : "walk_call", 3400);
+    if (!silent) sayBruce(sulking ? "walk_sulk" : "walk_call", 3400);
   }
 
   function runTrick(trickId) {
@@ -1739,16 +1971,22 @@ export function mountLivingRoomHub(container, opts = {}) {
           return;
         }
         if (conciergeMeshes.includes(hitObj)) {
+          sfx.playConciergeBell();
           spawnFxParticles(e.clientX - stageRect.left, e.clientY - stageRect.top, "gold", 14);
-          sayBruce("concierge_call", 4200, "BRUCE · 管家专线");
+          const hitFloor = /2F/i.test(hitObj.name) ? "2f" : "1f";
+          setConciergeOpen(true, hitFloor);
+          sayBruce("concierge_call", 3800, "BRUCE · 管家专线");
           return;
         }
         if (hifiMeshes.includes(hitObj)) {
-          spawnFxParticles(e.clientX - stageRect.left, e.clientY - stageRect.top, "note", 14);
-          sayBruce("hifi_toggle", 4000, "BRUCE · 声学琉璃");
+          const on = sfx.toggleHifi();
+          syncConciergeUi();
+          spawnFxParticles(e.clientX - stageRect.left, e.clientY - stageRect.top, on ? "note" : "warm", 14);
+          sayBruce(on ? "hifi_on_lines" : "hifi_off_lines", 4000, on ? "HARMAN · 爵士声场开启" : "HARMAN · 声场静默");
           return;
         }
         if (fireplaceMeshes.includes(hitObj)) {
+          sfx.stokeFireplace();
           spawnFxParticles(e.clientX - stageRect.left, e.clientY - stageRect.top, "warm", 16);
           sayBruce("fireplace_warm", 4000, "BRUCE · 炉火微醺");
           return;
@@ -1898,6 +2136,12 @@ export function mountLivingRoomHub(container, opts = {}) {
     if (fireplaceEmberMesh?.material) {
       fireplaceEmberMesh.material.emissiveIntensity = 0.95 + flicker * 0.35;
     }
+    const hifiActive = sfx.isHifiOn();
+    for (let i = 0; i < hifiHaloMats.length; i++) {
+      hifiHaloMats[i].emissiveIntensity = hifiActive
+        ? 1.85 + Math.sin(elapsed * 2.4 + i) * 0.45
+        : 0.75;
+    }
     for (let i = 0; i < flameRibbons.length; i++) {
       const f = flameRibbons[i];
       const w1 = Math.sin(elapsed * f.speed + f.phase);
@@ -2025,6 +2269,8 @@ export function mountLivingRoomHub(container, opts = {}) {
     rafId = requestAnimationFrame(tick);
   };
 
+  sfx.setSceneAmbience("penthouse", { floor: activeFloor, sulking });
+  syncConciergeUi();
   rafId = requestAnimationFrame(tick);
 
   return {
@@ -2041,6 +2287,8 @@ export function mountLivingRoomHub(container, opts = {}) {
     destroy() {
       if (destroyed) return;
       destroyed = true;
+      sfx.setVinylMode(false);
+      sfx.clearSceneAmbience("penthouse");
       document.body.classList.remove("is-hub3d-view", "is-hub3d-act");
       if (rafId) cancelAnimationFrame(rafId);
       actCleanup?.();

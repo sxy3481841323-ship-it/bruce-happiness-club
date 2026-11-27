@@ -466,7 +466,7 @@ export function runInteraction(type, ctx) {
       const speaker = document.createElement("button");
       speaker.type = "button";
       speaker.className = "th-corner-hazard";
-      speaker.textContent = "SPEAKER · 低音炮";
+      speaker.textContent = "BLOWER · 高速吹风筒";
       overlayEl.append(ball, speaker);
 
       listen(speaker, "click", (e) => {

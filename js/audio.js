@@ -1,9 +1,30 @@
-// Procedural Web Audio sound effects (no external audio files required)
+// Procedural Web Audio sound effects & spatial soundscapes (zero external audio files)
+import { createSoundscapeController } from "./audioSoundscape.js";
 
 class SoundEngine {
   constructor() {
     this.ctx = null;
     this.muted = false;
+    this._gestureBound = false;
+    this.soundscape = createSoundscapeController(
+      () => this._ensureCtx(),
+      () => this.muted,
+    );
+    this._bindGestureUnlock();
+  }
+
+  _bindGestureUnlock() {
+    if (this._gestureBound || typeof window === "undefined") return;
+    this._gestureBound = true;
+    const unlock = () => {
+      if (this.muted) return;
+      const c = this._ensureCtx();
+      if (c) {
+        this.soundscape.unlock();
+      }
+    };
+    window.addEventListener("pointerdown", unlock, { passive: true });
+    window.addEventListener("keydown", unlock, { passive: true });
   }
 
   _ensureCtx() {
@@ -20,7 +41,52 @@ class SoundEngine {
 
   toggleMute() {
     this.muted = !this.muted;
+    this.soundscape.syncMute(this.muted);
     return this.muted;
+  }
+
+  setSceneAmbience(sceneId, opts = {}) {
+    this.soundscape.setSceneAmbience(sceneId, opts);
+  }
+
+  clearSceneAmbience(expectedSceneId) {
+    this.soundscape.clearSceneAmbience(expectedSceneId);
+  }
+
+  setFloorAmbience(floorId) {
+    this.soundscape.setFloor(floorId);
+  }
+
+  toggleHifi(forceBool) {
+    return this.soundscape.toggleHifi(forceBool);
+  }
+
+  isHifiOn() {
+    return this.soundscape.isHifiOn();
+  }
+
+  setVinylMode(active) {
+    this.soundscape.setVinylMode(active);
+  }
+
+  stokeFireplace() {
+    this.soundscape.stokeFireplace();
+  }
+
+  playConciergeBell() {
+    this.soundscape.playConciergeBell();
+  }
+
+  playGlassPour() {
+    this.soundscape.playGlassPour();
+  }
+
+  playVinylDrop() {
+    this.soundscape.playVinylDrop();
+  }
+
+  playChauffeurReady() {
+    this.soundscape.playChauffeurReady();
   }
 
   _tone(freq, dur, type = "sine", gainVal = 0.08, delay = 0) {

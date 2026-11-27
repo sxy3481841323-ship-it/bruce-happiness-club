@@ -850,12 +850,20 @@ export function mountCoastalCafeHub(container, opts = {}) {
     bruce.root.rotation.y = BRUCE_HOME_ROT;
     swapRingsGroup.position.copy(BRUCE_HOME_POS).add(new THREE.Vector3(0, 1.35, 0));
     applyAtmosphere(sulking);
+    sfx.setSceneAmbience("cafe", { sulking });
+    stageEl.dataset.soundscapeDiag = JSON.stringify({ scene: "cafe", sulking, muted: sfx.muted });
     flyCamera(OVERVIEW_CAM, OVERVIEW_TARGET, 650);
   }
 
   btnActBack.addEventListener("click", () => {
     sfx.playTap();
     exitActivity();
+  });
+
+  btnReplay.addEventListener("click", () => {
+    if (sulking || !activeActId) return;
+    sfx.playTap();
+    startCafeActivity(activeActId, false);
   });
 
   btnDone.addEventListener("click", () => {
@@ -1037,7 +1045,7 @@ export function mountCoastalCafeHub(container, opts = {}) {
 
       const projected = Math.max(0, happiness + delta);
       btnReplay.hidden = projected < 80;
-      btnDone.textContent = projected < 80 ? "去零食急救柜" : "回到咖啡馆全景";
+      btnDone.textContent = projected < 80 ? "去私厨鲜食柜" : "回到咖啡馆全景";
       settleEl.classList.add("is-visible");
 
       const triggerSwapCandidate = isWin && Math.random() < def.swapProb;
@@ -1060,7 +1068,7 @@ export function mountCoastalCafeHub(container, opts = {}) {
         if (sulking) {
           applyAtmosphere(true);
           statusEl.textContent = `幸福指数跌至 ${finalScore}（<80），布鲁斯进入冷战`;
-          btnDone.textContent = "去零食急救柜";
+          btnDone.textContent = "去私厨鲜食柜";
         } else {
           statusEl.textContent = `当前幸福指数 · ${finalScore}`;
           btnDone.textContent = "回到咖啡馆全景";
@@ -1100,12 +1108,6 @@ export function mountCoastalCafeHub(container, opts = {}) {
         }
       }
     };
-
-    listen(btnReplay, "click", () => {
-      if (sulking) return;
-      sfx.playTap();
-      startCafeActivity(actId, false);
-    });
 
     actLater(() => triggerPhone(false), 1800 + Math.random() * 1400);
 
@@ -1693,6 +1695,7 @@ export function mountCoastalCafeHub(container, opts = {}) {
   return {
     setSulking(nextSulk) {
       applyAtmosphere(nextSulk);
+      sfx.setSceneAmbience("cafe", { sulking: nextSulk });
     },
     setContext({ happiness: nextScore, content: nextContent }) {
       if (Number.isFinite(nextScore)) happiness = nextScore;
@@ -1704,6 +1707,7 @@ export function mountCoastalCafeHub(container, opts = {}) {
     destroy() {
       if (destroyed) return;
       destroyed = true;
+      sfx.clearSceneAmbience("cafe");
       delete window.__BRUCE_CAFE_DIAG__;
       document.body.classList.remove("is-hub3d-view", "is-hub3d-act");
       if (rafId) cancelAnimationFrame(rafId);

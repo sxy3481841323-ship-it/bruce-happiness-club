@@ -43,7 +43,7 @@ const ACTION_LABELS = {
   noDogs: 'NO DOGS',
   leash: '放松牵引绳',
   shrub: '内侧草地',
-  scooter: '电瓶车',
+  scooter: '滑板车',
   friend: '摇尾巴的狗友',
   angry: '需要空间的狗狗',
   biscuit: '小饼干',
@@ -1042,7 +1042,7 @@ export class CinematicDirector {
             this._showResult(
               '冷战中 · 低于 80 分',
               String(this.happiness),
-              '布鲁斯暂时不想陪玩。先去零食急救柜，让它回到 80 分。',
+              '布鲁斯暂时不想陪玩。先去私厨鲜食柜，让它回到 80 分。',
               '它需要先回到 80 分，再一起出门。',
             );
           }

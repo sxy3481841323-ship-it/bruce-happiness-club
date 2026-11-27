@@ -30,7 +30,7 @@ export const THEATER_SCENES = [
     zone: "home",
     title: "客厅抛球寻宝",
     subtitle: "客厅 · 阳光",
-    desc: "向上甩出网球看布鲁斯兴奋扑找，忍住别点角落滑出的手机推送，也别碰低音炮。",
+    desc: "向上甩出网球看布鲁斯兴奋扑找，忍住别点角落滑出的手机推送，也别碰高速吹风筒。",
     win: 12,
     fail: -14,
     swapProb: 0.12,

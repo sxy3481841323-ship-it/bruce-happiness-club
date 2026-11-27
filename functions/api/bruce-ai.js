@@ -62,7 +62,7 @@ function buildFallbackResponse(body) {
     ok: true,
     mode: "chat",
     reply: sulking
-      ? "还在冷战期呢……除非你夸夸我的长毛或者去开零食急救柜。"
+      ? "还在冷战期呢……除非你夸夸我的长毛，或者去私厨鲜食冷柜挑点喜欢的。"
       : "耳朵动了一下表示我听见啦！要不要带我在地毯上打个滚？",
     cue: sulking ? "BRUCE · 冷战傲娇" : "BRUCE · 歪头回应",
     action: sulking ? "airplane_ears" : "roll_over",

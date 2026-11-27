@@ -89,7 +89,7 @@ def fallback_bruce_ai(body):
     return {
         "ok": True,
         "mode": "chat",
-        "reply": "冷战期还没消气呢，除非你去零食柜拿一块肉干来哄我！" if sulking else "小耳朵动了一下！要不要让我给你翻个肚皮打滚呀？",
+        "reply": "还在冷战期呢，除非去私厨鲜食冷柜挑一份手感刚好的小肉条。" if sulking else "小耳朵动了一下！要不要让我给你翻个肚皮打滚呀？",
         "cue": "BRUCE · 冷战傲娇" if sulking else "BRUCE · 歪头回应",
         "action": "airplane_ears" if sulking else "roll_over",
         "sincerityDelta": 0,
@@ -172,20 +172,20 @@ def call_deepseek_live(body):
         return fallback_bruce_ai(body)
 
 DEFAULT_SEED_PLAYERS = [
-    {"nickname": "早八起不来星人", "owner": "Alex", "happiness": 138},
-    {"nickname": "冰美式续命侠", "owner": "Meya", "happiness": 126},
-    {"nickname": "期末周摸鱼冠军", "owner": "Alex", "happiness": 118},
-    {"nickname": "头等舱小腊肠", "owner": "Meya", "happiness": 112},
-    {"nickname": "游艇甲板晒太阳", "owner": "Alex", "happiness": 105},
-    {"nickname": "周末躺平选手", "owner": "Meya", "happiness": 96},
-    {"nickname": "低头回微信扣分王", "owner": "Alex", "happiness": 86},
-    {"nickname": "雨天踩坑冷战中", "owner": "Meya", "happiness": 74},
+    {"nickname": "冰美式与黑胶", "owner": "Alex", "happiness": 138},
+    {"nickname": "海风慢步者", "owner": "Meya", "happiness": 126},
+    {"nickname": "露台晒太阳", "owner": "Alex", "happiness": 118},
+    {"nickname": "丝巾收藏家", "owner": "Meya", "happiness": 112},
+    {"nickname": "游艇甲板午后", "owner": "Alex", "happiness": 105},
+    {"nickname": "慢转唱针", "owner": "Meya", "happiness": 96},
+    {"nickname": "低头回消息", "owner": "Alex", "happiness": 86},
+    {"nickname": "冷战待哄中", "owner": "Meya", "happiness": 74},
 ]
 
 DEFAULT_TICKER = [
-    {"id": "seed-1", "text": "快讯：早八起不来星人 带着布鲁斯打卡宠友咖啡馆，暂居全服第 1！", "ts": int(time.time() * 1000) - 180000},
-    {"id": "seed-2", "text": "吃瓜：低头回微信扣分王 连续点开 3 条消息，布鲁斯直接坐到手机屏幕上抗议。", "ts": int(time.time() * 1000) - 90000},
-    {"id": "seed-3", "text": "冷战播报：雨天踩坑冷战中 正在别墅客厅掏分哄狗，祝他抽中 96% 和牛礼盒。", "ts": int(time.time() * 1000) - 30000},
+    {"id": "seed-1", "text": "CLUB 记事：冰美式与黑胶 带着布鲁斯去了趟海岸烘焙室，今日账本领跑全席。", "ts": int(time.time() * 1000) - 180000},
+    {"id": "seed-2", "text": "CLUB 记事：低头回消息 回了几条讯息，布鲁斯直接把鼻尖抵在了手机屏幕上。", "ts": int(time.time() * 1000) - 90000},
+    {"id": "seed-3", "text": "CLUB 记事：冷战待哄中 正在私厨鲜食冷柜前挑干式熟成和牛木匣，盼着布鲁斯回心转意。", "ts": int(time.time() * 1000) - 30000},
 ]
 
 

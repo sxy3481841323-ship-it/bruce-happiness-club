@@ -239,7 +239,7 @@ export function mountTheater({ activityId, player, content, autoplay = false, on
     replayBtn.hidden = projectedScore < 80;
     backBtn.textContent =
       projectedScore < 80
-        ? "去零食急救柜"
+        ? "去私厨鲜食柜"
         : scene.zone === "home"
           ? "回到小院"
           : "回到街区";
@@ -261,8 +261,8 @@ export function mountTheater({ activityId, player, content, autoplay = false, on
       replayBtn.hidden = currentScore < 80;
 
       if (currentScore < 80) {
-        statusEl.textContent = "布鲁斯进入冷战，去零食柜哄回 80 分";
-        backBtn.textContent = "去零食急救柜";
+        statusEl.textContent = "布鲁斯扭过头生闷气，去私厨冷柜哄回 80 分";
+        backBtn.textContent = "去私厨鲜食柜";
       } else {
         statusEl.textContent = `当前幸福指数 · ${currentScore}`;
         backBtn.textContent = scene.zone === "home" ? "回到小院" : "回到街区";

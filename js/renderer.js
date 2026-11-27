@@ -454,11 +454,11 @@ export function drawLeash(ctx, x1, y1, x2, y2) {
  * Full-bleed Living Illustrated World Canvas (ZERO place-name text anywhere)
  */
 export const WORLD_HOTSPOTS = [
-  { id: "home", label: "独栋小院", shortLabel: "小院", x: 0.53, y: 0.68, playable: true },
-  { id: "street", label: "林荫街区", shortLabel: "街区", x: 0.34, y: 0.64, playable: true },
-  { id: "park", label: "城市大公园", shortLabel: "公园", x: 0.19, y: 0.48, playable: false },
-  { id: "warehouse", label: "仓储大超市", shortLabel: "超市", x: 0.76, y: 0.48, playable: false },
-  { id: "yacht", label: "游艇码头", shortLabel: "游艇", x: 0.80, y: 0.77, playable: false },
+  { id: "home", label: "阳光顶层公寓", shortLabel: "公寓", x: 0.53, y: 0.68, playable: true },
+  { id: "street", label: "海岸烘焙室", shortLabel: "烘焙", x: 0.34, y: 0.64, playable: true },
+  { id: "park", label: "树影公园", shortLabel: "公园", x: 0.19, y: 0.48, playable: false },
+  { id: "warehouse", label: "ELOWEN 市集", shortLabel: "市集", x: 0.76, y: 0.48, playable: true },
+  { id: "yacht", label: "白帆游艇码头", shortLabel: "游艇", x: 0.80, y: 0.77, playable: false },
   { id: "nordic", label: "远方航线 · 北", shortLabel: "航线1", x: 0.17, y: 0.19, playable: false },
   { id: "california", label: "远方航线 · 西", shortLabel: "航线2", x: 0.46, y: 0.16, playable: false },
   { id: "nz_swiss", label: "远方航线 · 南/峰", shortLabel: "航线3", x: 0.79, y: 0.19, playable: false },

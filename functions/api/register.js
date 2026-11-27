@@ -60,7 +60,7 @@ export async function onRequest({ request, env }) {
     isSeed: false,
   };
   state.players[nickCheck.nickname] = newPlayer;
-  pushTicker(state, `新人报到：${nickCheck.nickname} 领着布鲁斯和 ${owner} 搬进了阳光独栋小院，初始幸福 100 分！`);
+  pushTicker(state, `新住户入驻：${nickCheck.nickname} 领着布鲁斯和 ${owner} 推开了阳光顶层公寓大门，初始幸福 100 分。`);
   await saveState(kv, state);
 
   return jsonResponse({

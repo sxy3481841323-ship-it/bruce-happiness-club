@@ -84,7 +84,7 @@
   width: min(92vw, 520px);
 }
 
-/* CLB·02 会员制仓储大超市专属补充样式（统一 .sc3d- 前缀，烟熏黑曜石毛玻璃 + 香槟金描边，零硬黑投影） */
+/* ELW·02 ELOWEN · 有机市集专属补充样式（统一 .sc3d- 前缀，烟熏黑曜石毛玻璃 + 香槟金描边，零硬黑投影） */
 .sc3d-wh-wrap {
   --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
