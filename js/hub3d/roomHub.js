@@ -4,6 +4,9 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { createLivingBruce } from "./bruceLiving.js";
 import { mountBruceChatBar } from "./bruceChatUi.js";
 import { FLOOR_PRESETS, computeDuplexCameraPose } from "./duplexCamMath.js";
+import { createOldMoneyTv } from "./oldMoneyTv.js";
+import { createTerraceVista } from "./terraceVista.js";
+import { createLuckyMeteorController } from "./luckyMeteor.js";
 import { sfx } from "../audio.js";
 import { feedback } from "../juice.js";
 
@@ -116,11 +119,19 @@ const DEFAULT_HUB_COPY = {
     ],
     floor_2f_greet: [
       "欢迎登上二楼阳光阁楼！玻璃护栏外面视野超棒，还有我的丝绒窝～",
-      "二楼摆着黑胶唱片机和环球旅行相框墙，靠在这里晒太阳最惬意了。",
+      "二楼摆着黑胶唱片机和巨幅帆船赛油画，靠在这里晒太阳最惬意了。",
+    ],
+    terrace_greet: [
+      "穿过敞开的玻璃移门出来啦！坐在这张软绵绵的羊羔绒沙发上看海落日好舒服。",
+      "夕阳把海面染成香槟金色，海鸥从栏杆外掠过，海风吹起酒红丝巾了～",
+    ],
+    lucky_meteor: [
+      "快看海平线上那道流星！布鲁斯摇着尾巴替你许愿，幸运指数加了一个吉利数字！",
+      "暮色里流星悄然掠过，这一定是今天最治愈的幸运时刻。",
     ],
     tv_art_swap: [
-      "这幅肌理画配洞石壁炉墙太耐看了，再轻点一下还能换下一件藏品。",
-      "亚麻光影落在画布上，这间客厅就是本汪的私人画廊。",
+      "点击切换私享频道——古典帆船赛、拍场名作、草地马术还是烛光室内乐？",
+      "亚麻声学格栅下方流淌着画面与乐声，这间客厅就是本汪的私人放映厅。",
     ],
     patron_card_depart: [
       "对纹大理石壁灯亮起，白兰地皮托盘上，07号卡片静候。",
@@ -242,7 +253,12 @@ export function mountLivingRoomHub(container, opts = {}) {
     .then((r) => (r.ok ? r.json() : null))
     .then((json) => {
       if (!destroyed && json?.thought_bubbles) {
-        hubCopy = json;
+        hubCopy = {
+          ...DEFAULT_HUB_COPY,
+          ...json,
+          thought_bubbles: { ...DEFAULT_HUB_COPY.thought_bubbles, ...json.thought_bubbles },
+          portal_hover: { ...DEFAULT_HUB_COPY.portal_hover, ...(json.portal_hover || {}) },
+        };
       }
     })
     .catch(() => {});
@@ -289,6 +305,21 @@ export function mountLivingRoomHub(container, opts = {}) {
             <span class="floor-pill-code">1F · SALON</span>
             <span class="floor-pill-name">挑空客厅</span>
           </button>
+          <button type="button" class="floor-pill" data-floor="terrace">
+            <span class="floor-pill-code">1F · TERRACE</span>
+            <span class="floor-pill-name">露台看海</span>
+          </button>
+        </div>
+        <div class="hub3d-tv-osd" id="hub3d-tv-osd" aria-live="polite">
+          <div class="tv-osd-code" id="tv-osd-code">CH 01 · REGATTA</div>
+          <div class="tv-osd-title" id="tv-osd-title">地中海古典 J-Class 帆船赛</div>
+        </div>
+        <div class="hub3d-lucky-toast" id="hub3d-lucky-toast" role="status" aria-live="polite">
+          <span class="lucky-star-badge" aria-hidden="true">✦</span>
+          <div class="lucky-toast-body">
+            <div class="lucky-toast-title">幸运时刻 · 流星掠过海平线</div>
+            <div class="lucky-toast-sub" id="hub3d-lucky-sub">布鲁斯仰头许愿 · 幸福指数 +18</div>
+          </div>
         </div>
         <div class="hub3d-keyholder">
           <button type="button" class="keyholder-btn" aria-expanded="false">
@@ -325,6 +356,20 @@ export function mountLivingRoomHub(container, opts = {}) {
                 <span class="concierge-act-sub">烟色琉璃音室暖晕 · 控制客厅与阁楼漫反射乐声</span>
               </span>
               <span class="concierge-act-tag" id="concierge-hifi-tag">STANDBY</span>
+            </button>
+            <button type="button" class="concierge-action-btn" data-concierge="mood" id="btn-concierge-mood">
+              <span class="concierge-act-main">
+                <span class="concierge-act-name">光影情景 · 落日夕照 ⇄ 暮色微醺</span>
+                <span class="concierge-act-sub">点亮落地灯与露台灯笼 · 暮色下流星邂逅率翻倍</span>
+              </span>
+              <span class="concierge-act-tag" id="concierge-mood-tag">SUNSET</span>
+            </button>
+            <button type="button" class="concierge-action-btn" data-concierge="tv" id="btn-concierge-tv">
+              <span class="concierge-act-main">
+                <span class="concierge-act-name">墙面放映 · 切换老钱私享频道</span>
+                <span class="concierge-act-sub">帆船赛实况 / 拍场名作预展 / 马术大奖赛 / 室内大提琴</span>
+              </span>
+              <span class="concierge-act-tag" id="concierge-tv-tag">CH 01</span>
             </button>
             <button type="button" class="concierge-action-btn" data-concierge="chauffeur-cafe">
               <span class="concierge-act-main">
@@ -420,7 +465,14 @@ export function mountLivingRoomHub(container, opts = {}) {
   const conciergeCloseBtn = container.querySelector("#btn-concierge-close");
   const conciergeHifiBtn = container.querySelector("#btn-concierge-hifi");
   const conciergeHifiTag = container.querySelector("#concierge-hifi-tag");
+  const conciergeMoodTag = container.querySelector("#concierge-mood-tag");
+  const conciergeTvTag = container.querySelector("#concierge-tv-tag");
   const conciergePantryBtn = container.querySelector("#btn-concierge-pantry");
+  const tvOsdEl = container.querySelector("#hub3d-tv-osd");
+  const tvOsdCodeEl = container.querySelector("#tv-osd-code");
+  const tvOsdTitleEl = container.querySelector("#tv-osd-title");
+  const luckyToastEl = container.querySelector("#hub3d-lucky-toast");
+  const luckySubEl = container.querySelector("#hub3d-lucky-sub");
   const speechEl = container.querySelector(".hub3d-speech");
   const speechCueEl = speechEl?.querySelector(".speech-cue");
   const speechLineEl = speechEl?.querySelector(".speech-line");
@@ -492,21 +544,21 @@ export function mountLivingRoomHub(container, opts = {}) {
     t.flipY = flipY;
     return t;
   };
-  const sunnySkyTex = loadSrgbTex("./assets/textures/sky_sunny.jpg", false);
+  const sunnySkyTex = loadSrgbTex("./assets/textures/sky_sunset.jpg", false);
   const rainySkyTex = loadSrgbTex("./assets/textures/sky_rainy.jpg", false);
   const patronCardTex = loadSrgbTex("./assets/textures/patron_card.jpg", false);
   const flameTex = loadSrgbTex("./assets/textures/fireplace_flame.png", true);
-  const tvArtTexs = [
-    loadSrgbTex("./assets/textures/tv_art_1.jpg", false),
-    loadSrgbTex("./assets/textures/tv_art_2.jpg", false),
-    loadSrgbTex("./assets/textures/tv_art_3.jpg", false),
-  ];
-  let tvArtIdx = 0;
+  const oldMoneyTv = createOldMoneyTv();
+  const terraceVista = createTerraceVista(scene);
+  let tvOsdTimer = null;
+  let luckyToastTimer = null;
+  let duskMode = false;
   let salonLampOn = false;
   let skyCycloramaMat = null;
   let tvScreenMesh = null;
   let tvScreenMat = null;
   let arcLampMesh = null;
+  const lampClickMeshes = [];
   let patronCardMesh = null;
   let patronCardMat = null;
   let fireplaceEmberMesh = null;
@@ -517,7 +569,7 @@ export function mountLivingRoomHub(container, opts = {}) {
   let departSkipFn = null;
 
   const initOv = getFloorOverview(activeFloor);
-  const camera = new THREE.PerspectiveCamera(48, 16 / 10, 0.2, 180);
+  const camera = new THREE.PerspectiveCamera(48, 16 / 10, 0.2, 320);
   if (Array.isArray(opts.restoreAnchor?.camPos)) camera.position.fromArray(opts.restoreAnchor.camPos);
   else camera.position.copy(initOv.cam);
 
@@ -527,28 +579,28 @@ export function mountLivingRoomHub(container, opts = {}) {
   controls.enableDamping = true;
   controls.dampingFactor = 0.07;
   controls.enablePan = false;
-  controls.minDistance = 4.5;
+  controls.minDistance = 3.2;
   controls.maxDistance = 24.0;
-  controls.minPolarAngle = 0.65;
-  controls.maxPolarAngle = 1.50;
-  controls.minAzimuthAngle = -1.35;
-  controls.maxAzimuthAngle = 1.35;
+  controls.minPolarAngle = 0.48;
+  controls.maxPolarAngle = 1.56;
+  controls.minAzimuthAngle = -Infinity;
+  controls.maxAzimuthAngle = Infinity;
   controls.update();
 
-  // Warm sunlit penthouse lighting
-  const hemiLight = new THREE.HemisphereLight(0xfffbf2, 0xe2d6c5, 1.5);
+  // Warm sunset & dusk penthouse lighting
+  const hemiLight = new THREE.HemisphereLight(0xfff1dc, 0xcab8a2, 1.45);
   scene.add(hemiLight);
 
-  const ambientLight = new THREE.AmbientLight(0xfffaf2, 0.78);
+  const ambientLight = new THREE.AmbientLight(0xfff3e2, 0.72);
   scene.add(ambientLight);
 
-  const sunLight = new THREE.DirectionalLight(0xffe7bf, 2.05);
-  sunLight.position.set(-4, 21, -22);
+  const sunLight = new THREE.DirectionalLight(0xffcf94, 2.25);
+  sunLight.position.set(-4, 15, -28);
   sunLight.target.position.set(2, 0, 2);
   sunLight.castShadow = true;
   sunLight.shadow.mapSize.set(1024, 1024);
   sunLight.shadow.camera.near = 2;
-  sunLight.shadow.camera.far = 52;
+  sunLight.shadow.camera.far = 56;
   sunLight.shadow.camera.left = -18;
   sunLight.shadow.camera.right = 18;
   sunLight.shadow.camera.top = 18;
@@ -556,8 +608,8 @@ export function mountLivingRoomHub(container, opts = {}) {
   sunLight.shadow.bias = -0.0005;
   scene.add(sunLight, sunLight.target);
 
-  const warmLampLight = new THREE.PointLight(0xffb969, 0.0, 24, 1.35);
-  warmLampLight.position.set(10.6, 4.8, 2.8);
+  const warmLampLight = new THREE.PointLight(0xffb969, 0.9, 24, 1.35);
+  warmLampLight.position.set(11.75, 3.68, 4.70);
   scene.add(warmLampLight);
 
   // Grand Foyer console & bronze mirror warm wash light
@@ -587,7 +639,7 @@ export function mountLivingRoomHub(container, opts = {}) {
     });
     const mesh = new THREE.Mesh(flameGeo, fm);
     const fz = flameZList[i];
-    const fx = 14.06 + ((i % 2 === 0 ? -1 : 1) * 0.06);
+    const fx = 13.68 + ((i % 2 === 0 ? -1 : 1) * 0.05);
     mesh.position.set(fx, 1.98, fz);
     mesh.rotation.y = -Math.PI * 0.5 + (i % 3 - 1) * 0.16;
     flameGroup.add(mesh);
@@ -608,7 +660,7 @@ export function mountLivingRoomHub(container, opts = {}) {
   const sparkPos = new Float32Array(sparkCount * 3);
   const sparkMeta = [];
   for (let i = 0; i < sparkCount; i++) {
-    const sx = 13.86 + ((i * 0.13) % 0.42);
+    const sx = 13.56 + ((i * 0.11) % 0.34);
     const sy = 1.66 + ((i * 0.27) % 0.72);
     const sz = -3.70 + ((i * 0.43) % 3.80);
     sparkPos[i * 3] = sx;
@@ -757,7 +809,7 @@ export function mountLivingRoomHub(container, opts = {}) {
             obj.receiveShadow = false;
             tvScreenMesh = obj;
             tvScreenMat = new THREE.MeshBasicMaterial({
-              map: tvArtTexs[0],
+              map: oldMoneyTv.texture,
               toneMapped: false,
             });
             obj.material?.dispose?.();
@@ -776,8 +828,9 @@ export function mountLivingRoomHub(container, opts = {}) {
             obj.material = patronCardMat;
             return;
           }
-          if (obj.name === "ArcLampBulb") {
-            arcLampMesh = obj;
+          if (/^ArcLamp/i.test(obj.name)) {
+            if (obj.name === "ArcLampBulb") arcLampMesh = obj;
+            lampClickMeshes.push(obj);
           }
           if (obj.name === "FireplaceEmbers") {
             fireplaceEmberMesh = obj;
@@ -804,6 +857,8 @@ export function mountLivingRoomHub(container, opts = {}) {
             m.needsUpdate = true;
           });
         });
+        terraceVista.attachRoomRoot(roomRoot);
+        terraceVista.setMood({ sulking, dusk: duskMode });
         scene.add(roomRoot);
         resolve(true);
       },
@@ -829,7 +884,9 @@ export function mountLivingRoomHub(container, opts = {}) {
     idle_sulk: "BRUCE · 背身冷战中",
     floor_1f_greet: "BRUCE · 一楼阳光厅",
     floor_2f_greet: "BRUCE · 二楼私享阁楼",
-    tv_art_swap: "BRUCE · 馆藏赏画",
+    terrace_greet: "BRUCE · 夕照观海露台",
+    lucky_meteor: "LUCKY · 海平线流星时刻",
+    tv_art_swap: "BRUCE · 私享频道",
     patron_card_depart: "BRUCE · 玄关出发",
     concierge_call: "BRUCE · 管家专线",
     butler_water_lines: "CONCIERGE · 管家侍水",
@@ -909,19 +966,74 @@ export function mountLivingRoomHub(container, opts = {}) {
   const syncConciergeUi = () => {
     if (conciergeFloorLabelEl) {
       conciergeFloorLabelEl.textContent =
-        activeFloor === "2f" ? "HOUSE CONCIERGE · 2F LOFT" : "HOUSE CONCIERGE · 1F SALON";
+        activeFloor === "terrace"
+          ? "HOUSE CONCIERGE · 1F OCEAN TERRACE"
+          : activeFloor === "2f"
+            ? "HOUSE CONCIERGE · 2F LOFT"
+            : "HOUSE CONCIERGE · 1F SALON";
     }
     const hifiActive = sfx.isHifiOn();
     conciergeHifiBtn?.classList.toggle("is-active", hifiActive);
     if (conciergeHifiTag) conciergeHifiTag.textContent = hifiActive ? "PLAYING · JAZZ" : "STANDBY";
+    if (conciergeMoodTag) conciergeMoodTag.textContent = duskMode ? "DUSK LAMP" : "SUNSET";
+    if (conciergeTvTag) conciergeTvTag.textContent = oldMoneyTv.getChannel().code;
     conciergePantryBtn?.classList.toggle("hidden", !sulking);
     stageEl.dataset.soundscapeDiag = JSON.stringify({
       scene: "penthouse",
       floor: activeFloor,
       hifiOn: hifiActive,
+      duskMode,
       muted: sfx.muted,
     });
   };
+
+  function showTvOsd(ch) {
+    if (tvOsdCodeEl) tvOsdCodeEl.textContent = `${ch.code} · ${ch.tag}`;
+    if (tvOsdTitleEl) tvOsdTitleEl.textContent = ch.title;
+    if (tvOsdEl) {
+      tvOsdEl.classList.add("is-visible");
+      if (tvOsdTimer) clearTimeout(tvOsdTimer);
+      tvOsdTimer = later(() => tvOsdEl.classList.remove("is-visible"), 3400);
+    }
+  }
+
+  function cycleTvChannel(elapsed = performance.now() / 1000) {
+    const ch = oldMoneyTv.nextChannel(elapsed);
+    syncConciergeUi();
+    showTvOsd(ch);
+    return ch;
+  }
+
+  function toggleSunsetDuskMood() {
+    duskMode = !duskMode;
+    salonLampOn = duskMode;
+    applyAtmosphere(sulking, false);
+    return duskMode;
+  }
+
+  const meteorCtrl = createLuckyMeteorController(scene, {
+    skyZ: -96,
+    isPaused: () => Boolean(activeActId) || !loadingEl.classList.contains("is-hidden"),
+    getContext: () => ({ sulking, zone: activeFloor, dusk: duskMode }),
+    async onTrigger({ bonus }) {
+      sfx.playConciergeBell();
+      later(() => sfx.playSuccess(), 160);
+      if (!sulking) bruce.triggerHappyHop();
+      sayBruce("lucky_meteor", 4800, "LUCKY · 幸运时刻");
+      const applied = await opts.onLuckyBonus?.(bonus);
+      const shownBonus = applied?.bonus ?? bonus;
+      if (luckySubEl) {
+        luckySubEl.textContent = applied?.newScore
+          ? `布鲁斯仰头摇尾许愿 · 幸福指数 +${shownBonus}（当前 ${applied.newScore}）`
+          : `布鲁斯仰头摇尾许愿 · 幸福指数 +${shownBonus}`;
+      }
+      if (luckyToastEl) {
+        luckyToastEl.classList.add("is-visible");
+        if (luckyToastTimer) clearTimeout(luckyToastTimer);
+        luckyToastTimer = later(() => luckyToastEl.classList.remove("is-visible"), 5200);
+      }
+    },
+  });
 
   const setConciergeOpen = (open, sourceFloor = activeFloor) => {
     if (open) {
@@ -997,11 +1109,11 @@ export function mountLivingRoomHub(container, opts = {}) {
         later(() => sfx.playGlassPour(), 320);
         const is2F = activeFloor === "2f";
         flyCamera(
-          is2F ? new THREE.Vector3(-8.2, 11.65, 0.95) : new THREE.Vector3(2.15, 2.55, 2.1),
-          is2F ? new THREE.Vector3(-5.85, 10.55, 3.25) : new THREE.Vector3(4.25, 1.25, -1.55),
+          is2F ? new THREE.Vector3(-8.2, 11.65, 0.95) : new THREE.Vector3(0.45, 2.35, 1.55),
+          is2F ? new THREE.Vector3(-5.85, 10.55, 3.25) : new THREE.Vector3(1.10, 0.88, -1.92),
           880,
           () => {
-            if (!is2F) walkBruceTo(3.6, 1.55, { silent: true });
+            if (!is2F) walkBruceTo(1.15, 0.15, { silent: true });
             else walkBruceTo(-6.3, 0.95, { silent: true });
             later(() => bruce.playAction("lick_paw"), 650);
           },
@@ -1014,6 +1126,16 @@ export function mountLivingRoomHub(container, opts = {}) {
         sfx.playTap();
         spawnFxParticles(rect.width * 0.65, rect.height * 0.45, on ? "note" : "warm", 14);
         sayBruce(on ? "hifi_on_lines" : "hifi_off_lines", 4200, on ? "HARMAN · 爵士声场开启" : "HARMAN · 声场静默");
+      } else if (action === "mood") {
+        const nextDusk = toggleSunsetDuskMood();
+        sfx.playTap();
+        spawnFxParticles(rect.width * 0.62, rect.height * 0.42, "warm", 14);
+        sayBruce(nextDusk ? "暮色微醺，落地灯与露台灯笼一并点亮啦。" : "回到黄金夕照时刻，落日正洒在海面上。", 4200, "LIGHT · 光影情景");
+      } else if (action === "tv") {
+        const ch = cycleTvChannel();
+        sfx.playTap();
+        spawnFxParticles(rect.width * 0.72, rect.height * 0.36, "gold", 12);
+        sayBruce(`已为你切到「${ch.title}」，坐下来陪我一起看吧～`, 4200, `TV · ${ch.code}`);
       } else if (action === "chauffeur-cafe") {
         setConciergeOpen(false);
         sfx.playChauffeurReady();
@@ -1141,7 +1263,7 @@ export function mountLivingRoomHub(container, opts = {}) {
 
     if (skyCycloramaMat) {
       skyCycloramaMat.map = sulking || rainMode ? rainySkyTex : sunnySkyTex;
-      skyCycloramaMat.color.setHex(0xffffff);
+      skyCycloramaMat.color.setHex(sulking || rainMode ? 0xffffff : duskMode ? 0x6a5b7a : 0xffffff);
       skyCycloramaMat.needsUpdate = true;
     }
 
@@ -1152,6 +1274,8 @@ export function mountLivingRoomHub(container, opts = {}) {
       hemiLight.intensity = 0.95;
       sunLight.intensity = 0.3;
       ambientLight.intensity = 0.52;
+      warmLampLight.intensity = 0.4;
+      renderer.toneMappingExposure = 0.98;
       bruce.setMood("sulk");
     } else if (rainMode) {
       scene.background.setHex(0x36475b);
@@ -1160,17 +1284,34 @@ export function mountLivingRoomHub(container, opts = {}) {
       hemiLight.intensity = 1.1;
       sunLight.intensity = 0.55;
       ambientLight.intensity = 0.62;
+      warmLampLight.intensity = 1.2;
+      renderer.toneMappingExposure = 1.04;
+    } else if (duskMode) {
+      scene.background.setHex(0x1f283d);
+      hemiLight.color.setHex(0x9c88a4);
+      hemiLight.groundColor.setHex(0x3e3228);
+      hemiLight.intensity = 0.54;
+      sunLight.color.setHex(0xff8e52);
+      sunLight.intensity = 0.56;
+      ambientLight.intensity = 0.34;
+      warmLampLight.position.set(11.75, 3.68, 4.70);
+      warmLampLight.intensity = 6.2;
+      renderer.toneMappingExposure = 1.00;
+      if (!activeActId) bruce.setMood("happy");
     } else {
-      scene.background.setHex(0xdbeeff);
-      hemiLight.color.setHex(0xfffbf2);
-      hemiLight.groundColor.setHex(0xe2d6c5);
-      hemiLight.intensity = 1.5;
-      sunLight.color.setHex(0xffe7bf);
-      sunLight.intensity = 2.05;
-      ambientLight.intensity = 0.78;
-      if (!salonLampOn) warmLampLight.intensity = 0.0;
+      scene.background.setHex(0xebd8c4);
+      hemiLight.color.setHex(0xfff1dc);
+      hemiLight.groundColor.setHex(0xcab8a2);
+      hemiLight.intensity = 1.45;
+      sunLight.color.setHex(0xffcf94);
+      sunLight.intensity = 2.25;
+      ambientLight.intensity = 0.72;
+      warmLampLight.position.set(11.75, 3.68, 4.70);
+      warmLampLight.intensity = salonLampOn ? 2.8 : 0.9;
+      renderer.toneMappingExposure = 1.12;
       if (!activeActId) bruce.setMood("happy");
     }
+    terraceVista.setMood({ sulking: sulking || rainMode, dusk: duskMode });
     speechEl?.classList.toggle("is-sulk", sulking);
 
     pinItems.forEach(({ spot, btn }) => {
@@ -1216,8 +1357,12 @@ export function mountLivingRoomHub(container, opts = {}) {
 
     if (greet && !activeActId && loadingEl.classList.contains("is-hidden")) {
       if (!sulking) bruce.triggerHappyHop();
-      sayBruce(fl === "2f" ? "floor_2f_greet" : "floor_1f_greet", 4200);
+      sayBruce(
+        fl === "terrace" ? "terrace_greet" : fl === "2f" ? "floor_2f_greet" : "floor_1f_greet",
+        4400,
+      );
     }
+    meteorCtrl.notifyZone(fl);
     sfx.setFloorAmbience(fl);
     syncConciergeUi();
   }
@@ -1990,8 +2135,8 @@ export function mountLivingRoomHub(container, opts = {}) {
     // Tactile collector pieces: Gallery Art TV, Champagne Arched Lamp, Entry NO.07 Card, Concierge Pagers, Harman Speakers & Firebox
     const interactiveMeshes = [
       tvScreenMesh,
-      arcLampMesh,
       patronCardMesh,
+      ...lampClickMeshes,
       ...conciergeMeshes,
       ...hifiMeshes,
       ...fireplaceMeshes,
@@ -2030,19 +2175,19 @@ export function mountLivingRoomHub(container, opts = {}) {
           return;
         }
         if (hitObj === tvScreenMesh && tvScreenMat) {
-          tvArtIdx = (tvArtIdx + 1) % tvArtTexs.length;
-          tvScreenMat.map = tvArtTexs[tvArtIdx];
-          tvScreenMat.needsUpdate = true;
+          const ch = cycleTvChannel();
           spawnFxParticles(e.clientX - stageRect.left, e.clientY - stageRect.top, "gold", 12);
-          sayBruce("tv_art_swap", 3800);
+          sayBruce("tv_art_swap", 3800, `TV · ${ch.code}`);
           return;
         }
-        if (hitObj === arcLampMesh) {
-          salonLampOn = !salonLampOn;
-          warmLampLight.position.set(10.6, 4.8, 2.8);
-          warmLampLight.intensity = salonLampOn ? 2.6 : 0.0;
+        if (lampClickMeshes.includes(hitObj)) {
+          const nextDusk = toggleSunsetDuskMood();
           spawnFxParticles(e.clientX - stageRect.left, e.clientY - stageRect.top, "warm", 14);
-          sayBruce("lamp_toggle", 3800);
+          sayBruce(
+            nextDusk ? "已点亮胡桃木落地灯，切换暮色微醺氛围。" : "切换回落日夕照客厅光线。",
+            3800,
+            "BRUCE · 暖光切换",
+          );
           return;
         }
       }
@@ -2094,6 +2239,14 @@ export function mountLivingRoomHub(container, opts = {}) {
   window.addEventListener("bruce:door-opened", onDoorOpened);
   cleanups.push(() => window.removeEventListener("bruce:door-opened", onDoorOpened));
 
+  const onKeyShortcut = (e) => {
+    if (!destroyed && !activeActId && e.shiftKey && e.key?.toLowerCase() === "m") {
+      meteorCtrl.triggerNow();
+    }
+  };
+  window.addEventListener("keydown", onKeyShortcut);
+  cleanups.push(() => window.removeEventListener("keydown", onKeyShortcut));
+
   // Main render loop
   let prevNow = performance.now();
   const projVec = new THREE.Vector3();
@@ -2142,9 +2295,30 @@ export function mountLivingRoomHub(container, opts = {}) {
       }
     } else {
       controls.update();
-      camera.position.x = THREE.MathUtils.clamp(camera.position.x, -14.2, 14.2);
-      camera.position.y = THREE.MathUtils.clamp(camera.position.y, 1.6, 17.6);
-      camera.position.z = THREE.MathUtils.clamp(camera.position.z, -14.2, 14.9);
+      const onBalconySide = activeFloor === "terrace" || controls.target.z < -15.4 || bruce.root.position.z < -15.4;
+      if (onBalconySide) {
+        camera.position.x = THREE.MathUtils.clamp(camera.position.x, -15.0, 15.0);
+        camera.position.y = THREE.MathUtils.clamp(camera.position.y, 1.05, 14.5);
+        camera.position.z = THREE.MathUtils.clamp(camera.position.z, -28.8, 14.8);
+      } else {
+        camera.position.x = THREE.MathUtils.clamp(camera.position.x, -14.0, 14.0);
+        camera.position.y = THREE.MathUtils.clamp(camera.position.y, 1.4, 17.6);
+        camera.position.z = THREE.MathUtils.clamp(camera.position.z, -15.1, 14.8);
+      }
+    }
+
+    // Live animated TV channels, sunset ocean wave shimmer, wheeling 3D seagulls, & shooting stars
+    oldMoneyTv.update(elapsed);
+    terraceVista.update(dt, elapsed);
+    meteorCtrl.update(dt);
+
+    // Smooth vertical perch adjustment when Bruce walks onto/off the plush Terrace sunset sofa
+    if (activeFloor === "terrace" || bruce.root.position.z < -15.6) {
+      const bx = bruce.root.position.x;
+      const bz = bruce.root.position.z;
+      const onSofa = bx >= -0.45 && bx <= 3.25 && bz >= -23.25 && bz <= -21.75;
+      const desiredY = onSofa ? 0.56 : 0.02;
+      bruce.root.position.y = THREE.MathUtils.lerp(bruce.root.position.y, desiredY, Math.min(1, dt * 8.0));
     }
 
     // Dust motes / rain motion
@@ -2241,6 +2415,32 @@ export function mountLivingRoomHub(container, opts = {}) {
     bruce.update(dt, elapsed);
     const rigDiag = bruce.getDiag?.();
     if (rigDiag) stageEl.dataset.rigDiag = JSON.stringify(rigDiag);
+    const pDiag = {
+      floor: activeFloor,
+      duskMode,
+      tvChannel: oldMoneyTv.getChannel(),
+      camPos: camera.position.toArray().map((n) => +n.toFixed(2)),
+      target: controls.target.toArray().map((n) => +n.toFixed(2)),
+      brucePos: bruce.root.position.toArray().map((n) => +n.toFixed(2)),
+      meteor: meteorCtrl.getState(),
+      happiness,
+    };
+    window.__BRUCE_PENTHOUSE_DIAG__ = {
+      ...pDiag,
+      switchFloor: (fl) => switchFloor(fl, { animate: false, greet: false }),
+      setOrbitPose: (pos, target) => {
+        camTween = null;
+        camera.position.fromArray(pos);
+        controls.target.fromArray(target);
+        controls.update();
+      },
+      nextTvChannel: () => cycleTvChannel(elapsed),
+      toggleDusk: () => toggleSunsetDuskMood(),
+      triggerMeteor: (b = null) => meteorCtrl.triggerNow(b),
+    };
+    if (Math.floor(elapsed * 2) !== Math.floor((elapsed - dt) * 2)) {
+      stageEl.dataset.penthouseDiag = JSON.stringify(pDiag);
+    }
     renderer.render(scene, camera);
 
     // Hide cinema subtitle when settle modal or swap celebration banner is shown
@@ -2328,6 +2528,7 @@ export function mountLivingRoomHub(container, opts = {}) {
       destroyed = true;
       sfx.setVinylMode(false);
       sfx.clearSceneAmbience("penthouse");
+      delete window.__BRUCE_PENTHOUSE_DIAG__;
       document.body.classList.remove("is-hub3d-view", "is-hub3d-act");
       if (rafId) cancelAnimationFrame(rafId);
       actCleanup?.();
@@ -2336,12 +2537,14 @@ export function mountLivingRoomHub(container, opts = {}) {
       cleanups.forEach((fn) => fn());
       cleanups.length = 0;
       bruce.destroy();
+      oldMoneyTv.dispose();
+      terraceVista.dispose();
+      meteorCtrl.dispose();
       controls.dispose();
       sunnySkyTex.dispose();
       rainySkyTex.dispose();
       patronCardTex.dispose();
       flameTex.dispose();
-      tvArtTexs.forEach((t) => t.dispose());
       skyCycloramaMat?.dispose?.();
       tvScreenMat?.dispose?.();
       patronCardMat?.dispose?.();

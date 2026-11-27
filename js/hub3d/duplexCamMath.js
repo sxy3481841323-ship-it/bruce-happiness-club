@@ -28,7 +28,7 @@ const ATRIUM_LIFT_Y = 0.85;
 
 /**
  * @typedef {Object} FloorPreset
- * @property {'1f'|'2f'} id
+ * @property {'1f'|'2f'|'terrace'} id
  * @property {string} label
  * @property {[number, number, number]} camPos
  * @property {[number, number, number]} target
@@ -40,23 +40,23 @@ const ATRIUM_LIFT_Y = 0.85;
  */
 
 /**
- * @type {{ '1f': FloorPreset, '2f': FloorPreset }}
+ * @type {{ '1f': FloorPreset, '2f': FloorPreset, 'terrace': FloorPreset }}
  */
 export const FLOOR_PRESETS = {
   '1f': {
     id: '1f',
     label: '1F · 挑空客厅',
     camPos: [-3.2, 5.4, 14.2],
-    target: [3.4, 3.0, -2.6],
+    target: [2.4, 2.8, -2.6],
     floorY: 0.04,
     brucePos: [1.2, 0.04, 2.6],
     bruceRot: -0.24,
-    walkBounds: { minX: -2.2, maxX: 6.2, minZ: 1.4, maxZ: 6.4 },
+    walkBounds: { minX: -4.2, maxX: 7.2, minZ: -27.8, maxZ: 8.6 },
     walkSpots: [
       [1.2, 2.6],
       [3.4, 4.0],
       [-0.8, 3.2],
-      [4.8, 2.2]
+      [1.4, -22.45]
     ]
   },
   '2f': {
@@ -73,6 +73,22 @@ export const FLOOR_PRESETS = {
       [-9.4, -7.2],
       [-6.2, -1.8],
       [-9.8, 0.2]
+    ]
+  },
+  'terrace': {
+    id: 'terrace',
+    label: '1F · 观海露台',
+    camPos: [5.4, 2.35, -18.2],
+    target: [0.4, 0.95, -26.5],
+    floorY: 0.02,
+    brucePos: [1.4, 0.56, -22.45],
+    bruceRot: Math.PI * 0.92,
+    walkBounds: { minX: -12.5, maxX: 12.5, minZ: -28.0, maxZ: -16.6 },
+    walkSpots: [
+      [1.4, -22.45],
+      [-3.2, -25.6],
+      [5.4, -25.4],
+      [0.6, -27.3]
     ]
   }
 };

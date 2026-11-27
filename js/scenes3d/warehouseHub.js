@@ -389,10 +389,10 @@ export function mountWarehouseHub(container, opts = {}) {
   controls.enablePan = false;
   controls.minDistance = 5.5;
   controls.maxDistance = 23.0;
-  controls.minPolarAngle = 0.72;
-  controls.maxPolarAngle = 1.46;
-  controls.minAzimuthAngle = -0.92;
-  controls.maxAzimuthAngle = 0.92;
+  controls.minPolarAngle = 0.55;
+  controls.maxPolarAngle = 1.54;
+  controls.minAzimuthAngle = -Infinity;
+  controls.maxAzimuthAngle = Infinity;
   controls.update();
 
   // Lighting Rig: Clerestory Skylight Daylight + Copper Tasting Bar Warm Glow + Freezer Ice-Blue Glow

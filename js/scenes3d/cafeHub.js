@@ -352,10 +352,10 @@ export function mountCoastalCafeHub(container, opts = {}) {
   controls.enablePan = false;
   controls.minDistance = 6.0;
   controls.maxDistance = 26.5;
-  controls.minPolarAngle = 0.72;
-  controls.maxPolarAngle = 1.46;
-  controls.minAzimuthAngle = -1.08;
-  controls.maxAzimuthAngle = 1.08;
+  controls.minPolarAngle = 0.55;
+  controls.maxPolarAngle = 1.54;
+  controls.minAzimuthAngle = -Infinity;
+  controls.maxAzimuthAngle = Infinity;
   controls.update();
 
   // Coastal Daylight + Warm Bar/Pendant Lighting Rig

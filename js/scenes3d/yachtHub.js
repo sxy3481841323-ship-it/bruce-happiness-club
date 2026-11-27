@@ -3,6 +3,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { createLivingBruce } from "../hub3d/bruceLiving.js";
 import { mountBruceChatBar } from "../hub3d/bruceChatUi.js";
+import { createLuckyMeteorController } from "../hub3d/luckyMeteor.js";
 import { createHarbourWater } from "./yachtWater.js";
 import {
   YACHT_CAM_PRESETS,
@@ -210,6 +211,13 @@ export function mountYachtHub(container, opts = {}) {
         <button type="button" class="hub3d-reset-btn">⌖ 归中视角</button>
 
         <div class="sc3d-yacht-fade" id="yacht-fade-veil"></div>
+        <div class="hub3d-lucky-toast" id="yacht-lucky-toast" role="status" aria-live="polite">
+          <span class="lucky-star-badge" aria-hidden="true">✦</span>
+          <div class="lucky-toast-body">
+            <div class="lucky-toast-title">幸运时刻 · 流星掠过海平线</div>
+            <div class="lucky-toast-sub" id="yacht-lucky-sub">布鲁斯仰头许愿 · 幸福指数 +8</div>
+          </div>
+        </div>
         <div class="hub3d-loading">
           <span>正在停靠私家柚木泊位……</span>
         </div>
@@ -236,6 +244,8 @@ export function mountYachtHub(container, opts = {}) {
   const keyholderTray = container.querySelector(".keyholder-tray");
   const pinsLayer = container.querySelector(".hub3d-pins");
   const resetBtn = container.querySelector(".hub3d-reset-btn");
+  const luckyToastEl = container.querySelector("#yacht-lucky-toast");
+  const luckySubEl = container.querySelector("#yacht-lucky-sub");
 
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   const lowTier = dpr <= 1.0 && Math.min(window.innerWidth, window.innerHeight) < 760;
@@ -963,10 +973,37 @@ export function mountYachtHub(container, opts = {}) {
   const gwWorldYacht = new THREE.Vector3();
   const tmpEuler = new THREE.Euler(0, 0, 0, "YXZ");
 
+  const prevWaterRender = null;
+  let luckyToastTimer = null;
+  const meteorCtrl = createLuckyMeteorController(scene, {
+    skyZ: -86,
+    isPaused: () => Boolean(droneState) || !loadingEl.classList.contains("is-hidden"),
+    getContext: () => ({ sulking, zone: "yacht", dusk: false }),
+    async onTrigger({ bonus }) {
+      sfx.playConciergeBell();
+      later(() => sfx.playSuccess(), 160);
+      if (!sulking) bruce.triggerHappyHop();
+      sayBruce(`流星划过柚木泊位上空！布鲁斯摇着尾巴许下心愿，幸运指数 +${bonus}。`, 4600, "LUCKY · 海上流星");
+      const applied = await opts.onLuckyBonus?.(bonus);
+      const shownBonus = applied?.bonus ?? bonus;
+      if (luckySubEl) {
+        luckySubEl.textContent = applied?.newScore
+          ? `布鲁斯摇尾许愿 · 幸福指数 +${shownBonus}（当前 ${applied.newScore}）`
+          : `布鲁斯摇尾许愿 · 幸福指数 +${shownBonus}`;
+      }
+      if (luckyToastEl) {
+        luckyToastEl.classList.add("is-visible");
+        if (luckyToastTimer) clearTimeout(luckyToastTimer);
+        luckyToastTimer = later(() => luckyToastEl.classList.remove("is-visible"), 4600);
+      }
+    },
+  });
+
   function tick(nowMs) {
     if (destroyed) return;
     const dt = Math.min(0.05, Math.max(0.001, (nowMs - prevNow) / 1000));
     prevNow = nowMs;
+    meteorCtrl.update(dt);
 
     if (!waterPaused) {
       simClock += dt;
@@ -1136,6 +1173,7 @@ export function mountYachtHub(container, opts = {}) {
       timers.clear();
       cleanups.forEach((fn) => fn());
       bruce.destroy();
+      meteorCtrl.dispose();
       water.dispose();
       controls.dispose();
       disposables.forEach((d) => d?.dispose?.());

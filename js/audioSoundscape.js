@@ -165,9 +165,14 @@ export function createSoundscapeController(ensureCtxFn, isMutedFn) {
   }
 
   function _hearthMul() {
-    let m = desiredOpts.floor === "2f" ? 0.35 : 1.0;
+    let m = desiredOpts.floor === "terrace" ? 0.14 : desiredOpts.floor === "2f" ? 0.35 : 1.0;
     if (desiredOpts.sulking) m *= 0.6;
     return m;
+  }
+
+  function _breezeMul() {
+    if (desiredOpts.floor !== "terrace") return 0.0001;
+    return desiredOpts.sulking ? 0.04 : 0.11;
   }
 
   function _startPenthouse() {
@@ -199,7 +204,18 @@ export function createSoundscapeController(ensureCtxFn, isMutedFn) {
     ag.gain.value = 0.02 * _hearthMul();
     air.connect(bp).connect(ag).connect(gain);
     air.start();
-    sceneNodes = { gain, sources: [rumble, air], hearthGain: rg, airGain: ag };
+    const surf = c.createBufferSource();
+    surf.buffer = buf.pink;
+    surf.loop = true;
+    const sbp = c.createBiquadFilter();
+    sbp.type = "bandpass";
+    sbp.frequency.value = 260;
+    sbp.Q.value = 0.75;
+    const sg = c.createGain();
+    sg.gain.value = _breezeMul();
+    surf.connect(sbp).connect(sg).connect(gain);
+    surf.start();
+    sceneNodes = { gain, sources: [rumble, air, surf], hearthGain: rg, airGain: ag, surfGain: sg };
     _ramp(gain.gain, 0.14, 0.6);
     const crackle = () => {
       if (desiredScene !== "penthouse" || isMutedFn()) return;
@@ -409,10 +425,13 @@ export function createSoundscapeController(ensureCtxFn, isMutedFn) {
       _stopVinyl();
     },
     setFloor(floorId) {
-      desiredOpts.floor = floorId === "2f" ? "2f" : "1f";
+      desiredOpts.floor = floorId === "terrace" ? "terrace" : floorId === "2f" ? "2f" : "1f";
       if (sceneNodes && sceneNodes.hearthGain) {
         safe(() => sceneNodes.hearthGain.gain.setTargetAtTime(0.09 * _hearthMul(), now(), 0.4));
         safe(() => sceneNodes.airGain.gain.setTargetAtTime(0.02 * _hearthMul(), now(), 0.4));
+        if (sceneNodes.surfGain) {
+          safe(() => sceneNodes.surfGain.gain.setTargetAtTime(_breezeMul(), now(), 0.45));
+        }
       }
     },
     toggleHifi(forceBool) {

@@ -57,12 +57,12 @@ function makeMarbleFloorTexture() {
   c.width = 512;
   c.height = 512;
   const ctx = c.getContext("2d");
-  ctx.fillStyle = "#EAE0D0";
+  ctx.fillStyle = "#DECDB4";
   ctx.fillRect(0, 0, 512, 512);
 
-  // Subtle tile grid & warm cream travertine veining
-  ctx.strokeStyle = "rgba(156, 128, 88, 0.2)";
-  ctx.lineWidth = 2;
+  // Subtle tile grid, Emperador bronze border inlay & warm travertine veining
+  ctx.strokeStyle = "rgba(118, 92, 58, 0.28)";
+  ctx.lineWidth = 3;
   for (let i = 0; i <= 512; i += 128) {
     ctx.beginPath();
     ctx.moveTo(i, 0);
@@ -73,9 +73,9 @@ function makeMarbleFloorTexture() {
     ctx.lineTo(512, i);
     ctx.stroke();
   }
-  for (let v = 0; v < 24; v++) {
-    ctx.strokeStyle = v % 3 === 0 ? "rgba(182, 148, 102, 0.16)" : "rgba(255, 250, 240, 0.35)";
-    ctx.lineWidth = 1.2 + (v % 2);
+  for (let v = 0; v < 36; v++) {
+    ctx.strokeStyle = v % 3 === 0 ? "rgba(148, 114, 72, 0.22)" : "rgba(255, 248, 234, 0.34)";
+    ctx.lineWidth = 1.4 + (v % 3) * 0.6;
     ctx.beginPath();
     let x = (v * 37) % 512;
     let y = (v * 53) % 512;
@@ -96,20 +96,128 @@ function makeMarbleFloorTexture() {
 
 function makeStoneWallTexture() {
   const c = document.createElement("canvas");
-  c.width = 256;
-  c.height = 256;
+  c.width = 512;
+  c.height = 512;
   const ctx = c.getContext("2d");
-  ctx.fillStyle = "#E2D7C5";
-  ctx.fillRect(0, 0, 256, 256);
-  for (let i = 0; i < 650; i++) {
-    const shade = 205 + (i % 24);
-    ctx.fillStyle = `rgba(${shade}, ${shade - 8}, ${shade - 20}, 0.25)`;
-    ctx.fillRect((i * 29) % 256, (i * 47) % 256, 6, 4);
+  const g = ctx.createLinearGradient(0, 0, 512, 512);
+  g.addColorStop(0, "#CEBEAA");
+  g.addColorStop(0.5, "#C1AE96");
+  g.addColorStop(1, "#D4C4AE");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 512, 512);
+
+  // Warm Venetian Marmorino mineral plaster trowel clouds (no stark white!)
+  for (let i = 0; i < 1400; i++) {
+    const shade = 178 + (i % 28);
+    ctx.fillStyle = `rgba(${shade}, ${shade - 12}, ${shade - 26}, 0.22)`;
+    ctx.fillRect((i * 37) % 512, (i * 59) % 512, 14 + (i % 9), 7 + (i % 5));
+  }
+  // Architectural limestone ashlar joint lines & subtle antique-brass hairline reveals
+  ctx.strokeStyle = "rgba(110, 88, 64, 0.28)";
+  ctx.lineWidth = 2;
+  for (let y = 0; y <= 512; y += 128) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(512, y);
+    ctx.stroke();
+  }
+  for (let x = 0; x <= 512; x += 256) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, 512);
+    ctx.stroke();
   }
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
   tex.repeat.set(2, 2);
+  return tex;
+}
+
+function makeFoyerRunnerTexture() {
+  const c = document.createElement("canvas");
+  c.width = 512;
+  c.height = 1024;
+  const ctx = c.getContext("2d");
+  // Hand-knotted Tibetan wool & raw silk foyer runner (oatmeal taupe + burgundy-brass borders)
+  ctx.fillStyle = "#D8CEBC";
+  ctx.fillRect(0, 0, 512, 1024);
+  for (let y = 0; y < 1024; y += 4) {
+    const tone = 208 + Math.round(Math.sin(y * 0.045) * 6 + ((y * 7) % 5));
+    ctx.fillStyle = `rgba(${tone}, ${tone - 11}, ${tone - 26}, 0.45)`;
+    ctx.fillRect(0, y, 512, 2);
+  }
+  // Outer espresso-umber border & antique brass key border & #652C39 selvedge pinstripe
+  ctx.strokeStyle = "#4A3A2C";
+  ctx.lineWidth = 28;
+  ctx.strokeRect(18, 18, 476, 988);
+  ctx.strokeStyle = "#B39256";
+  ctx.lineWidth = 8;
+  ctx.strokeRect(42, 42, 428, 940);
+  ctx.strokeStyle = "#652C39";
+  ctx.lineWidth = 4;
+  ctx.strokeRect(56, 56, 400, 912);
+  // Dual subtle tonal diamond medallions
+  [300, 724].forEach((cy) => {
+    ctx.save();
+    ctx.translate(256, cy);
+    ctx.strokeStyle = "rgba(101, 44, 57, 0.55)";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, -110);
+    ctx.lineTo(96, 0);
+    ctx.lineTo(0, 110);
+    ctx.lineTo(-96, 0);
+    ctx.closePath();
+    ctx.fillStyle = "rgba(182, 152, 98, 0.16)";
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = "#9C7F49";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, -68);
+    ctx.lineTo(58, 0);
+    ctx.lineTo(0, 68);
+    ctx.lineTo(-58, 0);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
+  });
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function makeEtchingArtTexture(seed = 1) {
+  const c = document.createElement("canvas");
+  c.width = 256;
+  c.height = 340;
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "#EAE0CE";
+  ctx.fillRect(0, 0, 256, 340);
+  ctx.strokeStyle = "#3E3228";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(24, 24, 208, 292);
+  ctx.fillStyle = "#D4C4AA";
+  ctx.fillRect(34, 34, 188, 272);
+  ctx.strokeStyle = "#4A3C31";
+  ctx.lineWidth = 2.2;
+  ctx.beginPath();
+  if (seed === 1) {
+    ctx.moveTo(46, 232);
+    ctx.lineTo(210, 232);
+    ctx.moveTo(124, 92);
+    ctx.lineTo(124, 232);
+    ctx.lineTo(182, 210);
+    ctx.closePath();
+  } else {
+    ctx.arc(128, 165, 62, 0, Math.PI * 2);
+    ctx.moveTo(64, 245);
+    ctx.quadraticCurveTo(128, 195, 192, 245);
+  }
+  ctx.stroke();
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
   return tex;
 }
 
@@ -228,6 +336,9 @@ export function mountPrologue3D(canvasEl, opts = {}) {
   const bronzeTex = trackTex(makeBronzeTexture());
   const marbleTex = trackTex(makeMarbleFloorTexture());
   const stoneTex = trackTex(makeStoneWallTexture());
+  const runnerTex = trackTex(makeFoyerRunnerTexture());
+  const artTex1 = trackTex(makeEtchingArtTexture(1));
+  const artTex2 = trackTex(makeEtchingArtTexture(2));
   const plateTex = trackTex(makeNameplateTexture());
   const dial = makeDialCanvas();
   trackTex(dial.tex);
@@ -264,14 +375,14 @@ export function mountPrologue3D(canvasEl, opts = {}) {
     metalness: 0.06,
   }));
   const matCeiling = trackMat(new THREE.MeshStandardMaterial({
-    color: 0xe6dccb,
+    color: 0xd7cbb8,
     roughness: 0.72,
     metalness: 0.04,
   }));
   const matRug = trackMat(new THREE.MeshStandardMaterial({
-    color: 0x541825,
-    roughness: 0.92,
-    metalness: 0.0,
+    map: runnerTex,
+    roughness: 0.90,
+    metalness: 0.02,
   }));
   const matCoveGlow = trackMat(new THREE.MeshBasicMaterial({ color: 0xffe0a1 }));
 
@@ -333,6 +444,18 @@ export function mountPrologue3D(canvasEl, opts = {}) {
   portalTop.position.set(0, 2.98, 2.86);
   scene.add(portalLeft, portalRight, portalTop);
 
+  // Fluted walnut architectural wing panels & brass reveals flanking the lift doors (eliminates plain stone)
+  [-1, 1].forEach((side) => {
+    const px = side * 1.46;
+    const wingWalnut = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.62, 2.88, 0.06)), matWalnut);
+    wingWalnut.position.set(px, 1.44, 2.74);
+    const wingBrass = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.68, 2.94, 0.03)), matBrass);
+    wingBrass.position.set(px, 1.44, 2.725);
+    const frontWingWalnut = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.62, 2.88, 0.06)), matWalnut);
+    frontWingWalnut.position.set(px, 1.44, 2.98);
+    scene.add(wingWalnut, wingBrass, frontWingWalnut);
+  });
+
   // Brushed-brass elevator portal frame + overhead floor indicator
   const portalJambL = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.08, 2.64, 0.28)), matBrass);
   portalJambL.position.set(-1.04, 1.32, 2.86);
@@ -374,7 +497,7 @@ export function mountPrologue3D(canvasEl, opts = {}) {
   // =========================================================================
   // ARCHITECTURAL SHELL: PENTHOUSE PRIVATE FOYER (z = 0 .. 2.75)
   // =========================================================================
-  // Left & Right Stone/Walnut Foyer Walls
+  // Left & Right Marmorino/Walnut Boiserie Foyer Walls (zero blank white walls!)
   [-1, 1].forEach((side) => {
     const wx = side * 2.75;
     const upperWall = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.18, 3.36, 3.0)), matStoneWall);
@@ -382,15 +505,35 @@ export function mountPrologue3D(canvasEl, opts = {}) {
     upperWall.receiveShadow = true;
     scene.add(upperWall);
 
-    // Lower walnut architectural wainscoting
+    // Lower walnut architectural wainscoting + brass shadow-gap base
     const wainscot = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.06, 1.15, 2.8)), matWalnut);
     wainscot.position.set(wx - side * 0.1, 0.58, 1.38);
     const chairRail = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.08, 0.05, 2.82)), matBrass);
     chairRail.position.set(wx - side * 0.1, 1.16, 1.38);
-    scene.add(wainscot, chairRail);
+    const baseSkirt = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.08, 0.12, 2.82)), matBronze);
+    baseSkirt.position.set(wx - side * 0.1, 0.06, 1.38);
+
+    // Upper boiserie walnut pilasters + framed archival etching art on BOTH side walls
+    [0.52, 2.24].forEach((pz) => {
+      const pilaster = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.08, 3.24, 0.26)), matWalnutPanel);
+      pilaster.position.set(wx - side * 0.10, 1.62, pz);
+      const brassBead = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.09, 3.24, 0.03)), matBrass);
+      brassBead.position.set(wx - side * 0.10, 1.62, pz);
+      scene.add(pilaster, brassBead);
+    });
+    const boiserieFrame = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.04, 1.56, 1.24)), matWalnut);
+    boiserieFrame.position.set(wx - side * 0.10, 2.08, 1.38);
+    const artPlate = new THREE.Mesh(
+      trackGeo(new THREE.BoxGeometry(0.05, 1.24, 0.94)),
+      trackMat(new THREE.MeshStandardMaterial({ map: side < 0 ? artTex1 : artTex2, roughness: 0.42 })),
+    );
+    artPlate.position.set(wx - side * 0.11, 2.08, 1.38);
+    const crownCornice = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.14, 0.12, 2.9)), matWalnut);
+    crownCornice.position.set(wx - side * 0.12, 3.26, 1.38);
+    scene.add(wainscot, chairRail, baseSkirt, boiserieFrame, artPlate, crownCornice);
   });
 
-  // Back wall around the 3D entrance doorway (z = 0.0)
+  // Back wall around the 3D entrance doorway (z = 0.0) — clad in walnut & travertine boiserie panels
   const backWallL = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(2.1, 3.36, 0.28)), matStoneWall);
   backWallL.position.set(-1.82, 1.68, 0.0);
   backWallL.receiveShadow = true;
@@ -400,6 +543,21 @@ export function mountPrologue3D(canvasEl, opts = {}) {
   const backWallTop = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(1.7, 0.78, 0.28)), matStoneWall);
   backWallTop.position.set(0, 2.97, 0.0);
   scene.add(backWallL, backWallR, backWallTop);
+
+  [-1, 1].forEach((side) => {
+    const panelX = side * 1.62;
+    const dado = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(1.32, 1.15, 0.06)), matWalnut);
+    dado.position.set(panelX, 0.58, 0.15);
+    const dadoRail = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(1.34, 0.05, 0.08)), matBrass);
+    dadoRail.position.set(panelX, 1.16, 0.15);
+    const upperWalnutPanel = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.92, 1.72, 0.05)), matWalnutPanel);
+    upperWalnutPanel.position.set(panelX, 2.18, 0.145);
+    const upperBrassTrim = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.98, 1.78, 0.03)), matBrass);
+    upperBrassTrim.position.set(panelX, 2.18, 0.14);
+    const flankPilaster = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.24, 3.30, 0.09)), matWalnut);
+    flankPilaster.position.set(side * 2.48, 1.65, 0.15);
+    scene.add(dado, dadoRail, upperWalnutPanel, upperBrassTrim, flankPilaster);
+  });
 
   // Two 3D Brass & Frosted Glass Wall Sconces flanking the doorway
   const sconceGlassMat = trackMat(new THREE.MeshBasicMaterial({ color: 0xffefc9 }));

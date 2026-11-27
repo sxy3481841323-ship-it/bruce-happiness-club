@@ -83,6 +83,7 @@ export function mountScene(container, opts = {}) {
 ### 迁移记录
 
 2026-11-26：原有 49 个通用技能（包含 Antigravity 最近补充的技能）已完整汇入独立共享库；本项目保留共享入口。业务代码、协作权限和部署规则遵循本文件原有约定。
+2026-11-28：新增 3 个高阶通用技能已封装并同步至共享库：`sleep-shift-autopilot`（`"我睡觉了"` 夜间全自动推进 + 自发润色协议）、`deepseek-collab`（`"与ds合作"` 80/20 双脑并发零返修铁律）、`apple-oldmoney-dual-style`（老钱建筑质感 × Apple 极简流光双风格规范，严禁白墙）。
 
 ---
 

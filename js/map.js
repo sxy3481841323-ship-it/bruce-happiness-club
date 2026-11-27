@@ -35,6 +35,26 @@ let closeModalFn = null;
 let cachedHubCopy = null;
 let hubCopyPromise = null;
 let lastSincerityAt = 0;
+let lastLuckyAt = 0;
+
+async function applyLuckyBonus(rawBonus) {
+  const bonus = [8, 18, 28].includes(Number(rawBonus)) ? Number(rawBonus) : 8;
+  const now = Date.now();
+  if (now - lastLuckyAt < 12000) return null;
+  const player = store.state.player;
+  if (!player) return null;
+  lastLuckyAt = now;
+  const nextScore = Math.max(0, Math.min(9999, Math.round(player.happiness + bonus)));
+  const tickerMsg = `${player.nickname} 与布鲁斯在夕照海平线捕捉到划落流星 · 幸运时刻 +${bonus}`;
+  try {
+    const res = await apiUpdateScore(player.nickname, player.pin, player.owner, nextScore, tickerMsg);
+    store.setPlayer({ ...res.player, pin: player.pin });
+    store.setLeaderboardAndTicker(res.leaderboard, res.ticker);
+    return { bonus, newScore: res.player.happiness };
+  } catch (_) {
+    return null;
+  }
+}
 
 async function applyAiSincerityDelta(rawDelta) {
   const delta = Math.max(-1, Math.min(3, Math.round(Number(rawDelta) || 0)));
@@ -332,6 +352,7 @@ export function renderMapView(container) {
     getHappiness: () => store.state.player?.happiness ?? 100,
     onSettle: (result) => settleScoreAndSwap(result, "客厅陪玩"),
     onSincerityDelta: (delta) => applyAiSincerityDelta(delta),
+    onLuckyBonus: (bonus) => applyLuckyBonus(bonus),
     onOpenShop: () => store.setView("shop"),
     onTeleportStreet: () => store.setView("street"),
     onTeleportWarehouse: () => store.setView("warehouse"),
@@ -428,6 +449,7 @@ export function renderYachtView(container) {
     getHappiness: () => store.state.player?.happiness ?? 100,
     onSettle: (result) => settleScoreAndSwap(result, "白帆游艇泊位时光"),
     onSincerityDelta: (delta) => applyAiSincerityDelta(delta),
+    onLuckyBonus: (bonus) => applyLuckyBonus(bonus),
     onOpenShop: () => store.setView("shop"),
     onBackToHub: () => store.setView("map"),
     onTeleportStreet: () => store.setView("street"),
