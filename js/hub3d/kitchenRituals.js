@@ -68,11 +68,11 @@ export function createKitchenRituals({
   southCourtyardBbqLight.position.set(11.4, 4.8, 41.2);
   scene.add(southCourtyardBbqLight);
 
-  // Scaled espresso extraction stream at (12.82, 2.86 -> 2.40, 28.50)
+  // Scaled espresso extraction stream at La Marzocco left grouphead (12.60, 2.82 -> 2.42, 28.50)
   const espressoCurve = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(12.82, 2.86, 28.50),
-    new THREE.Vector3(12.82, 2.62, 28.50),
-    new THREE.Vector3(12.82, 2.40, 28.50),
+    new THREE.Vector3(12.60, 2.82, 28.50),
+    new THREE.Vector3(12.60, 2.62, 28.50),
+    new THREE.Vector3(12.60, 2.42, 28.50),
   ]);
   const espressoStreamGeo = new THREE.TubeGeometry(espressoCurve, 12, 0.020, 8, false);
   const espressoStreamMat = new THREE.MeshBasicMaterial({
@@ -146,9 +146,9 @@ export function createKitchenRituals({
       fridgeDoorMeshes.push(obj);
     } else if (/^Fridge|^BioFresh/i.test(obj.name)) {
       fridgeDoorMeshes.push(obj);
-    } else if (/^KitchenEspresso|^Coffee|^KitchenGranola/i.test(obj.name)) {
+    } else if (/^KitchenEspresso|^Espresso|^Coffee|^KitchenAid|^EstateBlender|^Chemex|^KitchenGranola/i.test(obj.name)) {
       espressoMeshes.push(obj);
-    } else if (/^Wolf|^LeCreuset|^Mauviel|^StainlessSaucier|^CastIronGrill|^CarbonSteelWok|^BackSplashPotRail|^KitchenSteakBoard|^KitchenRawSteaks/i.test(obj.name)) {
+    } else if (/^Wolf|^LeCreuset|^Mauviel|^StainlessSaucier|^CastIronGrill|^CarbonSteelWok|^BackSplashPotRail|^KitchenSteakBoard|^KitchenRawSteaks|^DryAge|^Berkel|^Damascus|^MarbleMortar|^BrassCruets|^TruffleCloche/i.test(obj.name)) {
       steakHerbMeshes.push(obj);
     } else if (/^KitchenPourBottle|^KitchenPourFoil/i.test(obj.name)) {
       pendingWineBottle.push(obj);
@@ -284,8 +284,8 @@ export function createKitchenRituals({
     const r = stageEl.getBoundingClientRect();
     spawnFxParticles(r.width * 0.56, r.height * 0.48, "warm", 14);
     flyCamera(
-      new THREE.Vector3(5.6, 4.15, 24.4),
-      new THREE.Vector3(13.0, 2.95, 26.45),
+      new THREE.Vector3(7.4, 3.85, 28.5),
+      new THREE.Vector3(13.2, 2.95, 28.5),
       780,
     );
     sayBruce(
@@ -383,13 +383,13 @@ export function createKitchenRituals({
     const r = stageEl.getBoundingClientRect();
     spawnFxParticles(r.width * 0.5, r.height * 0.48, "note", 16);
     flyCamera(
-      new THREE.Vector3(25.6, 4.3, -13.2),
-      new THREE.Vector3(44.0, 2.4, -6.8),
+      new THREE.Vector3(25.2, 4.2, -11.8),
+      new THREE.Vector3(48.0, 1.2, -10.5),
       800,
     );
     walkBruceTo(25.6, -9.6, { silent: true });
     later(() => bruce.triggerHappyHop?.(), 650);
-    sayBruce("在弧形全景落地窗前奏响九尺黑檀木三角钢琴与夜曲乐谱，窗外跨河斜拉大桥与暮色天际线正一点点亮起灯火。", 5200, "CLUB · 黑檀木三角钢琴");
+    sayBruce("在弧形全景落地窗前奏响九尺黑檀木三角钢琴与夜曲乐谱，窗外河流入海口跨过纤细悬索大桥，对岸半岛深蓝玻璃幕墙摩天大楼倒映水光。", 5200, "CLUB · 黑檀木三角钢琴");
   }
 
   function practicePuttingGreen() {
@@ -411,12 +411,12 @@ export function createKitchenRituals({
   function inspectSportGallery() {
     sfx.playTap();
     flyCamera(
-      new THREE.Vector3(28.5, 4.4, 4.2),
-      new THREE.Vector3(28.5, 3.2, 14.6),
+      new THREE.Vector3(24.8, 4.1, -1.8),
+      new THREE.Vector3(15.4, 3.5, -1.8),
       780,
     );
-    walkBruceTo(26.2, 10.6, { silent: true });
-    sayBruce("南侧浅米白背光陈列柜里清晰勾勒出带白色网线的交叉网球拍、干邑色英式马术盛装舞步鞍垫与双马靴头盔。", 5000, "CLUB · 网球与马术背光陈列廊");
+    walkBruceTo(21.4, -1.8, { silent: true });
+    sayBruce("炉壁电视隔断背面统一打造三联运动收藏护墙板：交叉职业网球拍与白色网线、干邑色马术盛装舞步鞍具、九支定制球杆配墨绿皮包。", 5000, "CLUB · 隔断背面运动收藏墙");
   }
 
   function enjoyPoolside() {

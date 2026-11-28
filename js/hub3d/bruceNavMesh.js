@@ -15,8 +15,12 @@ const OBSTACLES_1F = [
   { minX: -1.4, maxX: 5.2, minZ: -4.2, maxZ: 1.2 },
   // Cognac Club Armchair
   { minX: 5.2, maxX: 7.8, minZ: -6.2, maxZ: -3.6 },
-  // Fireplace / TV Partition Wall + Flanking Harman Towers (forces North/South portal detours!)
-  { minX: 11.8, maxX: 15.8, minZ: -7.6, maxZ: 4.8 },
+  // Fireplace / TV Partition Wall + Flanking Harman Towers + Back Sporting Boiserie (forces clean North/South portal detours!)
+  { minX: 11.8, maxX: 17.2, minZ: -7.2, maxZ: 3.6 },
+  // Relocated NW Arc Floor Lamp, West Collector Plinth, and West Amphora Urn
+  { minX: -6.8, maxX: -5.4, minZ: -7.9, maxZ: -6.5 },
+  { minX: -14.6, maxX: -12.9, minZ: -12.4, maxZ: -10.8 },
+  { minX: -14.3, maxX: -13.0, minZ: 9.8, maxZ: 11.0 },
   // South Wall Portal Piers (Z = 15.4, keep opening X in [-12.8, +12.8] clear)
   { minX: -15.5, maxX: -12.9, minZ: 14.6, maxZ: 16.2 },
   { minX: 12.9, maxX: 15.5, minZ: 14.6, maxZ: 16.2 },
@@ -32,10 +36,8 @@ const OBSTACLES_1F = [
   { minX: -14.6, maxX: -10.8, minZ: 43.2, maxZ: 49.4 },
   { minX: 4.2, maxX: 8.2, minZ: 45.4, maxZ: 51.4 },
   { minX: 7.8, maxX: 14.6, minZ: 36.8, maxZ: 42.8 },
-  // East Expanded Wing: Grand Piano + Bench, Golf Rack + Bag, and South Gallery Vitrines
+  // East Expanded Wing: Grand Piano + Bench (Golf, Tennis & Equestrian are on partition X=[14.7..16.9])
   { minX: 26.8, maxX: 34.8, minZ: -13.4, maxZ: -6.2 },
-  { minX: 36.4, maxX: 41.4, minZ: 4.8, maxZ: 13.6 },
-  { minX: 19.6, maxX: 37.2, minZ: 13.0, maxZ: 16.0 },
 ];
 
 const OBSTACLES_2F = [

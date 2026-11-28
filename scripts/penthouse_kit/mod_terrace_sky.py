@@ -145,8 +145,7 @@ def build_terrace_and_sky(ctx, mats):
                 (16.0, -8.8, -46.0), (-16.0, -8.8, -46.0))
 
     ow = ctx.mb("OceanVistaWater", mats["horizon_ocean"])
-    nx, nz = 24, 16
-    x0, x1, z0, z1 = -210.0, 210.0, -28.0, -165.0
+    x0, x1, z0, z1, nx, nz = -230.0, 230.0, -24.0, -185.0, 32, 20
     for i in range(nx):
         for j in range(nz):
             xa = x0 + (x1 - x0) * i / nx
@@ -161,7 +160,7 @@ def build_terrace_and_sky(ctx, mats):
     for cx_h, cz_h, rx_h, ry_h, rz_h in (
         (-48.0, -68.0, 26.0, 4.6, 13.0),
         (-28.0, -64.0, 18.0, 3.4, 10.5),
-        (54.0, -78.0, 22.0, 3.8, 12.0),
+        (128.0, -98.0, 22.0, 3.8, 12.0),
     ):
         rings_h, segs_h = 8, 22
         for ri in range(rings_h):
@@ -174,15 +173,15 @@ def build_terrace_and_sky(ctx, mats):
                 hk.add_quad(pt(v0, u0), pt(v1, u0), pt(v1, u1), pt(v0, u1), uv_scale=(1.0, 0.5))
 
     sf = ctx.mb("CoastalSurfFoam", mats["cream_pillow"])
-    for sx, sz, sr in ((-48.0, -68.0, 27.2), (-28.0, -64.0, 19.0), (54.0, -78.0, 23.0)):
+    for sx, sz, sr in ((-48.0, -68.0, 27.2), (-28.0, -64.0, 19.0), (128.0, -98.0, 23.0)):
         sf.add_cylinder(sx, -8.49, sz, sr, sr * 0.96, 0.06, segs=28)
 
     pl = ctx.mb("CoastalPineHeadlands", mats["coastal_pine"])
     for cx_h, cz_h, rx_h, ry_h, rz_h in (
         (-74.0, -102.0, 44.0, 11.2, 22.0),
         (-36.0, -96.0, 28.0, 7.6, 16.0),
-        (64.0, -112.0, 42.0, 11.8, 20.0),
-        (28.0, -104.0, 26.0, 6.8, 15.0),
+        (142.0, -118.0, 42.0, 11.8, 20.0),
+        (104.0, -126.0, 26.0, 6.8, 15.0),
     ):
         rings_h, segs_h = 9, 24
         for ri in range(rings_h):

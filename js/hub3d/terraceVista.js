@@ -86,7 +86,8 @@ export function createTerraceVista(scene) {
         vec4 wp = modelMatrix * vec4(position, 1.0);
         float w1 = sin(wp.x * 0.19 + uTime * 1.15) * cos(wp.z * 0.24 - uTime * 0.9);
         float w2 = sin(wp.x * 0.43 - wp.z * 0.31 + uTime * 1.7) * 0.45;
-        wp.y += (w1 + w2) * 0.22;
+        float riverShelter = 1.0 - 0.72 * smoothstep(-32.0, 6.0, wp.z) * smoothstep(44.0, 52.0, wp.x);
+        wp.y += (w1 + w2) * 0.22 * riverShelter;
         vWorldPos = wp.xyz;
         gl_Position = projectionMatrix * viewMatrix * wp;
       }
@@ -112,7 +113,9 @@ export function createTerraceVista(scene) {
         float fresnel = pow(1.0 - max(dot(N, V), 0.0), 4.0);
 
         vec3 baseWater = mix(uDeepColor, uShallowColor, clamp(0.45 + 0.55 * sin(vWorldPos.z * 0.05), 0.0, 1.0));
-        vec3 col = mix(baseWater, uSkyHorizon * 0.78, fresnel * 0.72);
+        float riverMix = smoothstep(-42.0, 16.0, vWorldPos.z) * smoothstep(46.0, 55.0, vWorldPos.x);
+        baseWater = mix(baseWater, vec3(0.08, 0.27, 0.33), riverMix * 0.68);
+        vec3 col = mix(baseWater, uSkyHorizon * 0.78, fresnel * (0.72 - 0.28 * riverMix));
 
         // Shimmering sunset glitter reflection track
         vec3 H = normalize(uSunDir + V);
@@ -121,7 +124,7 @@ export function createTerraceVista(scene) {
         col += uSunGlow * (specBroad * 0.55 + specSharp * 1.65) * uMoodDim;
 
         // Aerial distance haze blending softly into horizon
-        float dist = clamp((abs(vWorldPos.z) - 42.0) / 115.0, 0.0, 1.0);
+        float dist = clamp((length(vWorldPos.xz) - 68.0) / 135.0, 0.0, 1.0);
         col = mix(col, uSkyHorizon * (0.72 * uMoodDim + 0.18), pow(dist, 1.45));
         gl_FragColor = vec4(col, 1.0);
       }
@@ -135,14 +138,19 @@ export function createTerraceVista(scene) {
       sailboats.length = 0;
       roomRoot.traverse((obj) => {
         if (!obj.isMesh) return;
-        if (obj.name === "OceanVistaWater") {
+        if (obj.name === "OceanVistaWater" || obj.name === "EastRiverChannel") {
           obj.material?.dispose?.();
           obj.material = oceanMat;
           obj.castShadow = false;
           obj.receiveShadow = false;
         }
-        if (/^Sailboat/i.test(obj.name)) {
-          sailboats.push({ mesh: obj, baseY: obj.position.y, phase: obj.position.x * 0.25 });
+        if (/^Sailboat|^RiverYachts|^YachtCabins/i.test(obj.name)) {
+          sailboats.push({
+            mesh: obj,
+            baseY: obj.position.y,
+            phase: obj.position.x * 0.25,
+            amp: /^RiverYacht|^YachtCabin/i.test(obj.name) ? 0.05 : 0.14,
+          });
         }
       });
     },
@@ -175,7 +183,8 @@ export function createTerraceVista(scene) {
       }
       for (let i = 0; i < sailboats.length; i++) {
         const s = sailboats[i];
-        s.mesh.position.y = s.baseY + Math.sin(elapsed * 1.1 + s.phase) * 0.14;
+        const amp = s.amp ?? 0.14;
+        s.mesh.position.y = s.baseY + Math.sin(elapsed * 1.1 + s.phase) * amp;
         s.mesh.rotation.z = Math.sin(elapsed * 0.9 + s.phase) * 0.035;
       }
       if (gullRoot.visible) {

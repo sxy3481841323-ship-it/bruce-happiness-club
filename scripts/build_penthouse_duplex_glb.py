@@ -75,7 +75,8 @@ from penthouse_kit.tex_kitchen_surfaces import (
     make_prestige_wine_labels_tex,
     make_aaa_snow_granite_mountain_tex,
     make_sheet_music_tex,
-    make_twilight_city_facade_tex,
+    make_glass_curtain_skyscraper_tex,
+    make_himalayan_salt_tex,
 )
 from penthouse_kit.mod_south_kitchen import build_south_kitchen
 from penthouse_kit.mod_south_terrace_mountains import build_south_terrace_and_mountains
@@ -134,7 +135,8 @@ def build_duplex():
     prestige_wine_img = make_prestige_wine_labels_tex(1024, 512)
     aaa_mountain_img = make_aaa_snow_granite_mountain_tex(2048, 1024)
     sheet_music_img = make_sheet_music_tex(512, 384)
-    city_facade_img = make_twilight_city_facade_tex(512, 512)
+    city_facade_img = make_glass_curtain_skyscraper_tex(512, 512)
+    himalayan_salt_img = make_himalayan_salt_tex(256, 256)
 
     mats = {
         "oak": ctx.tex_mat("HerringboneOak", oak_img, roughness=0.44, metalness=0.04, quality=92),
@@ -243,9 +245,13 @@ def build_duplex():
         "prestige_wine_labels": ctx.tex_mat("GrandCruWineLabels", prestige_wine_img, roughness=0.36, metalness=0.08, quality=92),
         "alpine_lake": ctx.color_mat("AlpineFjordWater", (0.06, 0.24, 0.34, 0.90), roughness=0.08, metalness=0.25, emissive=(0.02, 0.08, 0.13), alpha_blend=True),
         "aaa_mountain": ctx.tex_mat("AAAAlpineDolomite", aaa_mountain_img, roughness=0.84, metalness=0.02, quality=92, double_sided=True),
-        # Batch 15 Expansion Materials
+        # Batch 15-16 Expansion Materials
         "sheet_music": ctx.tex_mat("PianoNocturneScore", sheet_music_img, roughness=0.45, metalness=0.01, quality=92, emissive=(0.14, 0.12, 0.09)),
-        "city_facade": ctx.tex_mat("TwilightCityTowers", city_facade_img, roughness=0.42, metalness=0.22, quality=90, emissive=(0.45, 0.38, 0.28)),
+        "city_facade": ctx.tex_mat("GlassCurtainSkyscrapers", city_facade_img, roughness=0.14, metalness=0.72, quality=92, emissive=(0.14, 0.16, 0.22)),
+        "himalayan_salt": ctx.tex_mat("HimalayanPinkSaltWall", himalayan_salt_img, roughness=0.36, metalness=0.02, quality=90, emissive=(0.56, 0.24, 0.18)),
+        "bridge_steel": ctx.color_mat("SuspensionTowerSteel", (0.30, 0.15, 0.14, 1.0), roughness=0.34, metalness=0.78),
+        "river_water": ctx.color_mat("EstuaryChannelWater", (0.12, 0.24, 0.34, 1.0), roughness=0.14, metalness=0.22),
+        "coastal_foam": ctx.color_mat("EstuarySurfFoam", (0.86, 0.91, 0.94, 0.85), roughness=0.58, metalness=0.04, alpha_blend=True),
         "dove_boucle": ctx.color_mat("PearlDoveBoucle", (0.85, 0.86, 0.88, 1.0), roughness=0.90, metalness=0.01),
         "emerald_silk": ctx.color_mat("EmeraldBotanicalSilk", (0.11, 0.36, 0.34, 1.0), roughness=0.68, metalness=0.03),
         "le_creuset_red": ctx.color_mat("LeCreusetFlameEnamel", (0.82, 0.17, 0.10, 1.0), roughness=0.16, metalness=0.08),
@@ -277,8 +283,9 @@ def build_duplex():
         "LeCreusetDutchOven", "MauvielCopperStockpot", "BackSplashPotRail",
         "KitchenIslandStone", "KitchenFrenchGlass",
         "DiningTableMarble", "pool_water", "mountain_massif",
+        "KitchenEspressoMachine", "DryAgeSteakCabinet", "BerkelSlicer",
         "GrandPianoCase", "GrandPianoSheetMusic", "CurvedPanoramicGlass",
-        "EastRiverBridge", "PuttingGreenTurf", "GolfClubBoard", "TennisVitrinePanel", "DressageSaddle",
+        "EastRiverBridge", "PuttingGreenTurf", "TennisStrings0", "DressageSaddle",
     ):
         assert req in info["mesh_names"], f"Missing required mesh {req}"
     assert info["size_mb"] <= 15.0, f"GLB exceeds 15 MB cap: {info['size_mb']} MB"

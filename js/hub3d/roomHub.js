@@ -805,7 +805,7 @@ export function mountLivingRoomHub(container, opts = {}) {
   scene.add(sunLight, sunLight.target);
 
   const warmLampLight = new THREE.PointLight(0xffb969, 0.9, 24, 1.35);
-  warmLampLight.position.set(11.75, 3.68, 4.70);
+  warmLampLight.position.set(-4.85, 3.68, -5.95);
   scene.add(warmLampLight);
 
   // Grand Foyer console & bronze mirror warm wash light
@@ -1623,7 +1623,7 @@ export function mountLivingRoomHub(container, opts = {}) {
       sunLight.color.setHex(0xff8e52);
       sunLight.intensity = 0.56;
       ambientLight.intensity = 0.34;
-      warmLampLight.position.set(11.75, 3.68, 4.70);
+      warmLampLight.position.set(-4.85, 3.68, -5.95);
       warmLampLight.intensity = 6.2;
       renderer.toneMappingExposure = 1.00;
       if (!activeActId) bruce.setMood("happy");
@@ -1635,7 +1635,7 @@ export function mountLivingRoomHub(container, opts = {}) {
       sunLight.color.setHex(0xffcf94);
       sunLight.intensity = 2.25;
       ambientLight.intensity = 0.72;
-      warmLampLight.position.set(11.75, 3.68, 4.70);
+      warmLampLight.position.set(-4.85, 3.68, -5.95);
       warmLampLight.intensity = salonLampOn ? 2.8 : 0.9;
       renderer.toneMappingExposure = 1.12;
       if (!activeActId) bruce.setMood("happy");

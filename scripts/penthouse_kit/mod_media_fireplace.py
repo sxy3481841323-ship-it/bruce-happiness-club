@@ -53,22 +53,23 @@ def build_media_fireplace(ctx, mats):
         b.add_cylinder(14.02, 1.71, z - 0.35, 0.065, 0.058, 0.82, segs=10, rot_x=1.5708)
 
     # ------------------------------------------------------------------ #
-    # 2. HI-FI TOWERS (Harman smoked-glass acoustic towers) at tower_x=13.05
+    # 2. HI-FI TOWERS (Harman smoked-glass acoustic towers) on MediaHearth ends (Y=1.50, clear of portals!)
     # ------------------------------------------------------------------ #
-    for tz in (-7.35, 3.75):
+    hy = 1.50
+    for tz in (-6.05, 2.45):
         pl = ctx.mb("HiFiPlinth", mats["glass_smoke"])
-        pl.add_box(13.05, 0.04, tz, 0.78, 0.08, 0.78)
+        pl.add_box(13.28, hy + 0.04, tz, 0.78, 0.08, 0.78)
         b = ctx.mb("HiFiTower", mats["charcoal"])
-        b.add_cylinder(13.05, 0.14, tz, 0.34, 0.28, 2.08, segs=24)
+        b.add_cylinder(13.28, hy + 0.14, tz, 0.34, 0.28, 2.08, segs=24)
         rb = ctx.mb("HiFiRibs", mats["rift_oak"])
         for side in (-1, 1):
             for k in range(5):
                 ang = side * (0.35 + k * 0.20)
-                rb.add_box(13.05 + math.cos(ang) * 0.30, 1.18, tz + math.sin(ang) * 0.30, 0.03, 1.92, 0.03)
+                rb.add_box(13.28 + math.cos(ang) * 0.30, hy + 1.18, tz + math.sin(ang) * 0.30, 0.03, 1.92, 0.03)
         dm = ctx.mb("HiFiGlassDome", mats["glass_smoke"])
-        dm.add_lathe(13.05, 2.22, tz, [(0.27, 0.0), (0.29, 0.30), (0.24, 0.70), (0.0, 1.13)], segs=24)
+        dm.add_lathe(13.28, hy + 2.22, tz, [(0.27, 0.0), (0.29, 0.30), (0.24, 0.70), (0.0, 1.13)], segs=24)
         b = ctx.mb("HiFiHaloRing", mats["warm_led"])
-        b.add_cylinder(13.05, 2.34, tz, 0.26, 0.26, 0.024, segs=28, cap_top=False, cap_bot=False)
+        b.add_cylinder(13.28, hy + 2.34, tz, 0.26, 0.26, 0.024, segs=28, cap_top=False, cap_bot=False)
 
     # ------------------------------------------------------------------ #
     # 3. GALLERY DISPLAY — 16:9 screen proud in front of marble breast at X=13.66 (-X normal)
@@ -94,9 +95,9 @@ def build_media_fireplace(ctx, mats):
         b.add_box(13.66, 3.10, z, 0.08, 0.44, 0.055)
 
     # ------------------------------------------------------------------ #
-    # 4. ARC FLOOR LAMP — old-money sculptural, beside right Harman tower
+    # 4. ARC FLOOR LAMP — old-money sculptural, beside U-sofa NW reading corner
     # ------------------------------------------------------------------ #
-    bx, bz = 12.25, 5.20
+    bx, bz = -6.10, -7.20
 
     # stepped heavy plinth
     b = ctx.mb("ArcLampBase", mats["travertine"])
@@ -116,21 +117,21 @@ def build_media_fireplace(ctx, mats):
     # machined brass cantilever arm to shade center
     b = ctx.mb("ArcLampArm", mats["brass"])
     b.add_curved_tube(
-        [(bx, 3.55, bz), (12.05, 3.62, 4.95), (11.75, 3.56, 4.70)],
+        [(bx, 3.55, bz), (-5.45, 3.64, -6.55), (-4.85, 3.56, -5.95)],
         [0.045, 0.040, 0.035], segs=10)
     # counterweight sphere
     b = ctx.mb("ArcLampCounterweight", mats["brass"])
-    b.add_sphere(12.50, 3.90, 5.45, 0.11, 0.11, 0.11, rings=12, segs=18)
+    b.add_sphere(-6.35, 3.90, -7.45, 0.11, 0.11, 0.11, rings=12, segs=18)
 
     # pleated Belgian-linen drum shade (open bottom)
     b = ctx.mb("ArcLampShade", mats["cream_pillow"])
-    b.add_cylinder(11.75, 3.56, 4.70, 0.46, 0.40, 0.48, segs=32,
+    b.add_cylinder(-4.85, 3.56, -5.95, 0.46, 0.40, 0.48, segs=32,
                    cap_top=True, cap_bot=False)
     # spun-brass trim rings
     b = ctx.mb("ArcLampShadeTrim", mats["brass"])
-    b.add_cylinder(11.75, 3.56, 4.70, 0.465, 0.465, 0.025, segs=32)
-    b.add_cylinder(11.75, 4.015, 4.70, 0.405, 0.405, 0.025, segs=32)
+    b.add_cylinder(-4.85, 3.56, -5.95, 0.465, 0.465, 0.025, segs=32)
+    b.add_cylinder(-4.85, 4.015, -5.95, 0.405, 0.405, 0.025, segs=32)
 
     # warm bulb nestled inside
     b = ctx.mb("ArcLampBulb", mats["warm_bulb"])
-    b.add_sphere(11.75, 3.68, 4.70, 0.11, 0.11, 0.11, rings=10, segs=16)
+    b.add_sphere(-4.85, 3.68, -5.95, 0.11, 0.11, 0.11, rings=10, segs=16)

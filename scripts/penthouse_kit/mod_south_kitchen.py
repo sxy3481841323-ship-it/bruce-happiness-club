@@ -37,24 +37,56 @@ def build_south_kitchen(ctx, mats):
         cx = -14.2 + 4.73 * (i + 0.5)
         _box(ctx, "KitchenFrenchGlass", M["glass"], cx, 4.575, zf, 4.56, 8.90, 0.04)
 
-    # ---------- 2. East Wall Extended Coffee & Breakfast Station (Z in [24.1..34.8]) ----------
-    _box(ctx, "CoffeeSurround", M["graphite_slate"], 13.55, 4.4, 29.45, 2.40, 8.8, 10.7)
-    _box(ctx, "CoffeeWarmUpper", M["warm_grey_upper"], 13.55, 7.65, 29.45, 2.44, 2.3, 10.7)
-    _box(ctx, "CoffeeNicheWalnut", M["walnut_fluted"], 13.10, 4.65, 29.45, 0.80, 3.2, 9.4)
-    _box(ctx, "CoffeeNicheLED", M["warm_led"], 12.68, 6.20, 29.45, 0.08, 0.06, 9.2)
-    _box(ctx, "CoffeeCounter", M["pietra_grey"], 13.45, 2.28, 29.45, 2.65, 0.16, 10.7)
-    _box(ctx, "CoffeeBacksplash", M["pietra_grey"], 14.62, 3.15, 29.45, 0.12, 1.75, 10.7)
-    _box(ctx, "KitchenEspressoMachine", M["steel"], 12.82, 2.74, 28.5, 0.92, 0.78, 0.78)
-    _cyl(ctx, "CoffeeGrinder", M["steel"], 12.85, 2.36, 30.1, 0.17, 0.62)
-    _cyl(ctx, "CoffeeKettle", M["charcoal"], 12.85, 2.36, 31.3, 0.15, 0.36)
+    # ---------- 2. East Wall Gaggenau Steam Tower & Open Barista Station (Z in [23.9..34.8]) ----------
+    # Tall Gaggenau Combi-Steam / Convection / Warming Drawer Tower on left bay
+    _box(ctx, "CoffeeOvenTower", M["graphite_slate"], 13.55, 4.4, 24.62, 2.40, 8.8, 1.45)
+    for oy, oh in ((4.45, 1.18), (2.95, 1.18), (1.90, 0.56)):
+        _box(ctx, "CoffeeOvenBezel", M["obsidian_bezel"], 12.34, oy, 24.62, 0.05, oh, 1.24)
+        _cyl(ctx, "CoffeeOvenHandle", M["steel"], 12.26, oy + oh * 0.36, 24.16, 0.024, 0.92, 10, rx=1.5708)
+    for dial_z in (24.42, 24.82):
+        _cyl(ctx, "CoffeeOvenDial", M["steel"], 12.31, 3.68, dial_z, 0.055, 0.04, 14, rz=1.5708)
+
+    # Open illuminated barista counter alcove (Y=2.38..6.18 is open air so espresso bar shines!)
+    _box(ctx, "CoffeePlinth", M["charcoal"], 13.55, 0.14, 30.08, 2.24, 0.28, 9.45)
+    _box(ctx, "CoffeeBaseCab", M["graphite_slate"], 13.50, 1.25, 30.08, 2.46, 1.94, 9.45)
+    _box(ctx, "CoffeeCounter", M["pietra_grey"], 13.36, 2.30, 30.08, 2.74, 0.16, 9.45)
+    _box(ctx, "CoffeeBacksplash", M["pietra_grey"], 14.68, 4.28, 30.08, 0.14, 3.80, 9.45)
+    _box(ctx, "CoffeeRightCheek", M["walnut_fluted"], 13.50, 5.50, 34.72, 2.46, 6.40, 0.18)
+    _box(ctx, "CoffeeWarmUpper", M["warm_grey_upper"], 13.52, 7.49, 30.08, 2.46, 2.62, 9.45)
+    _box(ctx, "CoffeeNicheLED", M["warm_led"], 13.38, 6.16, 30.05, 0.10, 0.04, 9.10)
+    _box(ctx, "CoffeeBacksplashLED", M["warm_led"], 14.58, 3.18, 30.05, 0.04, 0.05, 9.00)
+    for sy in (4.48, 5.32):
+        _box(ctx, "CoffeeDisplayShelf", M["walnut_fluted"], 14.12, sy, 30.05, 0.86, 0.07, 8.95)
+
+    # Hero La Marzocco Linea dual-group espresso machine (Z=28.50, facing -X toward island)
+    _box(ctx, "KitchenEspressoMachine", M["steel"], 13.02, 2.74, 28.50, 0.78, 0.68, 0.96)
+    _box(ctx, "EspressoDripTray", M["steel"], 12.56, 2.42, 28.50, 0.34, 0.08, 0.92)
+    for side_z in (28.00, 29.00):
+        _box(ctx, "EspressoWalnutSide", M["walnut_fluted"], 13.02, 2.76, side_z, 0.80, 0.64, 0.07)
+    for gz in (28.25, 28.75):
+        _cyl(ctx, "EspressoGroupHead", M["brass"], 12.58, 2.86, gz, 0.11, 0.12, 16)
+        _cyl(ctx, "EspressoPortafilter", M["walnut_fluted"], 12.40, 2.82, gz, 0.025, 0.34, 10, rz=1.5708)
+        _cyl(ctx, "EspressoSteamWand", M["steel"], 12.52, 2.88, gz + (0.20 if gz > 28.5 else -0.20), 0.012, 0.28, 8, rz=0.35)
+    _cyl(ctx, "EspressoPressureGauge", M["obsidian_bezel"], 12.61, 2.94, 28.50, 0.07, 0.04, 16, rz=1.5708)
+    _box(ctx, "EspressoCupRail", M["brass"], 13.02, 3.12, 28.50, 0.68, 0.06, 0.88)
+
+    # Twin Mahlkonig Conical Burr Grinders + Stand Mixer + Blender + Pour-Over + Canisters
+    for gz in (29.75, 30.30):
+        _box(ctx, "CoffeeGrinder", M["charcoal"], 12.98, 2.60, gz, 0.28, 0.44, 0.24)
+        _cyl(ctx, "CoffeeGrinderHopper", M["glass"], 12.98, 2.82, gz, 0.08, 0.24, 14)
+    _box(ctx, "KitchenAidBase", M["brass"], 12.96, 2.58, 26.35, 0.44, 0.40, 0.32)
+    _cyl(ctx, "KitchenAidBowl", M["steel"], 12.76, 2.39, 26.35, 0.17, 0.24, 16)
+    _box(ctx, "EstateBlenderBase", M["charcoal"], 13.02, 2.50, 27.25, 0.26, 0.24, 0.26)
+    _cyl(ctx, "EstateBlenderJug", M["glass"], 13.02, 2.62, 27.25, 0.12, 0.42, 14)
+    _cyl(ctx, "CoffeeKettle", M["charcoal"], 12.92, 2.38, 31.25, 0.14, 0.34, 16)
+    _cyl(ctx, "ChemexCarafe", M["glass"], 12.94, 2.38, 31.90, 0.13, 0.36, 16)
     for i in range(4):
-        _cyl(ctx, "CoffeeCup", M["porcelain_white"], 12.68, 2.36, 26.8 + 0.38 * i, 0.07, 0.12, 12)
+        _cyl(ctx, "CoffeeCup", M["porcelain_white"], 14.08, 4.52, 26.4 + 0.42 * i, 0.075, 0.13, 12)
     for i in range(4):
-        _cyl(ctx, "KitchenGranolaJars", M["glass"], 13.0, 2.36, 32.1 + 0.52 * i, 0.16, 0.52, 14)
+        _cyl(ctx, "KitchenGranolaJars", M["glass"], 13.05, 2.38, 32.55 + 0.52 * i, 0.16, 0.50, 14)
 
     # ---------- 3. West Wall 60" Wolf Dual-Oven Red-Knob Gas Range & Flush Hood ----------
-    for cz in (16.4, 24.6):
-        _box(ctx, "WolfSideColumn", M["graphite_slate"], -13.55, 4.4, cz, 2.40, 8.8, 1.60)
+    _box(ctx, "WolfSideColumn", M["graphite_slate"], -13.55, 4.4, 24.6, 2.40, 8.8, 1.60)
     _box(ctx, "WolfBacksplash", M["pietra_grey"], -14.66, 4.35, 20.5, 0.12, 4.2, 6.6)
     _box(ctx, "WolfHoodCanopy", M["warm_grey_upper"], -13.45, 7.40, 20.5, 2.65, 2.20, 6.8)
     _box(ctx, "WolfHoodLed", M["warm_led"], -13.45, 6.28, 20.5, 2.40, 0.05, 6.4)

@@ -198,21 +198,56 @@ def make_sheet_music_tex(w=512, h=384):
     return img
 
 
-def make_twilight_city_facade_tex(w=512, h=512):
-    img = Image.new("RGB", (w, h), (22, 26, 40))
+def make_glass_curtain_skyscraper_tex(w=512, h=512):
+    """Dark sapphire-midnight curtain-wall glass with crisp dark mullions, spandrels, and restrained floor glow."""
+    img = Image.new("RGB", (w, h), (15, 22, 34))
     d = ImageDraw.Draw(img)
     rnd = random.Random(83)
-    cols, rows = 16, 32
+    cols, rows = 12, 24
     cw, ch = w // cols, h // rows
     for r in range(rows):
+        y0 = r * ch
+        # Dark horizontal structural spandrel band between floors
+        d.rectangle([0, y0, w, y0 + 4], fill=(24, 30, 42))
+        floor_lit = rnd.random() < 0.28
         for c in range(cols):
-            x0, y0 = c * cw + 3, r * ch + 3
+            x0 = c * cw
+            gx0, gy0 = x0 + 3, y0 + 5
+            gx1, gy1 = x0 + cw - 3, y0 + ch - 2
             p = rnd.random()
-            if p < 0.34:
-                col = (248, 206, 132) if p < 0.22 else (218, 228, 250)
-                d.rectangle([x0, y0, x0 + cw - 6, y0 + ch - 6], fill=col)
-            elif p < 0.44:
-                d.rectangle([x0, y0, x0 + cw - 6, y0 + ch - 6], fill=(95, 112, 148))
+            if (floor_lit and p < 0.35) or p < 0.14:
+                # Restrained warm-amber or cool-silver architectural glass reflection
+                col = (196, 178, 146) if p < 0.18 else (92, 120, 158)
+            else:
+                # Deep sky-tinted sapphire glass pane
+                shade = rnd.randint(-4, 6)
+                col = (20 + shade, 32 + shade, 50 + shade * 2)
+            d.rectangle([gx0, gy0, gx1, gy1], fill=col)
+            # Crisp thin dark aluminum vertical mullion
+            d.rectangle([x0, y0, x0 + 2, y0 + ch], fill=(12, 15, 22))
+    return img
+
+
+make_twilight_city_facade_tex = make_glass_curtain_skyscraper_tex
+
+
+def make_himalayan_salt_tex(w=256, h=256):
+    """Warm translucent backlit Himalayan pink-salt block wall with natural crystalline seams."""
+    n1 = _fbm_grid(w, h, scales=(4.0, 9.0, 19.0), seed=91)
+    n2 = _fbm_grid(w, h, scales=(12.0, 26.0), seed=37)
+    r = np.clip(226 + n1 * 24 + n2 * 10, 175, 255)
+    g = np.clip(134 + n1 * 38 + n2 * 14, 95, 210)
+    b = np.clip(112 + n1 * 34 + n2 * 12, 82, 192)
+    arr = np.stack([r, g, b], axis=-1).astype(np.uint8)
+    img = Image.fromarray(arr, "RGB")
+    d = ImageDraw.Draw(img)
+    for row in range(1, 8):
+        y = int(row * h / 8)
+        d.line([(0, y), (w, y)], fill=(190, 96, 80), width=2)
+        off = 32 if row % 2 else 0
+        for col in range(0, 4):
+            x = (col * 64 + off) % w
+            d.line([(x, y), (x, min(h, y + h // 8))], fill=(195, 102, 84), width=2)
     return img
 
 
