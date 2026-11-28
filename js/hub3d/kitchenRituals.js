@@ -110,13 +110,13 @@ export function createKitchenRituals({
   rosemarySprigMesh.visible = false;
   scene.add(rosemarySprigMesh);
 
-  // Teppanyaki warm steam motes above (5.8, 2.40, 19.6)
-  const steamCount = 26;
+  // Rising simmering steam above Wolf 6-burner cookware suite (-13.45, 2.7..4.0, 18.8..22.1)
+  const steamCount = 28;
   const steamPos = new Float32Array(steamCount * 3);
   for (let i = 0; i < steamCount; i++) {
-    steamPos[i * 3] = 5.8 + ((i * 0.41) % 1.8) - 0.9;
-    steamPos[i * 3 + 1] = 2.40 + ((i * 0.31) % 1.4);
-    steamPos[i * 3 + 2] = 19.6 + ((i * 0.37) % 1.1) - 0.55;
+    steamPos[i * 3] = -13.45 + ((i * 0.37) % 1.0) - 0.5;
+    steamPos[i * 3 + 1] = 2.65 + ((i * 0.31) % 1.4);
+    steamPos[i * 3 + 2] = 18.8 + ((i * 0.53) % 3.3);
   }
   const steamGeo = new THREE.BufferGeometry();
   steamGeo.setAttribute("position", new THREE.BufferAttribute(steamPos, 3));
@@ -148,7 +148,7 @@ export function createKitchenRituals({
       fridgeDoorMeshes.push(obj);
     } else if (/^KitchenEspresso|^Coffee|^KitchenGranola/i.test(obj.name)) {
       espressoMeshes.push(obj);
-    } else if (/^Wolf|^KitchenSteakBoard|^KitchenRawSteaks/i.test(obj.name)) {
+    } else if (/^Wolf|^LeCreuset|^Mauviel|^StainlessSaucier|^CastIronGrill|^CarbonSteelWok|^BackSplashPotRail|^KitchenSteakBoard|^KitchenRawSteaks/i.test(obj.name)) {
       steakHerbMeshes.push(obj);
     } else if (/^KitchenPourBottle|^KitchenPourFoil/i.test(obj.name)) {
       pendingWineBottle.push(obj);
@@ -156,17 +156,17 @@ export function createKitchenRituals({
     } else if (/^KitchenDecanterWine/i.test(obj.name)) {
       decanterWineMesh = obj;
       champagneChefMeshes.push(obj);
-    } else if (/^Kitchen|^PrestigeWineBottles|^DiningTableMarble/i.test(obj.name)) {
+    } else if (/^Kitchen|^Bottle_|^Label_|^DiningTableMarble/i.test(obj.name)) {
       champagneChefMeshes.push(obj);
     } else if (/^SmartHomePanel/i.test(obj.name)) {
       smartPanelMeshes.push(obj);
     } else if (/^GrandEntryDoors|^GrandEntryDoor|^GrandEntryPulls/i.test(obj.name)) {
       grandEntryMeshes.push(obj);
-    } else if (/^GrandPiano|^Piano(OpenLid|Bench)/i.test(obj.name)) {
+    } else if (/^GrandPiano|^Piano(OpenLid|Bench|Fig)/i.test(obj.name)) {
       pianoMeshes.push(obj);
-    } else if (/^Putting(GreenTurf|Pin|Flag)|^GolfTourBag/i.test(obj.name)) {
+    } else if (/^Putting|^Golf/i.test(obj.name)) {
       golfMeshes.push(obj);
-    } else if (/^TennisDisplay|^EquestrianTack|^DressageSaddle/i.test(obj.name)) {
+    } else if (/^Tennis|^Equestrian|^Saddle|^Dressage/i.test(obj.name)) {
       sportGalleryMeshes.push(obj);
     } else if (/^pool_water|^lounge_|^bbq_/i.test(obj.name)) {
       poolMeshes.push(obj);
@@ -212,6 +212,7 @@ export function createKitchenRituals({
   function setDockVisibility(floorId) {
     const showK = floorId === "kitchen" || fridgeOpenTarget > 0.5;
     dockEl?.classList.toggle("is-visible", showK);
+    dockEl?.classList.toggle("is-hidden-for-fridge", fridgeOpenTarget > 0.5);
     poolDockEl?.classList.toggle("is-visible", floorId === "pool");
     clubDockEl?.classList.toggle("is-visible", floorId === "club");
     document.body.classList.toggle("is-kitchen-floor", showK || floorId === "pool" || floorId === "club");
@@ -224,23 +225,24 @@ export function createKitchenRituals({
     const next = forceOpen === null ? fridgeOpenTarget < 0.5 : Boolean(forceOpen);
     fridgeOpenTarget = next ? 1 : 0;
     fridgeDrawerEl?.classList.toggle("is-open", next);
+    dockEl?.classList.toggle("is-hidden-for-fridge", next);
     dockEl?.querySelector('[data-kitchen-act="fridge"]')?.classList.toggle("is-active", next);
     sfx.playTap();
     if (next) {
       setDockVisibility("kitchen");
       flyCamera(
-        new THREE.Vector3(3.4, 4.15, 21.8),
-        new THREE.Vector3(13.5, 3.65, 22.0),
+        new THREE.Vector3(2.4, 4.35, 19.90),
+        new THREE.Vector3(13.5, 4.05, 19.90),
         780,
       );
-      walkBruceTo(8.8, 22.0, { silent: true });
+      walkBruceTo(9.2, 23.8, { silent: true });
       sayBruce(
-        "整面 7.1 单位内嵌双门冰箱拉开——顶层有机鲜奶与 6 罐 0% 无糖希腊酸奶，中层蓝莓、草莓、牛油果、黄柠檬和鲜蔬保鲜盒，底层 0°C 抽屉备着肋眼牛排与本汪的冰鲜食。",
+        "整面 7.8 单位内嵌双门冰箱全景拉开——顶层有机鲜奶与无糖醇厚希腊酸奶，中层蓝莓、牛油果、黄柠檬与时蔬保鲜盒，底层 0°C 抽屉备着肋眼牛排与鲜肉食材。",
         5200,
         "KITCHEN · 内嵌双门鲜食库",
       );
     } else {
-      sayBruce("轻推合上哑光石墨灰暗门，双开门齐平收进高柜墙里。", 3000, "KITCHEN · 隐形收合");
+      sayBruce("轻推合上哑光炭灰暗门，双开门齐平收进高柜墙里。", 3000, "KITCHEN · 隐形收合");
     }
     return next;
   }
@@ -256,7 +258,7 @@ export function createKitchenRituals({
       740,
     );
     sayBruce(
-      "舀一大碗 0% 无糖希腊酸奶配新鲜蓝莓树莓放在深灰云石岛台上，窗外是雪山峭壁和泳池水光。",
+      "舀一大碗无糖醇厚希腊酸奶配新鲜蓝莓与烤谷物放在炭灰大理石岛台上，透窗遥望池畔与雪峰。",
       4600,
       "KITCHEN · 晨间酸奶碗",
     );
@@ -295,20 +297,21 @@ export function createKitchenRituals({
 
   function startHerbSteakPrep() {
     steakAnim = { t: 0, dur: 2.9, doneWalk: false };
+    chefStageOn = true;
     sfx.playTap();
     rosemarySprigMesh.visible = true;
     rosemarySprigMesh.position.set(-13.6, 2.95, 20.1);
     const r = stageEl.getBoundingClientRect();
-    spawnFxParticles(r.width * 0.5, r.height * 0.52, "gold", 14);
+    spawnFxParticles(r.width * 0.5, r.height * 0.52, "warm", 14);
     flyCamera(
-      new THREE.Vector3(1.4, 4.65, 14.8),
-      new THREE.Vector3(2.8, 2.45, 19.6),
+      new THREE.Vector3(-5.6, 4.1, 20.5),
+      new THREE.Vector3(-13.4, 3.1, 20.5),
       780,
     );
     sayBruce(
-      "从西侧备餐台香草盆现剪一枝迷迭香，三块厚切肋眼在大岛台上排排坐静置，本汪也在铂金小食碗旁蹲好等分那口无盐鲜肉啦～",
-      5000,
-      "RITUAL · 采香与慢切牛排",
+      "60 寸 Wolf 六头红旋钮灶台上正齐声开火：焰红 Le Creuset 铸铁珐琅锅慢炖高汤、锤纹铜汤锅文火收汁、铸铁烤盘煎肋眼，中式碳钢炒锅与背墙黄铜挂架铜锅一应俱全！",
+      5200,
+      "CHEF · Wolf 灶台与七件名锅",
     );
   }
 
@@ -366,43 +369,54 @@ export function createKitchenRituals({
     sayBruce("穿过备餐岛台就是独立长形正餐宴会厅，八张羊羔绒餐椅围着整块炭灰大理石餐桌，正对黑色法式落地门外的无边泳池与阿尔卑斯雪峰。", 5200, "DINING · 独立山景长桌正餐厅");
   }
 
+  // Interactive 3D Golf Putting Ball rolling toward center putting cup (31.0, 0.14, 9.0)
+  const golfPutBall = new THREE.Mesh(
+    new THREE.SphereGeometry(0.11, 14, 10),
+    new THREE.MeshStandardMaterial({ color: 0xf8f8f4, roughness: 0.28 }),
+  );
+  golfPutBall.visible = false;
+  scene.add(golfPutBall);
+  let golfPutAnim = null;
+
   function playGrandPiano() {
-    sfx.playConciergeBell();
-    later(() => sfx.playSuccess?.(), 180);
+    sfx.playPianoNocturne?.();
     const r = stageEl.getBoundingClientRect();
-    spawnFxParticles(r.width * 0.5, r.height * 0.48, "note", 14);
+    spawnFxParticles(r.width * 0.5, r.height * 0.48, "note", 16);
     flyCamera(
-      new THREE.Vector3(16.4, 4.5, -11.4),
-      new THREE.Vector3(22.4, 2.6, -6.8),
-      780,
+      new THREE.Vector3(25.6, 4.3, -13.2),
+      new THREE.Vector3(44.0, 2.4, -6.8),
+      800,
     );
-    walkBruceTo(18.8, -5.2, { silent: true });
+    walkBruceTo(25.6, -9.6, { silent: true });
     later(() => bruce.triggerHappyHop?.(), 650);
-    sayBruce("掀开九尺黑檀木三角大钢琴琴盖，泛音落在人字拼橡木地板上，本汪坐在长凳旁帮你翻乐谱～", 5000, "CLUB · 黑檀木三角钢琴");
+    sayBruce("在弧形全景落地窗前奏响九尺黑檀木三角钢琴与夜曲乐谱，窗外跨河斜拉大桥与暮色天际线正一点点亮起灯火。", 5200, "CLUB · 黑檀木三角钢琴");
   }
 
   function practicePuttingGreen() {
-    sfx.playTap();
+    sfx.playGolfPutt?.();
+    golfPutAnim = { t: 0, dur: 1.15 };
+    golfPutBall.visible = true;
+    golfPutBall.position.set(25.0, 0.18, 5.2);
     const r = stageEl.getBoundingClientRect();
-    spawnFxParticles(r.width * 0.52, r.height * 0.54, "gold", 12);
+    spawnFxParticles(r.width * 0.54, r.height * 0.54, "gold", 14);
     flyCamera(
-      new THREE.Vector3(17.4, 4.2, 5.2),
-      new THREE.Vector3(24.0, 1.0, 10.6),
-      780,
+      new THREE.Vector3(19.8, 4.6, 2.8),
+      new THREE.Vector3(33.5, 1.6, 8.6),
+      800,
     );
-    walkBruceTo(19.8, 9.4, { silent: true });
-    sayBruce("在室内墨绿果岭轻推一杆，真皮高尔夫球包里 7 支锻铁与推杆随时候命，旁边的壁龛陈列着网球拍与英式马鞍。", 4800, "CLUB · 果岭推杆 & 高尔夫包");
+    walkBruceTo(24.2, 6.2, { silent: true });
+    sayBruce("在加宽果岭上一杆清脆推进！右侧背光壁龛陈列着三支钛合金一号木、五支锻铁杆与黄铜推杆，旁边立着墨绿真皮球包。", 5000, "CLUB · 果岭一杆进洞");
   }
 
   function inspectSportGallery() {
     sfx.playTap();
     flyCamera(
-      new THREE.Vector3(21.2, 4.3, 1.4),
-      new THREE.Vector3(28.3, 2.5, 0.8),
+      new THREE.Vector3(28.5, 4.4, 4.2),
+      new THREE.Vector3(28.5, 3.2, 14.6),
       780,
     );
-    walkBruceTo(25.2, 1.2, { silent: true });
-    sayBruce("东翼长廊陈列着交叉碳素网球拍、亮黄网球篮，以及手工鞍匠托架上的干邑色英式马鞍与高筒马靴。", 4800, "CLUB · 网球 & 马术收藏长廊");
+    walkBruceTo(26.2, 10.6, { silent: true });
+    sayBruce("南侧浅米白背光陈列柜里清晰勾勒出带白色网线的交叉网球拍、干邑色英式马术盛装舞步鞍垫与双马靴头盔。", 5000, "CLUB · 网球与马术背光陈列廊");
   }
 
   function enjoyPoolside() {
@@ -635,13 +649,29 @@ export function createKitchenRituals({
       }
     }
 
+    if (golfPutAnim) {
+      golfPutAnim.t += dt;
+      const u = Math.min(1, golfPutAnim.t / golfPutAnim.dur);
+      const ease = 1 - Math.pow(1 - u, 3);
+      golfPutBall.position.set(
+        THREE.MathUtils.lerp(25.0, 31.0, ease),
+        0.18 - (u > 0.88 ? (u - 0.88) * 0.9 : 0),
+        THREE.MathUtils.lerp(5.2, 9.0, ease) - Math.sin(u * Math.PI) * 0.45,
+      );
+      if (u >= 1) {
+        golfPutAnim = null;
+        golfPutBall.visible = false;
+        bruce.triggerHappyHop?.();
+      }
+    }
+
     steamPoints.visible = chefStageOn;
     if (chefStageOn) {
       steamMat.opacity = 0.28 + Math.sin(elapsed * 2.1) * 0.08;
       const arr = steamGeo.attributes.position.array;
       for (let i = 0; i < steamCount; i++) {
         arr[i * 3 + 1] += dt * 0.52;
-        if (arr[i * 3 + 1] > 3.85) arr[i * 3 + 1] = 2.40 + (i % 4) * 0.08;
+        if (arr[i * 3 + 1] > 4.2) arr[i * 3 + 1] = 2.6 + (i % 4) * 0.08;
       }
       steamGeo.attributes.position.needsUpdate = true;
     }
@@ -649,6 +679,8 @@ export function createKitchenRituals({
 
   function dispose() {
     document.body.classList.remove("is-kitchen-floor");
+    golfPutBall.geometry.dispose();
+    golfPutBall.material.dispose();
     espressoStreamGeo.dispose();
     espressoStreamMat.dispose();
     champagneStreamGeo.dispose();

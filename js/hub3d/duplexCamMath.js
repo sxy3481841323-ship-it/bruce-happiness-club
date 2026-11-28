@@ -46,34 +46,34 @@ export const FLOOR_PRESETS = {
   '1f': {
     id: '1f',
     label: '1F · 挑空客厅',
-    camPos: [-3.2, 5.4, 14.2],
-    target: [2.4, 2.8, -2.6],
+    camPos: [-3.2, 5.6, 14.8],
+    target: [2.2, 2.5, -2.4],
     floorY: 0.04,
-    brucePos: [1.2, 0.04, 2.6],
-    bruceRot: -0.24,
-    walkBounds: { minX: -13.4, maxX: 27.6, minZ: -27.8, maxZ: 52.0 },
+    brucePos: [5.6, 0.04, 1.8],
+    bruceRot: -0.45,
+    walkBounds: { minX: -13.4, maxX: 41.2, minZ: -27.8, maxZ: 52.0 },
     walkSpots: [
-      [1.2, 2.6],
-      [3.4, 4.0],
-      [-0.8, 3.2],
+      [5.6, 1.8],
+      [7.8, -0.5],
+      [10.2, -3.8],
       [3.2, 16.8],
-      [20.4, -3.5]
+      [25.6, -5.2]
     ]
   },
   'club': {
     id: 'club',
     label: '1F · 琴房运动',
-    camPos: [16.8, 5.2, -13.8],
-    target: [23.8, 2.3, 4.2],
+    camPos: [18.4, 5.4, -12.6],
+    target: [38.0, 2.5, -2.0],
     floorY: 0.04,
-    brucePos: [20.4, 0.04, -3.5],
-    bruceRot: 0.55,
-    walkBounds: { minX: -13.4, maxX: 27.6, minZ: -27.8, maxZ: 52.0 },
+    brucePos: [25.6, 0.04, -5.2],
+    bruceRot: 0.45,
+    walkBounds: { minX: -13.4, maxX: 41.2, minZ: -27.8, maxZ: 52.0 },
     walkSpots: [
-      [20.4, -3.5],
-      [18.8, -5.2],
-      [20.2, 9.4],
-      [25.6, 1.8]
+      [25.6, -5.2],
+      [28.6, -6.8],
+      [24.2, 6.2],
+      [28.4, 11.4]
     ]
   },
   'kitchen': {
@@ -82,14 +82,14 @@ export const FLOOR_PRESETS = {
     camPos: [-5.6, 4.9, 16.4],
     target: [3.2, 2.8, 24.4],
     floorY: 0.04,
-    brucePos: [-2.4, 0.04, 17.6],
+    brucePos: [-2.4, 0.04, 16.4],
     bruceRot: 0.45,
-    walkBounds: { minX: -13.4, maxX: 27.6, minZ: -27.8, maxZ: 52.0 },
+    walkBounds: { minX: -13.4, maxX: 41.2, minZ: -27.8, maxZ: 52.0 },
     walkSpots: [
-      [-2.4, 17.6],
-      [10.2, 22.0],
-      [3.2, 24.4],
-      [-9.8, 22.0]
+      [-2.4, 16.4],
+      [10.0, 22.8],
+      [3.2, 25.0],
+      [-9.8, 22.8]
     ]
   },
   'pool': {

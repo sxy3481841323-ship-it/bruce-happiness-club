@@ -1701,12 +1701,13 @@ body.is-hub3d-act .hub3d-kitchen-dock {
 
 .hub3d-fridge-drawer {
   position: absolute;
-  left: 176px;
-  top: 158px;
-  transform: translateX(-10px) scale(0.97);
+  left: 18px;
+  top: auto;
+  bottom: 78px;
+  transform: translateY(10px) scale(0.97);
   z-index: 15;
-  width: min(88vw, 310px);
-  padding: 14px 15px;
+  width: min(88vw, 282px);
+  padding: 11px 13px;
   border-radius: 16px;
   border: 1px solid rgba(223, 190, 125, 0.42);
   background: rgba(20, 19, 18, 0.84);
@@ -1721,7 +1722,12 @@ body.is-hub3d-act .hub3d-kitchen-dock {
 .hub3d-fridge-drawer.is-open {
   opacity: 1;
   pointer-events: auto;
-  transform: translateX(0) scale(1);
+  transform: translateY(0) scale(1);
+}
+
+.hub3d-kitchen-dock.is-hidden-for-fridge {
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 .fridge-drawer-head {

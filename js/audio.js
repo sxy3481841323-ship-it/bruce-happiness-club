@@ -206,6 +206,23 @@ class SoundEngine {
     this._tone(261.63, 0.18, "sine", 0.030, 0);
     this._tone(329.63, 0.28, "sine", 0.030, 0.11);
   }
+
+  playPianoNocturne() {
+    // Felt-hammered Db-major9 grand piano arpeggio with warm 2nd harmonic
+    const notes = [277.18, 349.23, 415.30, 523.25, 622.25, 830.61];
+    notes.forEach((freq, i) => {
+      const delay = i * 0.14;
+      this._tone(freq, 0.85, "sine", 0.038, delay);
+      this._tone(Math.min(freq * 2, 1100), 0.45, "triangle", 0.010, delay);
+    });
+  }
+
+  playGolfPutt() {
+    // Soft club strike followed by hollow stainless cup drop
+    this._tone(168, 0.07, "sine", 0.036, 0);
+    this._tone(420, 0.09, "triangle", 0.018, 0.85);
+    this._tone(580, 0.14, "sine", 0.022, 0.92);
+  }
 }
 
 export const sfx = new SoundEngine();

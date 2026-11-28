@@ -8,6 +8,7 @@ import { createOldMoneyTv } from "./oldMoneyTv.js";
 import { createTerraceVista } from "./terraceVista.js";
 import { createLuckyMeteorController } from "./luckyMeteor.js";
 import { createKitchenRituals } from "./kitchenRituals.js";
+import { planSafeWalkPath, projectToWalkable, clampOutOfObstacles } from "./bruceNavMesh.js";
 import { sfx } from "../audio.js";
 import { feedback } from "../juice.js";
 
@@ -356,7 +357,7 @@ export function mountLivingRoomHub(container, opts = {}) {
         <div class="hub3d-kitchen-dock" id="hub3d-kitchen-dock" role="toolbar" aria-label="山景厨房仪式互动">
           <button type="button" class="kitchen-dock-pill" data-kitchen-act="fridge">🚪 双门鲜食冰箱</button>
           <button type="button" class="kitchen-dock-pill" data-kitchen-act="espresso">☕ 晨间手冲·跑圈</button>
-          <button type="button" class="kitchen-dock-pill" data-kitchen-act="steak">🥩 Wolf 灶台·牛排</button>
+          <button type="button" class="kitchen-dock-pill" data-kitchen-act="steak">🥩 Wolf 灶台·名锅烹饪</button>
           <button type="button" class="kitchen-dock-pill" data-kitchen-act="champagne">🥂 岛台·主厨醒酒</button>
           <button type="button" class="kitchen-dock-pill" data-kitchen-act="dining">🍽 长桌正餐宴厅</button>
           <button type="button" class="kitchen-dock-pill" data-kitchen-act="ocean">🌊 岛台回望看海</button>
@@ -382,7 +383,7 @@ export function mountLivingRoomHub(container, opts = {}) {
           <div class="fridge-shelf-list">
             <div class="fridge-shelf-row">
               <div class="fridge-shelf-label">TOP SHELF · 有机乳品</div>
-              <div class="fridge-shelf-items">牧场有机全脂鲜奶 · 植物燕麦奶 · 0% 无糖希腊酸奶（6 罐）</div>
+              <div class="fridge-shelf-items">牧场有机全脂鲜奶 · 植物燕麦奶 · 无糖醇厚希腊酸奶（6 罐）</div>
             </div>
             <div class="fridge-shelf-row">
               <div class="fridge-shelf-label">UPPER MID · 鲜摘水果碗</div>
@@ -398,7 +399,7 @@ export function mountLivingRoomHub(container, opts = {}) {
             </div>
           </div>
           <div class="fridge-drawer-actions">
-            <button type="button" class="fridge-act-btn is-primary" id="btn-fridge-yogurt">🥣 取一份无糖希腊酸奶莓果碗</button>
+            <button type="button" class="fridge-act-btn is-primary" id="btn-fridge-yogurt">🥣 取一份无糖醇厚希腊酸奶碗</button>
             <button type="button" class="fridge-act-btn" id="btn-fridge-pantry">🥩 打开布鲁斯私厨鲜食清单 →</button>
           </div>
         </aside>
@@ -733,10 +734,10 @@ export function mountLivingRoomHub(container, opts = {}) {
   let departSkipFn = null;
 
   const evianStreamCurve = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(1.30, 1.15, -1.94),
-    new THREE.Vector3(1.38, 1.04, -1.93),
-    new THREE.Vector3(1.43, 0.89, -1.92),
-    new THREE.Vector3(1.44, 0.80, -1.92),
+    new THREE.Vector3(1.30, 1.38, -2.53),
+    new THREE.Vector3(1.38, 1.28, -2.52),
+    new THREE.Vector3(1.43, 1.18, -2.51),
+    new THREE.Vector3(1.44, 1.10, -2.50),
   ]);
   const evianStreamGeo = new THREE.TubeGeometry(evianStreamCurve, 18, 0.011, 8, false);
   const evianStreamMat = new THREE.MeshBasicMaterial({
@@ -759,12 +760,12 @@ export function mountLivingRoomHub(container, opts = {}) {
     depthWrite: false,
   });
   const crystalRippleMesh = new THREE.Mesh(crystalRippleGeo, crystalRippleMat);
-  crystalRippleMesh.position.set(1.44, 0.835, -1.92);
+  crystalRippleMesh.position.set(1.44, 1.155, -2.50);
   crystalRippleMesh.visible = false;
   scene.add(crystalRippleMesh);
 
   const initOv = getFloorOverview(activeFloor);
-  const camera = new THREE.PerspectiveCamera(48, 16 / 10, 0.2, 480);
+  const camera = new THREE.PerspectiveCamera(48, 16 / 10, 0.2, 540);
   if (Array.isArray(opts.restoreAnchor?.camPos)) camera.position.fromArray(opts.restoreAnchor.camPos);
   else camera.position.copy(initOv.cam);
 
@@ -1160,21 +1161,21 @@ export function mountLivingRoomHub(container, opts = {}) {
         });
         if (pourBottleMesh) {
           evianBottlePivot = new THREE.Group();
-          evianBottlePivot.position.set(1.15, 0.94, -1.96);
+          evianBottlePivot.position.set(1.15, 1.15, -2.55);
           roomRoot.add(evianBottlePivot);
           evianBottlePivot.add(pourBottleMesh);
-          pourBottleMesh.position.set(-1.15, -0.94, 1.96);
+          pourBottleMesh.position.set(-1.15, -1.15, 2.55);
           if (pourLabelMesh) {
             evianBottlePivot.add(pourLabelMesh);
-            pourLabelMesh.position.set(-1.15, -0.94, 1.96);
+            pourLabelMesh.position.set(-1.15, -1.15, 2.55);
           }
         }
         if (pourCapMesh) {
           evianCapPivot = new THREE.Group();
-          evianCapPivot.position.set(1.15, 1.11, -1.96);
+          evianCapPivot.position.set(1.15, 1.37, -2.55);
           roomRoot.add(evianCapPivot);
           evianCapPivot.add(pourCapMesh);
-          pourCapMesh.position.set(-1.15, -1.11, 1.96);
+          pourCapMesh.position.set(-1.15, -1.37, 2.55);
         }
         kitchenRituals.attachPivots(roomRoot);
         terraceVista.attachRoomRoot(roomRoot);
@@ -2519,11 +2520,11 @@ export function mountLivingRoomHub(container, opts = {}) {
 
   function walkBruceTo(rawX, rawZ, { silent = false } = {}) {
     const b = getFloorOverview(activeFloor).preset.walkBounds;
-    const tx = THREE.MathUtils.clamp(rawX, b.minX, b.maxX);
-    const tz = THREE.MathUtils.clamp(rawZ, b.minZ, b.maxZ);
+    const waypoints = planSafeWalkPath(bruce.root.position.x, bruce.root.position.z, rawX, rawZ, activeFloor, b);
+    const [tx, tz] = waypoints[waypoints.length - 1] || projectToWalkable(rawX, rawZ, activeFloor, b);
     bruce.setResting(null);
     triggerFloorRipple(tx, tz);
-    bruce.walkTo(tx, tz, { speedScale: sulking ? 0.65 : 1.0 });
+    bruce.walkTo(tx, tz, { speedScale: sulking ? 0.65 : 1.0, waypoints });
     if (!silent) sayBruce(sulking ? "walk_sulk" : "walk_call", 3400);
   }
 
@@ -2811,11 +2812,11 @@ export function mountLivingRoomHub(container, opts = {}) {
       controls.update();
       const onBalconySide = activeFloor === "terrace" || controls.target.z < -15.4 || bruce.root.position.z < -15.4;
       if (onBalconySide) {
-        camera.position.x = THREE.MathUtils.clamp(camera.position.x, -15.0, 28.6);
+        camera.position.x = THREE.MathUtils.clamp(camera.position.x, -15.0, 41.8);
         camera.position.y = THREE.MathUtils.clamp(camera.position.y, 1.05, 14.5);
         camera.position.z = THREE.MathUtils.clamp(camera.position.z, -28.8, 14.8);
       } else {
-        camera.position.x = THREE.MathUtils.clamp(camera.position.x, -14.4, 28.6);
+        camera.position.x = THREE.MathUtils.clamp(camera.position.x, -14.4, 41.8);
         camera.position.y = THREE.MathUtils.clamp(camera.position.y, 1.2, 17.6);
         camera.position.z = THREE.MathUtils.clamp(camera.position.z, -15.1, 52.8);
       }
@@ -2888,14 +2889,14 @@ export function mountLivingRoomHub(container, opts = {}) {
       if (evianCapPivot) {
         if (t < 0.48) {
           const u = smooth(clamp01(t / 0.48));
-          evianCapPivot.position.set(1.15 - u * 0.16, 1.11 + Math.sin(u * Math.PI) * 0.09 - u * 0.32, -1.96 + u * 0.12);
+          evianCapPivot.position.set(1.15 - u * 0.16, 1.37 + Math.sin(u * Math.PI) * 0.09 - u * 0.32, -2.55 + u * 0.12);
           evianCapPivot.rotation.y = u * Math.PI * 3.0;
         } else if (t < 1.95) {
-          evianCapPivot.position.set(0.99, 0.79, -1.84);
+          evianCapPivot.position.set(0.99, 1.05, -2.43);
           evianCapPivot.rotation.y = Math.PI * 3.0;
         } else {
           const u = smooth(clamp01((t - 1.95) / 0.50));
-          evianCapPivot.position.set(0.99 + u * 0.16, 0.79 + Math.sin(u * Math.PI) * 0.09 + u * 0.32, -1.84 - u * 0.12);
+          evianCapPivot.position.set(0.99 + u * 0.16, 1.05 + Math.sin(u * Math.PI) * 0.09 + u * 0.32, -2.43 - u * 0.12);
           evianCapPivot.rotation.y = (1 - u) * Math.PI * 3.0;
         }
       }
@@ -2904,7 +2905,7 @@ export function mountLivingRoomHub(container, opts = {}) {
         if (t >= 0.42 && t < 0.90) liftU = smooth(clamp01((t - 0.42) / 0.48));
         else if (t >= 0.90 && t < 1.65) liftU = 1.0;
         else if (t >= 1.65 && t < 2.15) liftU = 1.0 - smooth(clamp01((t - 1.65) / 0.50));
-        evianBottlePivot.position.set(1.15 + liftU * 0.09, 0.94 + liftU * 0.25, -1.96 + liftU * 0.02);
+        evianBottlePivot.position.set(1.15 + liftU * 0.09, 1.15 + liftU * 0.25, -2.55 + liftU * 0.02);
         evianBottlePivot.rotation.z = -1.10 * liftU;
       }
       const streaming = t >= 0.78 && t <= 1.72;
@@ -2919,7 +2920,7 @@ export function mountLivingRoomHub(container, opts = {}) {
         evianStreamMat.opacity = 0.65 + 0.2 * Math.sin(t * 18.0);
         const rScale = 0.55 + ((t * 2.4) % 1.0) * 0.95;
         crystalRippleMesh.scale.setScalar(rScale);
-        crystalRippleMesh.position.y = 0.818 + sU * 0.028;
+        crystalRippleMesh.position.y = 1.14 + sU * 0.028;
         crystalRippleMat.opacity = (1.0 - ((t * 2.4) % 1.0)) * 0.65;
         if (crystalWaterMesh) crystalWaterMesh.position.y = sU * 0.028;
       } else if (t > 1.72 && crystalWaterMesh) {
@@ -2927,15 +2928,15 @@ export function mountLivingRoomHub(container, opts = {}) {
       }
       if (t >= 1.45 && !evianPourAnim.walkTriggered) {
         evianPourAnim.walkTriggered = true;
-        walkBruceTo(1.35, -0.85, { silent: true });
+        walkBruceTo(5.6, -2.5, { silent: true });
         later(() => bruce.playAction("lick_paw"), 650);
       }
       if (t >= evianPourAnim.dur) {
         evianPourAnim = null;
         evianStreamMesh.visible = false;
         crystalRippleMesh.visible = false;
-        if (evianBottlePivot) { evianBottlePivot.position.set(1.15, 0.94, -1.96); evianBottlePivot.rotation.set(0, 0, 0); }
-        if (evianCapPivot) { evianCapPivot.position.set(1.15, 1.11, -1.96); evianCapPivot.rotation.set(0, 0, 0); }
+        if (evianBottlePivot) { evianBottlePivot.position.set(1.15, 1.15, -2.55); evianBottlePivot.rotation.set(0, 0, 0); }
+        if (evianCapPivot) { evianCapPivot.position.set(1.15, 1.37, -2.55); evianCapPivot.rotation.set(0, 0, 0); }
       }
     }
     const spArr = sparkGeo.attributes.position.array;
@@ -2986,6 +2987,7 @@ export function mountLivingRoomHub(container, opts = {}) {
     }
 
     bruce.update(dt, elapsed);
+    clampOutOfObstacles(bruce.root.position, activeFloor, getFloorOverview(activeFloor).preset.walkBounds);
     const rigDiag = bruce.getDiag?.();
     if (rigDiag) stageEl.dataset.rigDiag = JSON.stringify(rigDiag);
     const pDiag = {
@@ -3017,6 +3019,8 @@ export function mountLivingRoomHub(container, opts = {}) {
       toggleFridge: (open = null) => kitchenRituals.toggleFridge(open),
       startMorningEspresso: () => kitchenRituals.startMorningEspresso(),
       startHerbSteakPrep: () => kitchenRituals.startHerbSteakPrep(),
+      focusWolfCellar: () => kitchenRituals.startHerbSteakPrep(),
+      walkBruceSafe: (x, z) => walkBruceTo(x, z, { silent: true }),
       startChampagneChefStage: () => kitchenRituals.startChampagneChefStage(),
       focusDiningHall: () => kitchenRituals.focusDiningHall(),
       playGrandPiano: () => kitchenRituals.playGrandPiano(),

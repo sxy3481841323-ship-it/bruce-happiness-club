@@ -74,10 +74,13 @@ from penthouse_kit.tex_kitchen_surfaces import (
     make_organic_dairy_label_tex,
     make_prestige_wine_labels_tex,
     make_aaa_snow_granite_mountain_tex,
+    make_sheet_music_tex,
+    make_twilight_city_facade_tex,
 )
 from penthouse_kit.mod_south_kitchen import build_south_kitchen
 from penthouse_kit.mod_south_terrace_mountains import build_south_terrace_and_mountains
 from penthouse_kit.mod_east_piano_sport_wing import build_east_piano_sport_wing
+from penthouse_kit.mod_east_river_bridge_vista import build_east_river_bridge_vista
 
 
 def build_duplex():
@@ -130,6 +133,8 @@ def build_duplex():
     dairy_label_img = make_organic_dairy_label_tex(512)
     prestige_wine_img = make_prestige_wine_labels_tex(1024, 512)
     aaa_mountain_img = make_aaa_snow_granite_mountain_tex(2048, 1024)
+    sheet_music_img = make_sheet_music_tex(512, 384)
+    city_facade_img = make_twilight_city_facade_tex(512, 512)
 
     mats = {
         "oak": ctx.tex_mat("HerringboneOak", oak_img, roughness=0.44, metalness=0.04, quality=92),
@@ -236,8 +241,17 @@ def build_duplex():
         "velvet": ctx.color_mat("EquestrianVelvet", (0.10, 0.10, 0.13, 1.0), roughness=0.92, metalness=0.01),
         "optic_yellow": ctx.color_mat("OpticTennisBallYellow", (0.82, 0.92, 0.18, 1.0), roughness=0.78, metalness=0.01),
         "prestige_wine_labels": ctx.tex_mat("GrandCruWineLabels", prestige_wine_img, roughness=0.36, metalness=0.08, quality=92),
-        "alpine_lake": ctx.color_mat("AlpineFjordWater", (0.08, 0.36, 0.48, 0.88), roughness=0.06, metalness=0.20, emissive=(0.02, 0.11, 0.16), alpha_blend=True),
+        "alpine_lake": ctx.color_mat("AlpineFjordWater", (0.06, 0.24, 0.34, 0.90), roughness=0.08, metalness=0.25, emissive=(0.02, 0.08, 0.13), alpha_blend=True),
         "aaa_mountain": ctx.tex_mat("AAAAlpineDolomite", aaa_mountain_img, roughness=0.84, metalness=0.02, quality=92, double_sided=True),
+        # Batch 15 Expansion Materials
+        "sheet_music": ctx.tex_mat("PianoNocturneScore", sheet_music_img, roughness=0.45, metalness=0.01, quality=92, emissive=(0.14, 0.12, 0.09)),
+        "city_facade": ctx.tex_mat("TwilightCityTowers", city_facade_img, roughness=0.42, metalness=0.22, quality=90, emissive=(0.45, 0.38, 0.28)),
+        "dove_boucle": ctx.color_mat("PearlDoveBoucle", (0.85, 0.86, 0.88, 1.0), roughness=0.90, metalness=0.01),
+        "emerald_silk": ctx.color_mat("EmeraldBotanicalSilk", (0.11, 0.36, 0.34, 1.0), roughness=0.68, metalness=0.03),
+        "le_creuset_red": ctx.color_mat("LeCreusetFlameEnamel", (0.82, 0.17, 0.10, 1.0), roughness=0.16, metalness=0.08),
+        "burgundy_glass": ctx.color_mat("DarkBurgundyBottleGlass", (0.20, 0.04, 0.06, 1.0), roughness=0.14, metalness=0.12),
+        "amber_wine": ctx.color_mat("SauternesAmberGlass", (0.78, 0.56, 0.16, 0.86), roughness=0.08, metalness=0.10, alpha_blend=True),
+        "river_twilight": ctx.color_mat("TwilightRiverWater", (0.06, 0.09, 0.16, 0.94), roughness=0.09, metalness=0.35, emissive=(0.02, 0.03, 0.06)),
     }
 
     build_arch_shell(ctx, mats)
@@ -250,18 +264,21 @@ def build_duplex():
     build_south_kitchen(ctx, mats)
     build_south_terrace_and_mountains(ctx, mats)
     build_east_piano_sport_wing(ctx, mats)
+    build_east_river_bridge_vista(ctx, mats)
 
     info = ctx.export_glb(OUT_GLB)
     for req in (
         "SkyCyclorama", "GalleryTVScreen", "ArcLampBulb", "EntryPatronCard",
         "FireplaceEmbers", "FireplaceLogs", "HiFiGlassDome",
         "ConciergePager1F", "ConciergePager2F", "EvianBottles1F",
-        "TerraceSofaSeat", "OceanVistaWater",
+        "TerraceSofaSeat", "OceanVistaWater", "SalonOrchidBowl",
         "GrandEntryDoors", "SmartHomePanelScreen",
         "FridgeDoorLeft", "FridgeDoorRight", "WolfRangeBody", "WolfRedKnobs",
-        "PrestigeWineBottles", "KitchenIslandStone", "KitchenFrenchGlass",
+        "LeCreusetDutchOven", "MauvielCopperStockpot", "BackSplashPotRail",
+        "KitchenIslandStone", "KitchenFrenchGlass",
         "DiningTableMarble", "pool_water", "mountain_massif",
-        "GrandPianoCase", "PuttingGreenTurf", "EquestrianTack",
+        "GrandPianoCase", "GrandPianoSheetMusic", "CurvedPanoramicGlass",
+        "EastRiverBridge", "PuttingGreenTurf", "GolfClubBoard", "TennisVitrinePanel", "DressageSaddle",
     ):
         assert req in info["mesh_names"], f"Missing required mesh {req}"
     assert info["size_mb"] <= 15.0, f"GLB exceeds 15 MB cap: {info['size_mb']} MB"

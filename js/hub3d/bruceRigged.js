@@ -221,6 +221,7 @@ export function createRiggedBruce({
 
   let activeAction = null;
   let walkGoal = null;
+  let walkQueue = [];
   let walkBlend = 0;
   let walkPhase = 0;
   let prevStepIndex = 0;
@@ -411,12 +412,25 @@ export function createRiggedBruce({
     return true;
   }
 
-  function walkTo(x, z, { speedScale = 1, onArrive = null } = {}) {
+  function walkTo(x, z, { speedScale = 1, onArrive = null, waypoints = null } = {}) {
     activeAction = null;
+    if (Array.isArray(waypoints) && waypoints.length > 0) {
+      walkQueue = waypoints.slice(0, -1).map(([wx, wz]) => ({ x: wx, z: wz, speedScale }));
+      const [fx, fz] = waypoints[waypoints.length - 1];
+      if (walkQueue.length > 0) {
+        walkGoal = walkQueue.shift();
+        walkQueue.push({ x: fx, z: fz, speedScale, onArrive });
+      } else {
+        walkGoal = { x: fx, z: fz, speedScale, onArrive };
+      }
+      return;
+    }
+    walkQueue = [];
     walkGoal = { x, z, speedScale, onArrive };
   }
 
   function stopWalk() {
+    walkQueue = [];
     walkGoal = null;
   }
 
@@ -446,8 +460,12 @@ export function createRiggedBruce({
       const dist = Math.hypot(dx, dz);
       if (dist <= arriveDist) {
         const doneCb = walkGoal.onArrive;
-        walkGoal = null;
-        doneCb?.();
+        if (walkQueue.length > 0) {
+          walkGoal = walkQueue.shift();
+        } else {
+          walkGoal = null;
+          doneCb?.();
+        }
       } else {
         walkBlend = damp(walkBlend, 1.0, 11.0, dt);
         const desiredYaw = Math.atan2(dx, dz);

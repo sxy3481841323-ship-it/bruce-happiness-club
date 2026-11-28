@@ -125,41 +125,94 @@ def make_organic_dairy_label_tex(w=512, h=256):
     d.ellipse([44, 44, 92, 92], fill=(246, 242, 230))
     f1, f2 = _font(26), _font(17)
     d.text((128, 38), "ORGANIC PASTURE", fill=(28, 108, 68), font=f1)
-    d.text((128, 78), "WHOLE MILK & 0% YOGURT", fill=(48, 52, 56), font=f2)
+    d.text((128, 78), "WHOLE MILK & UNSWEETENED YOGURT", fill=(48, 52, 56), font=f2)
     d.line([(128, 114), (w - 36, 114)], fill=(28, 108, 68), width=2)
     d.text((128, 134), "A2 GRASS-FED HERITAGE", fill=(58, 62, 66), font=f2)
     return img
 
 
 def make_prestige_wine_labels_tex(w=1024, h=512):
-    img = Image.new("RGB", (w, h), (18, 20, 22))
+    img = Image.new("RGB", (w, h), (16, 18, 22))
     d = ImageDraw.Draw(img)
     titles = [
         ["DOM PERIGNON", "CRISTAL", "KRUG", "ROMANEE-CONTI"],
-        ["PETRUS", "CH. LAFITE", "CH. MARGAUX", "OPUS ONE"],
+        ["CHATEAU PETRUS", "CH. LAFITE", "OPUS ONE", "CH. D'YQUEM"],
     ]
     subtitles = [
-        ["VINTAGE 2013", "ROEDERER", "GRANDE CUVEE", "GRAND CRU"],
-        ["POMEROL", "PAUILLAC", "PREMIER CRU", "NAPA VALLEY"],
+        ["VINTAGE 2013", "LOUIS ROEDERER", "GRANDE CUVEE", "GRAND CRU MONOPOLE"],
+        ["POMEROL", "PAUILLAC 1ER CRU", "NAPA VALLEY", "SAUTERNES PREMIER"],
     ]
     bg = [
-        (16, 18, 20), (212, 178, 84), (242, 234, 210), (246, 240, 224),
-        (238, 228, 212), (245, 240, 230), (242, 236, 222), (246, 244, 238),
+        (16, 18, 20), (222, 184, 78), (244, 234, 212), (249, 244, 232),
+        (242, 232, 216), (248, 244, 235), (250, 250, 248), (245, 226, 168),
     ]
     ink = [
-        (228, 194, 112), (118, 24, 30), (112, 22, 34), (132, 26, 36),
-        (128, 22, 30), (62, 46, 36), (34, 34, 38), (28, 42, 74),
+        (228, 194, 104), (112, 22, 28), (118, 20, 32), (144, 24, 34),
+        (134, 20, 28), (66, 48, 36), (22, 34, 68), (108, 68, 22),
     ]
     cw, ch = w // 4, h // 2
-    f1, f2 = _font(21), _font(14)
+    f1, f2 = _font(21), _font(13)
     for r in range(2):
         for c in range(4):
             idx = r * 4 + c
             x0, y0 = c * cw, r * ch
-            d.rectangle([x0 + 10, y0 + 10, x0 + cw - 10, y0 + ch - 10], fill=bg[idx], outline=ink[idx], width=3)
-            d.ellipse([x0 + cw // 2 - 28, y0 + 28, x0 + cw // 2 + 28, y0 + 84], outline=ink[idx], width=3)
-            d.text((x0 + 22, y0 + 116), titles[r][c], fill=ink[idx], font=f1)
-            d.text((x0 + 22, y0 + 150), subtitles[r][c], fill=ink[idx], font=f2)
+            d.rectangle([x0 + 8, y0 + 8, x0 + cw - 8, y0 + ch - 8], fill=bg[idx], outline=ink[idx], width=4)
+            cx = x0 + cw // 2
+            if idx == 0:  # Dom Perignon shield
+                d.polygon([(cx - 32, y0 + 26), (cx + 32, y0 + 26), (cx + 26, y0 + 78), (cx, y0 + 98), (cx - 26, y0 + 78)], outline=ink[idx], width=3)
+            elif idx == 1:  # Cristal diamond medallion
+                d.polygon([(cx, y0 + 22), (cx + 36, y0 + 58), (cx, y0 + 94), (cx - 36, y0 + 58)], fill=(250, 242, 215), outline=ink[idx], width=3)
+            elif idx == 2:  # Krug burgundy ribbon
+                d.line([(x0 + 18, y0 + 36), (x0 + cw - 18, y0 + 82)], fill=ink[idx], width=8)
+            elif idx == 3:  # DRC red bar & crown
+                d.rectangle([x0 + 26, y0 + 28, x0 + cw - 26, y0 + 44], fill=ink[idx])
+                d.ellipse([cx - 20, y0 + 52, cx + 20, y0 + 90], outline=ink[idx], width=3)
+            elif idx == 6:  # Opus One twin cameo silhouettes
+                d.ellipse([cx - 36, y0 + 30, cx - 2, y0 + 82], fill=ink[idx])
+                d.ellipse([cx + 2, y0 + 30, cx + 36, y0 + 82], outline=ink[idx], width=3)
+            else:
+                d.ellipse([cx - 30, y0 + 28, cx + 30, y0 + 88], outline=ink[idx], width=3)
+            d.text((x0 + 18, y0 + 124), titles[r][c], fill=ink[idx], font=f1)
+            d.text((x0 + 18, y0 + 160), subtitles[r][c], fill=ink[idx], font=f2)
+    return img
+
+
+def make_sheet_music_tex(w=512, h=384):
+    img = Image.new("RGB", (w, h), (249, 245, 232))
+    d = ImageDraw.Draw(img)
+    d.rectangle([10, 10, w - 10, h - 10], outline=(180, 165, 138), width=2)
+    d.line([(w // 2, 14), (w // 2, h - 14)], fill=(195, 180, 152), width=3)
+    d.text((64, 24), "NOCTURNE IN D-FLAT", fill=(36, 32, 28), font=_font(16))
+    d.text((w // 2 + 54, 24), "OPUS 27 · NO. 2", fill=(36, 32, 28), font=_font(15))
+    rnd = random.Random(19)
+    for page_x in (26, w // 2 + 20):
+        for s in range(4):
+            sy = 64 + s * 74
+            for ln in range(5):
+                d.line([(page_x, sy + ln * 7), (page_x + 204, sy + ln * 7)], fill=(45, 42, 40), width=1)
+            for n in range(9):
+                nx = page_x + 12 + n * 21
+                ny = sy + rnd.randint(0, 26)
+                d.ellipse([nx - 4, ny - 3, nx + 4, ny + 3], fill=(22, 20, 18))
+                d.line([(nx + 4, ny), (nx + 4, ny - 18)], fill=(22, 20, 18), width=2)
+    return img
+
+
+def make_twilight_city_facade_tex(w=512, h=512):
+    img = Image.new("RGB", (w, h), (22, 26, 40))
+    d = ImageDraw.Draw(img)
+    rnd = random.Random(83)
+    cols, rows = 16, 32
+    cw, ch = w // cols, h // rows
+    for r in range(rows):
+        for c in range(cols):
+            x0, y0 = c * cw + 3, r * ch + 3
+            p = rnd.random()
+            if p < 0.34:
+                col = (248, 206, 132) if p < 0.22 else (218, 228, 250)
+                d.rectangle([x0, y0, x0 + cw - 6, y0 + ch - 6], fill=col)
+            elif p < 0.44:
+                d.rectangle([x0, y0, x0 + cw - 6, y0 + ch - 6], fill=(95, 112, 148))
     return img
 
 

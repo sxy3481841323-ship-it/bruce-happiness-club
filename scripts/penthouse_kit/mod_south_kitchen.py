@@ -1,5 +1,6 @@
 from .mod_south_fridge import build_south_fridge
 from .mod_south_dining import build_south_dining
+from .mod_south_cellar_and_cookware import build_south_cellar_and_cookware
 
 
 def _box(ctx, name, mat, cx, cy, cz, sx, sy, sz, rot=0.0):
@@ -67,34 +68,8 @@ def build_south_kitchen(ctx, mats):
     for i in range(8):
         _cyl(ctx, "WolfRedKnobs", M["wolf_red"], -12.36, 2.12, 18.45 + 0.58 * i, 0.10, 0.16, 14, rz=1.5708)
 
-    # ---------- 4. West Wall 8-Estate Grand-Cru Wine Cellar (Open-Front Fluted Alcove) ----------
-    _box(ctx, "WineCellarBack", M["walnut_fluted"], -14.68, 4.4, 30.0, 0.24, 8.8, 9.6)
-    _box(ctx, "WineCellarTop", M["graphite_slate"], -13.45, 8.65, 30.0, 2.50, 0.30, 9.6)
-    _box(ctx, "WineCellarBot", M["graphite_slate"], -13.45, 0.45, 30.0, 2.50, 0.90, 9.6)
-    for cz in (25.25, 28.45, 31.65, 34.75):
-        _box(ctx, "WineCellarDivider", M["obsidian_bezel"], -13.45, 4.4, cz, 2.40, 8.2, 0.12)
-    for ry in (2.2, 4.0, 5.8, 7.4):
-        _box(ctx, "WineShelfOak", M["rift_oak"], -13.55, ry, 30.0, 1.90, 0.08, 9.2)
-    _box(ctx, "WineCellarLed", M["warm_led"], -14.48, 4.4, 30.0, 0.04, 7.8, 9.0)
-    pb = ctx.mb("PrestigeWineBottles", M["prestige_wine_labels"])
-    pn = ctx.mb("WineBottleNecks", M["wine_bottle"])
-    for r in range(4):
-        for c in range(8):
-            bz = 25.95 + 1.15 * c
-            by = 2.28 + r * 1.72 if r < 3 else 7.48
-            u0 = (c % 4) * 0.25 + 0.01
-            u1 = u0 + 0.23
-            v0 = ((r % 2) * 0.50) + 0.02
-            v1 = v0 + 0.46
-            p0 = (-12.96, by + 0.06, bz - 0.13)
-            p1 = (-12.96, by + 0.06, bz + 0.13)
-            p2 = (-12.96, by + 0.54, bz + 0.13)
-            p3 = (-12.96, by + 0.54, bz - 0.13)
-            pb.add_tri_raw(p0, p1, p2, (u0, v0), (u1, v0), (u1, v1), (1, 0, 0), (1, 0, 0), (1, 0, 0))
-            pb.add_tri_raw(p0, p2, p3, (u0, v0), (u1, v1), (u0, v1), (1, 0, 0), (1, 0, 0), (1, 0, 0))
-            pn.add_cylinder(-13.20, by, bz, 0.11, 0.11, 0.62, segs=12)
-            pn.add_cylinder(-13.20, by + 0.62, bz, 0.04, 0.04, 0.22, segs=10)
-    _box(ctx, "WineCellarGlass", M["glass"], -12.28, 4.5, 30.0, 0.04, 7.9, 9.2)
+    # ---------- 4. West Wall 8-Estate Grand-Cru Wine Cellar & Luxury Cookware ----------
+    build_south_cellar_and_cookware(ctx, mats)
 
     # ---------- 5. Zone 4A Center Smoked-Oak & Marble Island + Chimney Hood ----------
     _box(ctx, "KitchenIslandOak", M["rift_oak"], 2.2, 1.14, 20.4, 11.0, 2.20, 3.12)
