@@ -65,6 +65,14 @@ from penthouse_kit.mod_stair_balustrade import build_stair_and_balustrade
 from penthouse_kit.mod_loft_2f import build_loft_2f
 from penthouse_kit.mod_terrace_sky import build_terrace_and_sky
 from penthouse_kit.mod_entry_and_niches import build_entry_and_niches
+from penthouse_kit.tex_kitchen_surfaces import (
+    make_calacatta_viola_tex,
+    make_gunmetal_brushed_tex,
+    make_terracotta_pot_tex,
+    make_organic_dairy_label_tex,
+)
+from penthouse_kit.mod_west_kitchen import build_west_kitchen
+from penthouse_kit.mod_west_mountain_vista import build_west_mountain_vista
 
 
 def build_duplex():
@@ -105,6 +113,10 @@ def build_duplex():
     foyer_medallion_img = make_foyer_medallion_tex(1024)
     fire_ember_img = make_fire_ember_tex(512, 256)
     charred_bark_img = make_charred_bark_tex(512, 256)
+    calacatta_viola_img = make_calacatta_viola_tex(1024)
+    gunmetal_img = make_gunmetal_brushed_tex(512)
+    terracotta_img = make_terracotta_pot_tex(512)
+    dairy_label_img = make_organic_dairy_label_tex(512)
 
     mats = {
         "oak": ctx.tex_mat("HerringboneOak", oak_img, roughness=0.44, metalness=0.04, quality=92),
@@ -166,6 +178,17 @@ def build_duplex():
         "glass_smoke": ctx.color_mat("SmokedBorosilicateGlass", (0.14, 0.15, 0.17, 0.34), roughness=0.06, metalness=0.15, alpha_blend=True, double_sided=True),
         "crystal_glass": ctx.color_mat("ClearCrystalGlass", (0.56, 0.84, 0.96, 0.60), roughness=0.05, metalness=0.14, alpha_blend=True, double_sided=True),
         "orchid_white": ctx.color_mat("PhalaenopsisOrchid", (0.98, 0.97, 0.95, 1.0), roughness=0.45, metalness=0.02),
+        "calacatta_viola": ctx.tex_mat("CalacattaViolaMarble", calacatta_viola_img, roughness=0.18, metalness=0.04, quality=92),
+        "gunmetal": ctx.tex_mat("BrushedPVDGunmetal", gunmetal_img, roughness=0.30, metalness=0.82, quality=90),
+        "terracotta": ctx.tex_mat("AgedTuscanTerracotta", terracotta_img, roughness=0.82, metalness=0.02, quality=88),
+        "dairy_label": ctx.tex_mat("OrganicDairyLabel", dairy_label_img, roughness=0.36, metalness=0.02, quality=92),
+        "berry_blue": ctx.color_mat("OrganicBlueberry", (0.14, 0.18, 0.34, 1.0), roughness=0.42, metalness=0.02),
+        "berry_red": ctx.color_mat("HeirloomBerryRed", (0.58, 0.09, 0.13, 1.0), roughness=0.38, metalness=0.02),
+        "produce_green": ctx.color_mat("GardenLeafGreen", (0.22, 0.42, 0.20, 1.0), roughness=0.58, metalness=0.01),
+        "citrus_yellow": ctx.color_mat("MeyerLemonCitrus", (0.90, 0.74, 0.18, 1.0), roughness=0.40, metalness=0.02),
+        "steak_marbled": ctx.color_mat("DryAgedRibeyeMarbled", (0.52, 0.14, 0.15, 1.0), roughness=0.48, metalness=0.02),
+        "wine_bottle": ctx.color_mat("VintageBordeauxGlass", (0.07, 0.16, 0.09, 1.0), roughness=0.14, metalness=0.12),
+        "champagne_liquid": ctx.color_mat("BrutChampagneGold", (0.94, 0.84, 0.56, 0.82), roughness=0.06, metalness=0.08, alpha_blend=True),
     }
 
     build_arch_shell(ctx, mats)
@@ -175,6 +198,8 @@ def build_duplex():
     build_loft_2f(ctx, mats)
     build_terrace_and_sky(ctx, mats)
     build_entry_and_niches(ctx, mats)
+    build_west_kitchen(ctx, mats)
+    build_west_mountain_vista(ctx, mats)
 
     info = ctx.export_glb(OUT_GLB)
     for req in (
@@ -182,6 +207,8 @@ def build_duplex():
         "FireplaceEmbers", "FireplaceLogs", "HiFiGlassDome",
         "ConciergePager1F", "ConciergePager2F", "EvianBottles1F",
         "TerraceSofaSeat", "OceanVistaWater",
+        "FridgeDoorLeft", "FridgeDoorRight", "FridgeMilkBottles", "FridgeGreekYogurt",
+        "KitchenIslandStone", "KitchenWindowGlass", "WestMidMountainSlope",
     ):
         assert req in info["mesh_names"], f"Missing required mesh {req}"
     assert info["size_mb"] <= 15.0, f"GLB exceeds 15 MB cap: {info['size_mb']} MB"

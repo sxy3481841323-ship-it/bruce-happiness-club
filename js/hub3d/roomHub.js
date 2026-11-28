@@ -7,6 +7,7 @@ import { FLOOR_PRESETS, computeDuplexCameraPose } from "./duplexCamMath.js";
 import { createOldMoneyTv } from "./oldMoneyTv.js";
 import { createTerraceVista } from "./terraceVista.js";
 import { createLuckyMeteorController } from "./luckyMeteor.js";
+import { createKitchenRituals } from "./kitchenRituals.js";
 import { sfx } from "../audio.js";
 import { feedback } from "../juice.js";
 
@@ -124,6 +125,10 @@ const DEFAULT_HUB_COPY = {
     floor_1f_greet: [
       "哒哒哒踩着暖光楼梯跑回一楼挑空客厅啦！落地窗外一片蔚蓝！",
       "羊羔绒沙发和洞石茶几晒得好暖和，今天在一楼陪我丢球吧？",
+    ],
+    kitchen_greet: [
+      "欢迎来到西侧山景开放厨房！站在紫脉大岛台边，左边是青山香草窗，抬头就是落日露台与客厅壁炉。",
+      "双开门鲜食冰箱已经满格保鲜：有机鲜奶、无糖希腊酸奶、浆果和嫩菠菜都在冷光格里等着呢。",
     ],
     floor_2f_greet: [
       "欢迎登上二楼阳光阁楼！玻璃护栏外面视野超棒，还有我的丝绒窝～",
@@ -324,11 +329,52 @@ export function mountLivingRoomHub(container, opts = {}) {
             <span class="floor-pill-code">1F · SALON</span>
             <span class="floor-pill-name">挑空客厅</span>
           </button>
+          <button type="button" class="floor-pill" data-floor="kitchen">
+            <span class="floor-pill-code">1F · KITCHEN</span>
+            <span class="floor-pill-name">山景餐厨</span>
+          </button>
           <button type="button" class="floor-pill" data-floor="terrace">
             <span class="floor-pill-code">1F · TERRACE</span>
             <span class="floor-pill-name">露台看海</span>
           </button>
         </div>
+        <div class="hub3d-kitchen-dock" id="hub3d-kitchen-dock" role="toolbar" aria-label="山景厨房仪式互动">
+          <button type="button" class="kitchen-dock-pill" data-kitchen-act="fridge">🚪 双门鲜食冰箱</button>
+          <button type="button" class="kitchen-dock-pill" data-kitchen-act="espresso">☕ 晨间手冲·跑圈</button>
+          <button type="button" class="kitchen-dock-pill" data-kitchen-act="steak">🌿 迷迭香·牛排</button>
+          <button type="button" class="kitchen-dock-pill" data-kitchen-act="champagne">🥂 醒香槟·主厨台</button>
+        </div>
+        <aside class="hub3d-fridge-drawer" id="hub3d-fridge-drawer" role="dialog" aria-label="内嵌双门鲜食冰箱">
+          <div class="fridge-drawer-head">
+            <div>
+              <div class="fridge-drawer-kicker">BUILT-IN FRENCH DOOR · 0°C – 4°C</div>
+              <div class="fridge-drawer-title">西翼内嵌双门鲜食冰箱</div>
+            </div>
+            <button type="button" class="fridge-drawer-close" id="btn-fridge-close" aria-label="关上冰箱门">×</button>
+          </div>
+          <div class="fridge-shelf-list">
+            <div class="fridge-shelf-row">
+              <div class="fridge-shelf-label">TOP SHELF · 有机乳品</div>
+              <div class="fridge-shelf-items">牧场有机全脂鲜奶 · 植物燕麦奶 · 0% 无糖希腊酸奶（5 罐）</div>
+            </div>
+            <div class="fridge-shelf-row">
+              <div class="fridge-shelf-label">UPPER MID · 鲜摘水果碗</div>
+              <div class="fridge-shelf-items">有机蓝莓 · 红草莓树莓 · 哈斯牛油果 · 黄柠檬</div>
+            </div>
+            <div class="fridge-shelf-row">
+              <div class="fridge-shelf-label">LOWER CRISPER · 时令生鲜时蔬</div>
+              <div class="fridge-shelf-items">嫩菠菜羽衣甘蓝 · 绿芦笋 · 传家宝番茄 · 黄甜椒</div>
+            </div>
+            <div class="fridge-shelf-row">
+              <div class="fridge-shelf-label">0°C BIOFRESH · 熟成肉排与布鲁斯鲜食</div>
+              <div class="fridge-shelf-items">大理石纹肋眼牛排 · 布鲁斯分装鲜肉玻璃罐</div>
+            </div>
+          </div>
+          <div class="fridge-drawer-actions">
+            <button type="button" class="fridge-act-btn is-primary" id="btn-fridge-yogurt">🥣 取一份无糖希腊酸奶莓果碗</button>
+            <button type="button" class="fridge-act-btn" id="btn-fridge-pantry">🥩 打开布鲁斯私厨鲜食清单 →</button>
+          </div>
+        </aside>
         <div class="hub3d-tv-osd" id="hub3d-tv-osd" aria-live="polite">
           <div class="tv-osd-code" id="tv-osd-code">CH 01 · REGATTA</div>
           <div class="tv-osd-title" id="tv-osd-title">地中海古典 J-Class 帆船赛</div>
@@ -485,6 +531,8 @@ export function mountLivingRoomHub(container, opts = {}) {
   const pinsLayer = container.querySelector(".hub3d-pins");
   const floorSwitchEl = container.querySelector(".hub3d-floor-switch");
   const floorButtons = Array.from(container.querySelectorAll(".floor-pill[data-floor]"));
+  const kitchenDockEl = container.querySelector("#hub3d-kitchen-dock");
+  const fridgeDrawerEl = container.querySelector("#hub3d-fridge-drawer");
   const keyholderEl = container.querySelector(".hub3d-keyholder");
   const keyholderBtn = container.querySelector(".keyholder-btn");
   const keyholderTray = container.querySelector(".keyholder-tray");
@@ -850,6 +898,22 @@ export function mountLivingRoomHub(container, opts = {}) {
     rippleAge = 0;
   }
 
+  const kitchenRituals = createKitchenRituals({
+    scene,
+    sfx,
+    bruce,
+    sayBruce: (...args) => sayBruce(...args),
+    walkBruceTo: (...args) => walkBruceTo(...args),
+    flyCamera: (...args) => flyCamera(...args),
+    later,
+    spawnFxParticles: (...args) => spawnFxParticles(...args),
+    stageEl,
+    dockEl: kitchenDockEl,
+    fridgeDrawerEl,
+    onOpenShop: opts.onOpenShop,
+    highlightTrickBtn: (...args) => highlightTrickBtn(...args),
+  });
+
   // Load Two-Floor Luxury Penthouse Duplex GLB
   let roomRoot = null;
   const gltfLoader = new GLTFLoader();
@@ -864,6 +928,7 @@ export function mountLivingRoomHub(container, opts = {}) {
         let pourCapMesh = null;
         roomRoot.traverse((obj) => {
           if (!obj.isMesh) return;
+          kitchenRituals.collectMesh(obj);
           if (/^(Evian|Crystal)/i.test(obj.name)) {
             evianMeshes.push(obj);
             if (obj.name === "EvianPourBottle1F") pourBottleMesh = obj;
@@ -954,6 +1019,7 @@ export function mountLivingRoomHub(container, opts = {}) {
           evianCapPivot.add(pourCapMesh);
           pourCapMesh.position.set(-1.15, -1.11, 1.96);
         }
+        kitchenRituals.attachPivots(roomRoot);
         terraceVista.attachRoomRoot(roomRoot);
         terraceVista.setMood({ sulking, dusk: duskMode });
         scene.add(roomRoot);
@@ -980,6 +1046,7 @@ export function mountLivingRoomHub(container, opts = {}) {
     idle_happy: "BRUCE · 摇尾轻哼",
     idle_sulk: "BRUCE · 背身冷战中",
     floor_1f_greet: "BRUCE · 一楼阳光厅",
+    kitchen_greet: "BRUCE · 山景开放餐厨",
     floor_2f_greet: "BRUCE · 二楼私享阁楼",
     terrace_greet: "BRUCE · 夕照观海露台",
     sunset_cuddle_lines: "TERRACE · 并肩慢时光",
@@ -1066,9 +1133,11 @@ export function mountLivingRoomHub(container, opts = {}) {
       conciergeFloorLabelEl.textContent =
         activeFloor === "terrace"
           ? "HOUSE CONCIERGE · 1F OCEAN TERRACE"
-          : activeFloor === "2f"
-            ? "HOUSE CONCIERGE · 2F LOFT"
-            : "HOUSE CONCIERGE · 1F SALON";
+          : activeFloor === "kitchen"
+            ? "HOUSE CONCIERGE · 1F MOUNTAIN KITCHEN"
+            : activeFloor === "2f"
+              ? "HOUSE CONCIERGE · 2F LOFT"
+              : "HOUSE CONCIERGE · 1F SALON";
     }
     const hifiActive = sfx.isHifiOn();
     conciergeHifiBtn?.classList.toggle("is-active", hifiActive);
@@ -1429,6 +1498,7 @@ export function mountLivingRoomHub(container, opts = {}) {
     activeFloor = fl;
     const ov = getFloorOverview(fl);
     floorButtons.forEach((btn) => btn.classList.toggle("is-active", btn.getAttribute("data-floor") === fl));
+    kitchenRituals.setDockVisibility(fl);
     floorPlane.constant = -ov.preset.floorY;
     walkSpotCursor = 0;
     rippleMesh.visible = false;
@@ -1449,7 +1519,7 @@ export function mountLivingRoomHub(container, opts = {}) {
     if (greet && !activeActId && loadingEl.classList.contains("is-hidden")) {
       if (!sulking) bruce.triggerHappyHop();
       sayBruce(
-        fl === "terrace" ? "terrace_greet" : fl === "2f" ? "floor_2f_greet" : "floor_1f_greet",
+        fl === "terrace" ? "terrace_greet" : fl === "kitchen" ? "kitchen_greet" : fl === "2f" ? "floor_2f_greet" : "floor_1f_greet",
         4400,
       );
     }
@@ -2396,6 +2466,7 @@ export function mountLivingRoomHub(container, opts = {}) {
       ...hifiMeshes,
       ...fireplaceMeshes,
       ...evianMeshes,
+      ...kitchenRituals.getInteractiveMeshes(),
     ].filter(Boolean);
     if (interactiveMeshes.length > 0) {
       const propHits = raycaster.intersectObjects(interactiveMeshes, false);
@@ -2403,6 +2474,9 @@ export function mountLivingRoomHub(container, opts = {}) {
         const hitObj = propHits[0].object;
         feedback("small", e.clientX, e.clientY);
         sfx.playTap();
+        if (kitchenRituals.handleRaycastHit(hitObj)) {
+          return;
+        }
         const stageRect = stageEl.getBoundingClientRect();
         if (evianMeshes.includes(hitObj)) {
           startEvianPourCeremony(e.clientX - stageRect.left, e.clientY - stageRect.top);
@@ -2562,7 +2636,7 @@ export function mountLivingRoomHub(container, opts = {}) {
         camera.position.y = THREE.MathUtils.clamp(camera.position.y, 1.05, 14.5);
         camera.position.z = THREE.MathUtils.clamp(camera.position.z, -28.8, 14.8);
       } else {
-        camera.position.x = THREE.MathUtils.clamp(camera.position.x, -14.0, 14.0);
+        camera.position.x = THREE.MathUtils.clamp(camera.position.x, -14.3, 14.0);
         camera.position.y = THREE.MathUtils.clamp(camera.position.y, 1.4, 17.6);
         camera.position.z = THREE.MathUtils.clamp(camera.position.z, -15.1, 14.8);
       }
@@ -2572,6 +2646,7 @@ export function mountLivingRoomHub(container, opts = {}) {
     oldMoneyTv.update(elapsed);
     terraceVista.update(dt, elapsed);
     meteorCtrl.update(dt);
+    kitchenRituals.update(dt, elapsed, duskMode);
 
     // Smooth vertical perch adjustment when Bruce walks onto/off the two Ergonomic Round Terrace Chairs
     if (activeFloor === "terrace" || bruce.root.position.z < -15.6) {
@@ -2742,6 +2817,7 @@ export function mountLivingRoomHub(container, opts = {}) {
       target: controls.target.toArray().map((n) => +n.toFixed(2)),
       brucePos: bruce.root.position.toArray().map((n) => +n.toFixed(2)),
       meteor: meteorCtrl.getState(),
+      kitchen: kitchenRituals.getState(),
       happiness,
     };
     window.__BRUCE_PENTHOUSE_DIAG__ = {
@@ -2759,6 +2835,10 @@ export function mountLivingRoomHub(container, opts = {}) {
       startEvianPour: () => startEvianPourCeremony(),
       startSunsetCuddle: () => startSunsetCuddleMoment(),
       finishSunsetCuddle: () => finishSunsetCuddleMoment(),
+      toggleFridge: (open = null) => kitchenRituals.toggleFridge(open),
+      startMorningEspresso: () => kitchenRituals.startMorningEspresso(),
+      startHerbSteakPrep: () => kitchenRituals.startHerbSteakPrep(),
+      startChampagneChefStage: () => kitchenRituals.startChampagneChefStage(),
     };
     if (Math.floor(elapsed * 2) !== Math.floor((elapsed - dt) * 2)) {
       stageEl.dataset.penthouseDiag = JSON.stringify(pDiag);
@@ -2865,6 +2945,7 @@ export function mountLivingRoomHub(container, opts = {}) {
       oldMoneyTv.dispose();
       terraceVista.dispose();
       meteorCtrl.dispose();
+      kitchenRituals.dispose();
       controls.dispose();
       sunnySkyTex.dispose();
       rainySkyTex.dispose();

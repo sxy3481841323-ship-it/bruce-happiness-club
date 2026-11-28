@@ -28,7 +28,7 @@ const ATRIUM_LIFT_Y = 0.85;
 
 /**
  * @typedef {Object} FloorPreset
- * @property {'1f'|'2f'|'terrace'} id
+ * @property {'1f'|'kitchen'|'2f'|'terrace'} id
  * @property {string} label
  * @property {[number, number, number]} camPos
  * @property {[number, number, number]} target
@@ -40,7 +40,7 @@ const ATRIUM_LIFT_Y = 0.85;
  */
 
 /**
- * @type {{ '1f': FloorPreset, '2f': FloorPreset, 'terrace': FloorPreset }}
+ * @type {{ '1f': FloorPreset, 'kitchen': FloorPreset, '2f': FloorPreset, 'terrace': FloorPreset }}
  */
 export const FLOOR_PRESETS = {
   '1f': {
@@ -51,12 +51,29 @@ export const FLOOR_PRESETS = {
     floorY: 0.04,
     brucePos: [1.2, 0.04, 2.6],
     bruceRot: -0.24,
-    walkBounds: { minX: -4.2, maxX: 7.2, minZ: -27.8, maxZ: 8.6 },
+    walkBounds: { minX: -13.4, maxX: 7.2, minZ: -27.8, maxZ: 8.6 },
     walkSpots: [
       [1.2, 2.6],
       [3.4, 4.0],
       [-0.8, 3.2],
+      [-8.6, -8.8],
       [-1.35, -22.60]
+    ]
+  },
+  'kitchen': {
+    id: 'kitchen',
+    label: '1F · 山景餐厨',
+    camPos: [-2.6, 3.05, 2.8],
+    target: [-11.6, 1.45, -6.2],
+    floorY: 0.04,
+    brucePos: [-7.1, 0.04, -5.9],
+    bruceRot: -1.32,
+    walkBounds: { minX: -13.4, maxX: 7.2, minZ: -27.8, maxZ: 8.6 },
+    walkSpots: [
+      [-7.1, -5.9],
+      [-12.4, -3.2],
+      [-12.5, -10.4],
+      [-8.8, -13.6]
     ]
   },
   '2f': {
