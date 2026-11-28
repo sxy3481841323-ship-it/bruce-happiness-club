@@ -2,9 +2,9 @@
   {
     "id": "berth",
     "file": "yacht_berth.glb",
-    "file_bytes": 3251376,
-    "file_mb": 3.101,
-    "triangles": 2552,
+    "file_bytes": 3244180,
+    "file_mb": 3.094,
+    "triangles": 2504,
     "texture_bytes": 2856252,
     "material_count": 8,
     "world_aabb": [
@@ -15,7 +15,7 @@
       ],
       [
         -2.82,
-        1.283,
+        1.193,
         11.96
       ]
     ],
@@ -35,9 +35,9 @@
   {
     "id": "hull_rig",
     "file": "yacht_hull_rig.glb",
-    "file_bytes": 2549312,
-    "file_mb": 2.431,
-    "triangles": 13682,
+    "file_bytes": 2569720,
+    "file_mb": 2.451,
+    "triangles": 13818,
     "texture_bytes": 1455989,
     "material_count": 6,
     "world_aabb": [
@@ -131,28 +131,28 @@
   {
     "id": "furniture_props",
     "file": "yacht_furniture_props.glb",
-    "file_bytes": 5777076,
-    "file_mb": 5.509,
-    "triangles": 3414,
-    "texture_bytes": 5380662,
-    "material_count": 9,
+    "file_bytes": 7997848,
+    "file_mb": 7.627,
+    "triangles": 1976,
+    "texture_bytes": 7682491,
+    "material_count": 11,
     "world_aabb": [
       [
-        -1.443,
+        -1.47,
         1.26,
-        -8.7144
+        -8.58
       ],
       [
-        1.763,
-        2.63,
-        1.31
+        2.03,
+        2.52,
+        1.32
       ]
     ],
     "anchors": {
       "dog_mat": [
-        -1.05,
-        1.355,
-        -3.85
+        -1.02,
+        1.41,
+        -3.88
       ],
       "prop_cleat": [
         1.52,

@@ -651,30 +651,33 @@ export function createSoundscapeController(ensureCtxFn, isMutedFn) {
       }
     },
     playConciergeBell() {
-      playTone(880, 0.55, 0.05, "sine");
-      setTimeout(() => playTone(1318.5, 0.55, 0.045, "sine"), 140);
-      setTimeout(() => playTone(1760, 0.4, 0.015, "sine"), 150);
+      playTone(440.0, 0.48, 0.028, "sine");
+      setTimeout(() => playTone(659.25, 0.56, 0.024, "sine"), 145);
     },
     playGlassPour() {
-      playTone(2349, 0.18, 0.03, "sine");
-      setTimeout(() => playTone(2793, 0.22, 0.025, "sine"), 40);
+      // Soft cap untwist + gentle low-passed water pour bubbles & crystal stream
+      playTone(220, 0.045, 0.018, "sine", null, 330);
+      [390, 460, 415, 510].forEach((f, idx) => {
+        setTimeout(() => playTone(f, 0.16, 0.014, "sine", null, f * 1.18), 260 + idx * 240);
+      });
       if (!ctx || isMutedFn()) return;
       const buf = _ensureNoiseBuffers(ctx);
       const src = ctx.createBufferSource();
-      src.buffer = buf.white;
+      src.buffer = buf.pink;
       src.loop = true;
-      const bp = ctx.createBiquadFilter();
-      bp.type = "bandpass";
-      bp.frequency.value = 4200;
-      bp.Q.value = 1.2;
+      const lp = ctx.createBiquadFilter();
+      lp.type = "lowpass";
+      lp.frequency.value = 820;
+      lp.Q.value = 0.8;
       const g = ctx.createGain();
       const t = now();
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.linearRampToValueAtTime(0.02, t + 0.05);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.62);
-      src.connect(bp).connect(g).connect(master);
+      g.gain.setValueAtTime(0.001, t);
+      g.gain.linearRampToValueAtTime(0.024, t + 0.25);
+      g.gain.linearRampToValueAtTime(0.020, t + 1.05);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 1.35);
+      src.connect(lp).connect(g).connect(master);
       src.start(t);
-      src.stop(t + 0.65);
+      src.stop(t + 1.40);
     },
     playVinylDrop() {
       playTone(112, 0.18, 0.04, "sine", null, 62);

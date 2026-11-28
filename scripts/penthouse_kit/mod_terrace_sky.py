@@ -2,22 +2,16 @@ import math
 from penthouse_kit.cushion_helper import add_designer_pillow
 
 
-def _add_round_chair(ctx, mats, cx, cz, face_yaw, pillow_mat):
-    # --- swivel pedestal ---
-    b = ctx.mb("TerraceSofaPedestal", mats["bronze_dark"])
-    b.add_cylinder(cx, 0.03, cz, 0.92, 0.82, 0.12, segs=32)
-    b.add_cylinder(cx, 0.15, cz, 0.58, 0.58, 0.05, segs=24)
-
-    # --- airtight curved 240° steam-bent walnut barrel shell (matched to 2.55x Penthouse scale!) ---
-    b = ctx.mb("TerraceSofaTeak", mats["walnut_solid"])
+def _barrel_chair(ctx, mats, name, cx, cz, face_yaw, pillow_mat):
+    b = ctx.mb(name, mats["rift_oak"])
     n_seg = 36
     sweep = math.radians(240.0)
     start = face_yaw + math.pi - sweep * 0.5
     R_out, R_in = 1.62, 1.44
     y_base = 0.20
+
     def h(t):
-        ang = abs(t - 0.5) * 2.0
-        return 1.48 - 0.58 * (ang ** 1.6)
+        return 1.48 - 0.58 * abs(2.0 * t - 1.0) ** 1.6
 
     for i in range(n_seg):
         t0, t1 = i / n_seg, (i + 1) / n_seg
@@ -25,224 +19,199 @@ def _add_round_chair(ctx, mats, cx, cz, face_yaw, pillow_mat):
         h0, h1 = h(t0), h(t1)
         c0, s0 = math.cos(a0), math.sin(a0)
         c1, s1 = math.cos(a1), math.sin(a1)
-        # Outer curved wall (+N_out)
-        b.add_quad(
-            (cx + R_out * c1, y_base, cz + R_out * s1),
-            (cx + R_out * c0, y_base, cz + R_out * s0),
-            (cx + R_out * c0, y_base + h0, cz + R_out * s0),
-            (cx + R_out * c1, y_base + h1, cz + R_out * s1),
-            uv_scale=(1.0, 1.0),
-        )
-        # Inner curved wall (-N_out)
-        b.add_quad(
-            (cx + R_in * c0, y_base, cz + R_in * s0),
-            (cx + R_in * c1, y_base, cz + R_in * s1),
-            (cx + R_in * c1, y_base + h1, cz + R_in * s1),
-            (cx + R_in * c0, y_base + h0, cz + R_in * s0),
-            uv_scale=(1.0, 1.0),
-        )
-        # Top barrel rim (+Y)
-        b.add_quad(
-            (cx + R_in * c0, y_base + h0, cz + R_in * s0),
-            (cx + R_out * c0, y_base + h0, cz + R_out * s0),
-            (cx + R_out * c1, y_base + h1, cz + R_out * s1),
-            (cx + R_in * c1, y_base + h1, cz + R_in * s1),
-            uv_scale=(1.0, 0.25),
-        )
-        # Bottom barrel rim (-Y)
-        b.add_quad(
-            (cx + R_out * c0, y_base, cz + R_out * s0),
-            (cx + R_in * c0, y_base, cz + R_in * s0),
-            (cx + R_in * c1, y_base, cz + R_in * s1),
-            (cx + R_out * c1, y_base, cz + R_out * s1),
-            uv_scale=(1.0, 0.25),
-        )
+        b.add_quad((cx + R_out * c1, y_base, cz + R_out * s1), (cx + R_out * c0, y_base, cz + R_out * s0),
+                   (cx + R_out * c0, y_base + h0, cz + R_out * s0), (cx + R_out * c1, y_base + h1, cz + R_out * s1), uv_scale=(1.0, 1.0))
+        b.add_quad((cx + R_in * c0, y_base, cz + R_in * s0), (cx + R_in * c1, y_base, cz + R_in * s1),
+                   (cx + R_in * c1, y_base + h1, cz + R_in * s1), (cx + R_in * c0, y_base + h0, cz + R_in * s0), uv_scale=(1.0, 1.0))
+        b.add_quad((cx + R_in * c0, y_base + h0, cz + R_in * s0), (cx + R_out * c0, y_base + h0, cz + R_out * s0),
+                   (cx + R_out * c1, y_base + h1, cz + R_out * s1), (cx + R_in * c1, y_base + h1, cz + R_in * s1), uv_scale=(1.0, 0.25))
+        b.add_quad((cx + R_out * c0, y_base, cz + R_out * s0), (cx + R_in * c0, y_base, cz + R_in * s0),
+                   (cx + R_in * c1, y_base, cz + R_in * s1), (cx + R_out * c1, y_base, cz + R_out * s1), uv_scale=(1.0, 0.25))
         if i == 0:
-            b.add_quad(
-                (cx + R_in * c0, y_base, cz + R_in * s0),
-                (cx + R_out * c0, y_base, cz + R_out * s0),
-                (cx + R_out * c0, y_base + h0, cz + R_out * s0),
-                (cx + R_in * c0, y_base + h0, cz + R_in * s0),
-                uv_scale=(0.25, 1.0),
-            )
+            b.add_quad((cx + R_in * c0, y_base, cz + R_in * s0), (cx + R_out * c0, y_base, cz + R_out * s0),
+                       (cx + R_out * c0, y_base + h0, cz + R_out * s0), (cx + R_in * c0, y_base + h0, cz + R_in * s0), uv_scale=(0.25, 1.0))
         if i == n_seg - 1:
-            b.add_quad(
-                (cx + R_out * c1, y_base, cz + R_out * s1),
-                (cx + R_in * c1, y_base, cz + R_in * s1),
-                (cx + R_in * c1, y_base + h1, cz + R_in * s1),
-                (cx + R_out * c1, y_base + h1, cz + R_out * s1),
-                uv_scale=(0.25, 1.0),
-            )
+            b.add_quad((cx + R_out * c1, y_base, cz + R_out * s1), (cx + R_in * c1, y_base, cz + R_in * s1),
+                       (cx + R_in * c1, y_base + h1, cz + R_in * s1), (cx + R_out * c1, y_base + h1, cz + R_out * s1), uv_scale=(0.25, 1.0))
 
-    # --- dished round bouclé seat cushion (rim Y=0.73, center Y=0.66, strictly inside R=1.42) ---
-    b = ctx.mb("TerraceSofaSeat", mats["boucle"])
-    seat_profile = [
+    s = ctx.mb("TerraceSofaSeat" if cx < 0 else "TerraceSofaSeat2", mats["boucle"])
+    s.add_lathe(cx, 0.0, cz, [
         (0.00, 0.66), (0.45, 0.67), (0.90, 0.69),
         (1.26, 0.72), (1.40, 0.73), (1.42, 0.64), (1.40, 0.36), (0.00, 0.36),
-    ]
-    b.add_lathe(cx, 0.0, cz, seat_profile, segs=36)
+    ], segs=36)
 
-    # --- contoured inner bouclé wrap backrest (216°, strictly inside R_in=1.44: R=1.20..1.39!) ---
-    b = ctx.mb("TerraceSofaBack", mats["boucle"])
+    bk = ctx.mb(name + "_Back", mats["boucle"])
     n_b = 28
     sweep_b = math.radians(216.0)
     start_b = face_yaw + math.pi - sweep_b * 0.5
     R_b = 1.20
     recline = math.radians(5.5)
-    def y_top_b(t):
-        ang = abs(t - 0.5) * 2.0
-        return 1.58 - 0.52 * (ang ** 1.5)
-
     for i in range(n_b):
         t0, t1 = i / n_b, (i + 1) / n_b
         a0, a1 = start_b + sweep_b * t0, start_b + sweep_b * t1
-        yt0, yt1 = y_top_b(t0), y_top_b(t1)
+        yt0 = 1.58 - 0.52 * abs(2.0 * t0 - 1.0) ** 1.5
+        yt1 = 1.58 - 0.52 * abs(2.0 * t1 - 1.0) ** 1.5
         c0, s0 = math.cos(a0), math.sin(a0)
         c1, s1 = math.cos(a1), math.sin(a1)
-        off0 = math.sin(recline) * (yt0 - 0.66)
-        off1 = math.sin(recline) * (yt1 - 0.66)
-        ri0, ri1 = R_b + off0, R_b + off1
+        ri0 = R_b + math.sin(recline) * (yt0 - 0.66)
+        ri1 = R_b + math.sin(recline) * (yt1 - 0.66)
         ro0, ro1 = ri0 + 0.10, ri1 + 0.10
-        # Inner curved cushion face pointing INWARD toward sitter (-N_out)
-        b.add_quad((cx + ri0 * c0, 0.66, cz + ri0 * s0), (cx + ri1 * c1, 0.66, cz + ri1 * s1),
-                   (cx + ri1 * c1, yt1, cz + ri1 * s1), (cx + ri0 * c0, yt0, cz + ri0 * s0), uv_scale=(0.5, 0.5))
-        # Outer cushion face tucked strictly inside walnut shell (+N_out)
-        b.add_quad((cx + ro1 * c1, 0.66, cz + ro1 * s1), (cx + ro0 * c0, 0.66, cz + ro0 * s0),
-                   (cx + ro0 * c0, yt0, cz + ro0 * s0), (cx + ro1 * c1, yt1, cz + ro1 * s1), uv_scale=(0.5, 0.5))
-        # Top rounded rim (+Y)
-        b.add_quad((cx + ri0 * c0, yt0, cz + ri0 * s0), (cx + ri1 * c1, yt1, cz + ri1 * s1),
-                   (cx + ro1 * c1, yt1, cz + ro1 * s1), (cx + ro0 * c0, yt0, cz + ro0 * s0), uv_scale=(0.5, 0.2))
+        bk.add_quad((cx + ri0 * c0, 0.66, cz + ri0 * s0), (cx + ri1 * c1, 0.66, cz + ri1 * s1),
+                    (cx + ri1 * c1, yt1, cz + ri1 * s1), (cx + ri0 * c0, yt0, cz + ri0 * s0), uv_scale=(0.5, 0.5))
+        bk.add_quad((cx + ro1 * c1, 0.66, cz + ro1 * s1), (cx + ro0 * c0, 0.66, cz + ro0 * s0),
+                    (cx + ro0 * c0, yt0, cz + ro0 * s0), (cx + ro1 * c1, yt1, cz + ro1 * s1), uv_scale=(0.5, 0.5))
+        bk.add_quad((cx + ri0 * c0, yt0, cz + ri0 * s0), (cx + ri1 * c1, yt1, cz + ri1 * s1),
+                    (cx + ro1 * c1, yt1, cz + ro1 * s1), (cx + ro0 * c0, yt0, cz + ro0 * s0), uv_scale=(0.5, 0.2))
         if i == 0:
-            b.add_quad((cx + ri0 * c0, 0.66, cz + ri0 * s0), (cx + ro0 * c0, 0.66, cz + ro0 * s0),
-                       (cx + ro0 * c0, yt0, cz + ro0 * s0), (cx + ri0 * c0, yt0, cz + ri0 * s0), uv_scale=(0.2, 0.5))
+            bk.add_quad((cx + ri0 * c0, 0.66, cz + ri0 * s0), (cx + ro0 * c0, 0.66, cz + ro0 * s0),
+                        (cx + ro0 * c0, yt0, cz + ro0 * s0), (cx + ri0 * c0, yt0, cz + ri0 * s0), uv_scale=(0.2, 0.5))
         if i == n_b - 1:
-            b.add_quad((cx + ro1 * c1, 0.66, cz + ro1 * s1), (cx + ri1 * c1, 0.66, cz + ri1 * s1),
-                       (cx + ri1 * c1, yt1, cz + ri1 * s1), (cx + ro1 * c1, yt1, cz + ro1 * s1), uv_scale=(0.2, 0.5))
+            bk.add_quad((cx + ro1 * c1, 0.66, cz + ro1 * s1), (cx + ri1 * c1, 0.66, cz + ri1 * s1),
+                        (cx + ri1 * c1, yt1, cz + ri1 * s1), (cx + ro1 * c1, yt1, cz + ro1 * s1), uv_scale=(0.2, 0.5))
 
-    # --- sculpted pinched-corner piped accent pillow ---
     back_a = face_yaw + math.pi
     px = cx + 0.72 * math.cos(back_a)
     pz = cz + 0.72 * math.sin(back_a)
     add_designer_pillow(
-        ctx.mb("TerraceSofaPillow_%d" % int(cx * 100), pillow_mat),
-        ctx.mb("TerraceSofaPipe_%d" % int(cx * 100), mats["cream_pillow"]),
+        ctx.mb(name + "_Pillow", pillow_mat),
+        ctx.mb(name + "_Pipe", mats["cream_pillow"]),
         px, 1.02, pz, w=0.86, h=0.68, thick=0.26,
         yaw=math.pi * 0.5 - face_yaw, tilt=-0.22,
     )
 
 
 def build_terrace_and_sky(ctx, mats):
-    # ================= TERRACE DECK =================
-    b = ctx.mb("TerraceDeck", mats["travertine"])
-    b.add_box(0.0, -0.10, -22.8, 32.4, 0.20, 13.6, uv_tile=2.2)
-    b.add_box(0.0, 0.02, -29.55, 32.4, 0.10, 0.30, uv_tile=1.0)
-    b.add_box(-16.05, 0.02, -22.8, 0.30, 0.10, 13.6, uv_tile=1.0)
-    b.add_box(16.05, 0.02, -22.8, 0.30, 0.10, 13.6, uv_tile=1.0)
+    d = ctx.mb("TerraceDeck", mats["travertine"])
+    d.add_box(0.0, -0.10, -22.0, 34.0, 0.20, 16.0, uv_tile=2.0)
 
-    # ================= OCEAN CLIFF GLASS BALUSTRADE (Z=-29.42 & X=±16.05, OPEN DOORWAY AT Z=-16!) =================
-    b = ctx.mb("TerraceGlass", mats["glass"])
-    b.add_box(0.0, 0.53, -29.42, 32.0, 1.06, 0.03)
-    b.add_box(-16.05, 0.53, -22.8, 0.03, 1.06, 13.4)
-    b.add_box(16.05, 0.53, -22.8, 0.03, 1.06, 13.4)
-    b = ctx.mb("TerraceHandrail", mats["brass"])
-    b.add_box(0.0, 1.08, -29.42, 32.2, 0.06, 0.10)
-    b.add_box(-16.05, 1.08, -22.8, 0.10, 0.06, 13.6)
-    b.add_box(16.05, 1.08, -22.8, 0.10, 0.06, 13.6)
-    b = ctx.mb("TerracePosts", mats["bronze_dark"])
+    g = ctx.mb("TerraceGlass", mats["glass"])
+    g.add_box(0.0, 0.75, -29.42, 32.0, 1.50, 0.04)
+    g.add_box(-16.05, 0.75, -22.0, 0.04, 1.50, 15.0)
+    g.add_box(16.05, 0.75, -22.0, 0.04, 1.50, 15.0)
+
+    hr = ctx.mb("TerraceHandrail", mats["brass"])
+    hr.add_box(0.0, 1.55, -29.42, 32.2, 0.06, 0.10)
+    hr.add_box(-16.05, 1.55, -22.0, 0.10, 0.06, 15.2)
+    hr.add_box(16.05, 1.55, -22.0, 0.10, 0.06, 15.2)
+
+    p = ctx.mb("TerracePosts", mats["bronze_dark"])
     for x in (-16.0, -8.0, 0.0, 8.0, 16.0):
-        b.add_box(x, 0.54, -29.42, 0.05, 1.08, 0.05)
-    for z in (-29.4, -26.0, -22.6, -19.2, -16.2):
-        b.add_box(-16.05, 0.54, z, 0.05, 1.08, 0.05)
-        b.add_box(16.05, 0.54, z, 0.05, 1.08, 0.05)
+        p.add_cylinder(x, 0.0, -29.42, 0.05, 0.05, 1.55, segs=10)
+    for z in (-29.0, -22.0, -15.0):
+        p.add_cylinder(-16.05, 0.0, z, 0.05, 0.05, 1.55, segs=10)
+        p.add_cylinder(16.05, 0.0, z, 0.05, 0.05, 1.55, segs=10)
 
-    # ================= OUTDOOR RUG =================
-    b = ctx.mb("TerraceOutdoorRug", mats["rug_2f"])
-    b.add_box(1.10, 0.015, -22.90, 11.6, 0.03, 7.6, uv_tile=1.4)
+    r = ctx.mb("TerraceOutdoorRug", mats["rug_2f"])
+    r.add_box(1.10, 0.015, -22.90, 11.6, 0.03, 7.6)
+    r.add_quad((-4.7, 0.032, -19.1), (6.9, 0.032, -19.1),
+               (6.9, 0.032, -26.7), (-4.7, 0.032, -26.7),
+               uv_scale=(1.0, 1.0))
 
-    # ================= TWO ERGONOMIC ROUND LOUNGE CHAIRS (opening cleanly toward -Z ocean horizon) =================
-    _add_round_chair(ctx, mats, -1.35, -22.60, -math.pi * 0.5 + 0.18, mats["cognac_suede"])
-    _add_round_chair(ctx, mats, 3.55, -22.60, -math.pi * 0.5 - 0.22, mats["burgundy"])
+    _barrel_chair(ctx, mats, "TerraceSofaSeatChair1",
+                  -1.35, -22.60, -math.pi * 0.5 + 0.18, mats["slate_linen"])
+    _barrel_chair(ctx, mats, "TerraceSofaSeatChair2",
+                  3.55, -22.60, -math.pi * 0.5 - 0.22, mats["burgundy"])
 
-    # ================= CENTRAL DRUM SIDE TABLE =================
-    b = ctx.mb("TerraceSideTable", mats["walnut_fluted"])
-    b.add_cylinder(1.10, 0.0, -23.20, 0.72, 0.72, 0.66, segs=32)
-    b = ctx.mb("TerraceSideTableTop", mats["travertine"])
-    b.add_cylinder(1.10, 0.66, -23.20, 0.76, 0.76, 0.06, segs=32)
-    b = ctx.mb("TerraceGlasses", mats["crystal_glass"])
-    for gx, gz in [(0.90, -23.08), (1.30, -23.32)]:
-        b.add_cylinder(gx, 0.72, gz, 0.075, 0.09, 0.22, segs=14)
+    dt = ctx.mb("TerraceDrumTable", mats["rift_oak"])
+    dt.add_cylinder(1.10, 0.0, -23.20, 0.55, 0.55, 0.70, segs=24)
+    tt = ctx.mb("TerraceDrumTop", mats["travertine"])
+    tt.add_cylinder(1.10, 0.70, -23.20, 0.58, 0.58, 0.04, segs=24)
 
-    # ================= ROUND OTTOMAN =================
-    b = ctx.mb("TerraceOttoman", mats["travertine"])
-    b.add_cylinder(-1.10, 0.0, -25.15, 0.68, 0.68, 0.46, segs=28)
-    b = ctx.mb("TerraceOttomanCushion", mats["boucle"])
-    b.add_cylinder(-1.10, 0.46, -25.15, 0.70, 0.68, 0.14, segs=28)
+    gl = ctx.mb("TerraceGlasses", mats["crystal_glass"])
+    for gx, gz in ((0.90, -23.08), (1.30, -23.32)):
+        gl.add_cylinder(gx, 0.74, gz, 0.045, 0.05, 0.14, segs=12)
 
-    # ================= LANTERNS =================
+    ot = ctx.mb("TerraceOttoman", mats["cognac_suede"])
+    ot.add_rounded_box(-1.10, 0.22, -25.15, 1.10, 0.44, 0.90, bevel=0.08)
+
+    ln = ctx.mb("TerraceLanterns", mats["bronze_dark"])
     for lx in (-5.10, 7.30):
-        tag = "L" if lx < 0 else "R"
-        b = ctx.mb("TerraceLantern_%s" % tag, mats["bronze_dark"])
-        b.add_cylinder(lx, 0.0, -24.40, 0.16, 0.16, 0.82, segs=14)
-        b = ctx.mb("TerraceLanternGlow_%s" % tag, mats["warm_bulb"])
-        b.add_sphere(lx, 0.92, -24.40, 0.14, 0.17, 0.14, rings=10, segs=14)
+        ln.add_cylinder(lx, 0.0, -24.40, 0.16, 0.16, 0.55, segs=12)
+        ln.add_sphere(lx, 0.62, -24.40, 0.14, 0.18, 0.14, rings=8, segs=12)
+    lb = ctx.mb("TerraceLanternGlow", mats["warm_bulb"])
+    for lx in (-5.10, 7.30):
+        lb.add_sphere(lx, 0.55, -24.40, 0.10, 0.12, 0.10, rings=6, segs=10)
 
-    # ================= OLIVE TREES (placed symmetrically at X=-12.2 / +12.4) =================
-    for ox, oz in [(-12.2, -23.5), (12.4, -24.2)]:
-        tag = int(ox)
-        b = ctx.mb("OlivePlanter_%d" % tag, mats["travertine"])
-        b.add_cylinder(ox, 0.0, oz, 0.55, 0.50, 0.55, segs=20)
-        b = ctx.mb("OliveTrunk_%d" % tag, mats["bark"])
-        b.add_cylinder(ox, 0.55, oz, 0.10, 0.08, 1.30, segs=12)
-        b = ctx.mb("OliveFoliage_%d" % tag, mats["olive_leaf"])
-        b.add_sphere(ox, 2.10, oz, 0.85, 0.70, 0.85, rings=12, segs=16)
-        b = ctx.mb("OliveFoliageBright_%d" % tag, mats["olive_leaf_bright"])
-        b.add_sphere(ox + 0.25, 2.35, oz + 0.15, 0.55, 0.45, 0.55, rings=10, segs=14)
+    for tx, tz in ((-12.2, -23.5), (12.4, -24.2)):
+        tr = ctx.mb("TerraceOliveTrunk_%d" % int(tx), mats["bark"])
+        tr.add_cylinder(tx, 0.0, tz, 0.14, 0.10, 1.30, segs=10)
+        fo = ctx.mb("TerraceOliveFoliage_%d" % int(tx), mats["olive_leaf"])
+        fo.add_sphere(tx, 1.65, tz, 0.85, 0.70, 0.85, rings=10, segs=14)
+        fo.add_sphere(tx + 0.35, 1.95, tz - 0.20, 0.55, 0.50, 0.55, rings=8, segs=12)
+        fo.add_sphere(tx - 0.30, 1.90, tz + 0.25, 0.50, 0.45, 0.50, rings=8, segs=12)
 
-    # ================= CLIFF, HEADLANDS, OCEAN & SAILBOATS (Y=-8.5 horizon vista!) =================
-    c = ctx.mb("CoastalCliff", mats["headland_rock"])
-    c.add_quad((-18.0, -0.5, -29.8), (18.0, -0.5, -29.8), (18.0, -8.8, -46.0), (-18.0, -8.8, -46.0), flip=True)
-    hd = ctx.mb("CoastalHeadlands", mats["headland_rock"])
-    for xs, hs, zh in (
-        ([-92, -74, -56, -40, -26, -15, -7], [-8.5, 2.2, 4.4, 3.6, 1.4, -2.5, -8.5], -92.0),
-        ([16, 28, 44, 62, 78, 96], [-8.5, -1.8, 2.8, 5.1, 3.2, -8.5], -114.0),
-    ):
-        for k in range(len(xs) - 1):
-            u0, u1 = k / max(1, len(xs) - 1), (k + 1) / max(1, len(xs) - 1)
-            hd.add_tri_raw((xs[k], -8.5, zh), (xs[k + 1], -8.5, zh + 1.5), (xs[k + 1], hs[k + 1], zh), (u0, 0), (u1, 0), (u1, 1))
-            hd.add_tri_raw((xs[k], -8.5, zh), (xs[k + 1], hs[k + 1], zh), (xs[k], hs[k], zh), (u0, 0), (u1, 1), (u0, 1))
+    cf = ctx.mb("CoastalCliff", mats["headland_rock"])
+    cf.add_quad((-16.0, -0.5, -29.8), (16.0, -0.5, -29.8),
+                (16.0, -8.8, -46.0), (-16.0, -8.8, -46.0))
 
-    o = ctx.mb("OceanVistaWater", mats["horizon_ocean"])
+    ow = ctx.mb("OceanVistaWater", mats["horizon_ocean"])
     nx, nz = 24, 16
+    x0, x1, z0, z1 = -210.0, 210.0, -28.0, -165.0
     for i in range(nx):
         for j in range(nz):
-            xa, xb = -180.0 + 360.0 * i / nx, -180.0 + 360.0 * (i + 1) / nx
-            za, zb = -28.0 - 127.0 * j / nz, -28.0 - 127.0 * (j + 1) / nz
-            o.add_quad((xa, -8.5, za), (xb, -8.5, za), (xb, -8.5, zb), (xa, -8.5, zb))
+            xa = x0 + (x1 - x0) * i / nx
+            xb = x0 + (x1 - x0) * (i + 1) / nx
+            za = z0 + (z1 - z0) * j / nz
+            zb = z0 + (z1 - z0) * (j + 1) / nz
+            ow.add_quad((xa, -8.5, za), (xb, -8.5, za),
+                        (xb, -8.5, zb), (xa, -8.5, zb))
 
-    for (bx, bz) in ((-14.0, -74.0), (22.0, -102.0)):
-        ctx.mb("SailboatHull_%d" % int(bx), mats["bronze_dark"]).add_box(bx, -8.35, bz, 3.6, 0.55, 1.0)
-        ctx.mb("SailboatMast_%d" % int(bx), mats["bronze_dark"]).add_cylinder(bx, -8.10, bz, 0.06, 0.04, 5.4, segs=8)
-        sail = ctx.mb("SailboatSail_%d" % int(bx), mats["sail_canvas"])
-        sail.add_tri_raw((bx, -2.7, bz), (bx, -8.0, bz), (bx + 1.85, -8.0, bz), (0, 1), (0, 0), (1, 0))
-        sail.add_tri_raw((bx, -2.7, bz), (bx + 1.85, -8.0, bz), (bx, -8.0, bz), (0, 1), (1, 0), (0, 0))
+    # Grounded 3-layer Mediterranean coastline & mountains (anchored cleanly into Y=-9.0 seabed so zero floating gap!)
+    hk = ctx.mb("CoastalHeadlandsRock", mats["headland_rock"])
+    for cx_h, cz_h, rx_h, ry_h, rz_h in (
+        (-48.0, -68.0, 26.0, 4.6, 13.0),
+        (-28.0, -64.0, 18.0, 3.4, 10.5),
+        (54.0, -78.0, 22.0, 3.8, 12.0),
+    ):
+        rings_h, segs_h = 8, 22
+        for ri in range(rings_h):
+            v0, v1 = (ri / rings_h) * (math.pi * 0.5), ((ri + 1) / rings_h) * (math.pi * 0.5)
+            for si in range(segs_h):
+                u0, u1 = (si / segs_h) * 2.0 * math.pi, ((si + 1) / segs_h) * 2.0 * math.pi
+                def pt(v, u):
+                    c_v, s_v = math.cos(v), math.sin(v)
+                    return (cx_h + rx_h * c_v * math.cos(u), -9.0 + ry_h * s_v, cz_h + rz_h * c_v * math.sin(u))
+                hk.add_quad(pt(v0, u0), pt(v1, u0), pt(v1, u1), pt(v0, u1), uv_scale=(1.0, 0.5))
 
-    # ================= SKY CYCLORAMA =================
-    b = ctx.mb("SkyCyclorama", mats["sky_sunny"])
-    radius = 148.0
-    y_bot, y_top = -26.0, 76.0
-    theta_min, theta_max = -2.65, 2.65
-    n_sky = 40
-    for i in range(n_sky):
-        t0 = i / n_sky
-        t1 = (i + 1) / n_sky
-        a0 = theta_min + (theta_max - theta_min) * t0
-        a1 = theta_min + (theta_max - theta_min) * t1
-        c0, s0 = math.cos(a0), math.sin(a0)
-        c1, s1 = math.cos(a1), math.sin(a1)
-        b.add_quad(
-            (radius * c0, y_bot, radius * s0),
-            (radius * c1, y_bot, radius * s1),
-            (radius * c1, y_top, radius * s1),
-            (radius * c0, y_top, radius * s0),
-            uv_scale=(1.0 / n_sky, 1.0),
-        )
+    sf = ctx.mb("CoastalSurfFoam", mats["cream_pillow"])
+    for sx, sz, sr in ((-48.0, -68.0, 27.2), (-28.0, -64.0, 19.0), (54.0, -78.0, 23.0)):
+        sf.add_cylinder(sx, -8.49, sz, sr, sr * 0.96, 0.06, segs=28)
+
+    pl = ctx.mb("CoastalPineHeadlands", mats["coastal_pine"])
+    for cx_h, cz_h, rx_h, ry_h, rz_h in (
+        (-74.0, -102.0, 44.0, 11.2, 22.0),
+        (-36.0, -96.0, 28.0, 7.6, 16.0),
+        (64.0, -112.0, 42.0, 11.8, 20.0),
+        (28.0, -104.0, 26.0, 6.8, 15.0),
+    ):
+        rings_h, segs_h = 9, 24
+        for ri in range(rings_h):
+            v0, v1 = (ri / rings_h) * (math.pi * 0.5), ((ri + 1) / rings_h) * (math.pi * 0.5)
+            for si in range(segs_h):
+                u0, u1 = (si / segs_h) * 2.0 * math.pi, ((si + 1) / segs_h) * 2.0 * math.pi
+                def pt_p(v, u):
+                    c_v, s_v = math.cos(v), math.sin(v)
+                    return (cx_h + rx_h * c_v * math.cos(u), -9.0 + ry_h * s_v, cz_h + rz_h * c_v * math.sin(u))
+                pl.add_quad(pt_p(v0, u0), pt_p(v1, u0), pt_p(v1, u1), pt_p(v0, u1), uv_scale=(1.0, 0.5))
+
+    fm = ctx.mb("FarMistMountains", mats["far_mist_mountain"])
+    K = 48
+    for i in range(K):
+        t0, t1 = i / K, (i + 1) / K
+        xa = -165.0 + 330.0 * t0
+        xb = -165.0 + 330.0 * t1
+        ya = -9.0 + 18.2 * (0.5 + 0.5 * math.cos(math.pi * (2 * t0 - 1) + 0.7)) * (0.6 + 0.4 * math.sin(3 * math.pi * t0))
+        yb = -9.0 + 18.2 * (0.5 + 0.5 * math.cos(math.pi * (2 * t1 - 1) + 0.7)) * (0.6 + 0.4 * math.sin(3 * math.pi * t1))
+        fm.add_quad((xa, -9.0, -142.0), (xb, -9.0, -142.0),
+                    (xb, yb, -142.0), (xa, ya, -142.0))
+
+    sb = ctx.mb("CoastalSailboats", mats["sail_canvas"])
+    for bx, bz in ((-14.0, -74.0), (22.0, -102.0)):
+        sb.add_quad((bx - 0.6, -8.4, bz), (bx + 0.6, -8.4, bz),
+                    (bx + 0.6, -8.4, bz + 0.3), (bx - 0.6, -8.4, bz + 0.3))
+        sb.add_quad((bx, -8.4, bz + 0.15), (bx, -6.4, bz + 0.15),
+                    (bx + 0.5, -8.4, bz + 0.15), (bx, -8.4, bz + 0.15))
+
+    sk = ctx.mb("SkyCyclorama", mats["sky_sunny"])
+    sk.add_lathe(0.0, -26.0, 0.0,
+                 [(148.0, 0.0), (148.0, 102.0), (0.0, 102.0)], segs=32)

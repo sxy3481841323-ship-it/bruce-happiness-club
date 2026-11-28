@@ -12,8 +12,8 @@ def build_entry_and_niches(ctx, mats):
     b = ctx.mb("EntryFocalWall", mats["marble"])
     b.add_box(-14.86, 4.55, 6.65, 0.14, 8.9, 4.5)
 
-    # Fluted walnut wing panels flanking focal wall
-    b = ctx.mb("EntryWingPanels", mats["walnut_fluted"])
+    # Rift oak wing panels flanking focal wall
+    b = ctx.mb("EntryWingPanels", mats["rift_oak"])
     b.add_box(-14.80, 4.55, 4.20, 0.22, 8.9, 0.30)
     b.add_box(-14.80, 4.55, 9.10, 0.22, 8.9, 0.30)
 
@@ -27,10 +27,10 @@ def build_entry_and_niches(ctx, mats):
     b.add_box(-14.55, 8.92, 6.65, 0.55, 0.10, 4.5)
 
     # ------------------------------------------------------------------
-    # Sculptural Travertine & Fluted-Walnut Console
+    # Sculptural Travertine & Smoked Rift-Oak Console
     # ------------------------------------------------------------------
-    # Two tapered fluted walnut plinth piers with brass bands
-    b = ctx.mb("EntryConsolePiers", mats["walnut_fluted"])
+    # Two tapered rift-oak plinth piers with brass bands
+    b = ctx.mb("EntryConsolePiers", mats["rift_oak"])
     for z in (5.30, 8.00):
         b.add_cylinder(-14.02, 0.0, z, 0.22, 0.16, 1.58, segs=20)
     b = ctx.mb("EntryConsolePierBands", mats["brass"])

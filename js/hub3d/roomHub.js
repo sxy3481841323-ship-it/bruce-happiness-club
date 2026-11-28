@@ -599,7 +599,43 @@ export function mountLivingRoomHub(container, opts = {}) {
   const hifiMeshes = [];
   const hifiHaloMats = [];
   const fireplaceMeshes = [];
+  const evianMeshes = [];
+  let evianBottlePivot = null;
+  let evianCapPivot = null;
+  let crystalWaterMesh = null;
+  let evianPourAnim = null;
   let departSkipFn = null;
+
+  const evianStreamCurve = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(1.30, 1.15, -1.94),
+    new THREE.Vector3(1.38, 1.04, -1.93),
+    new THREE.Vector3(1.43, 0.89, -1.92),
+    new THREE.Vector3(1.44, 0.80, -1.92),
+  ]);
+  const evianStreamGeo = new THREE.TubeGeometry(evianStreamCurve, 18, 0.011, 8, false);
+  const evianStreamMat = new THREE.MeshBasicMaterial({
+    color: 0xaee6fb,
+    transparent: true,
+    opacity: 0.78,
+    depthWrite: false,
+  });
+  const evianStreamMesh = new THREE.Mesh(evianStreamGeo, evianStreamMat);
+  evianStreamMesh.visible = false;
+  scene.add(evianStreamMesh);
+
+  const crystalRippleGeo = new THREE.RingGeometry(0.025, 0.095, 24);
+  crystalRippleGeo.rotateX(-Math.PI / 2);
+  const crystalRippleMat = new THREE.MeshBasicMaterial({
+    color: 0xdff6ff,
+    transparent: true,
+    opacity: 0.0,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+  });
+  const crystalRippleMesh = new THREE.Mesh(crystalRippleGeo, crystalRippleMat);
+  crystalRippleMesh.position.set(1.44, 0.835, -1.92);
+  crystalRippleMesh.visible = false;
+  scene.add(crystalRippleMesh);
 
   const initOv = getFloorOverview(activeFloor);
   const camera = new THREE.PerspectiveCamera(48, 16 / 10, 0.2, 320);
@@ -672,7 +708,7 @@ export function mountLivingRoomHub(container, opts = {}) {
     });
     const mesh = new THREE.Mesh(flameGeo, fm);
     const fz = flameZList[i];
-    const fx = 13.68 + ((i % 2 === 0 ? -1 : 1) * 0.05);
+    const fx = 13.78 + ((i % 2 === 0 ? -1 : 1) * 0.025);
     mesh.position.set(fx, 1.98, fz);
     mesh.rotation.y = -Math.PI * 0.5 + (i % 3 - 1) * 0.16;
     flameGroup.add(mesh);
@@ -823,8 +859,18 @@ export function mountLivingRoomHub(container, opts = {}) {
       (gltf) => {
         if (destroyed) return;
         roomRoot = gltf.scene;
+        let pourBottleMesh = null;
+        let pourLabelMesh = null;
+        let pourCapMesh = null;
         roomRoot.traverse((obj) => {
           if (!obj.isMesh) return;
+          if (/^(Evian|Crystal)/i.test(obj.name)) {
+            evianMeshes.push(obj);
+            if (obj.name === "EvianPourBottle1F") pourBottleMesh = obj;
+            else if (obj.name === "EvianPourLabel1F") pourLabelMesh = obj;
+            else if (obj.name === "EvianPourCap1F") pourCapMesh = obj;
+            else if (obj.name === "CrystalBowlWater1F") crystalWaterMesh = obj;
+          }
           if (obj.name === "SkyCyclorama" || obj.material?.name === "SkyCycloramaSunny") {
             obj.castShadow = false;
             obj.receiveShadow = false;
@@ -890,6 +936,24 @@ export function mountLivingRoomHub(container, opts = {}) {
             m.needsUpdate = true;
           });
         });
+        if (pourBottleMesh) {
+          evianBottlePivot = new THREE.Group();
+          evianBottlePivot.position.set(1.15, 0.94, -1.96);
+          roomRoot.add(evianBottlePivot);
+          evianBottlePivot.add(pourBottleMesh);
+          pourBottleMesh.position.set(-1.15, -0.94, 1.96);
+          if (pourLabelMesh) {
+            evianBottlePivot.add(pourLabelMesh);
+            pourLabelMesh.position.set(-1.15, -0.94, 1.96);
+          }
+        }
+        if (pourCapMesh) {
+          evianCapPivot = new THREE.Group();
+          evianCapPivot.position.set(1.15, 1.11, -1.96);
+          roomRoot.add(evianCapPivot);
+          evianCapPivot.add(pourCapMesh);
+          pourCapMesh.position.set(-1.15, -1.11, 1.96);
+        }
         terraceVista.attachRoomRoot(roomRoot);
         terraceVista.setMood({ sulking, dusk: duskMode });
         scene.add(roomRoot);
@@ -1145,21 +1209,7 @@ export function mountLivingRoomHub(container, opts = {}) {
 
       if (action === "water") {
         setConciergeOpen(false);
-        sfx.playConciergeBell();
-        later(() => sfx.playGlassPour(), 320);
-        const is2F = activeFloor === "2f";
-        flyCamera(
-          is2F ? new THREE.Vector3(-8.2, 11.65, 0.95) : new THREE.Vector3(0.45, 2.35, 1.55),
-          is2F ? new THREE.Vector3(-5.85, 10.55, 3.25) : new THREE.Vector3(1.10, 0.88, -1.92),
-          880,
-          () => {
-            if (!is2F) walkBruceTo(1.15, 0.15, { silent: true });
-            else walkBruceTo(-6.3, 0.95, { silent: true });
-            later(() => bruce.playAction("lick_paw"), 650);
-          },
-        );
-        spawnFxParticles(rect.width * 0.56, rect.height * 0.54, "water", 16);
-        sayBruce("butler_water_lines", 4600, "CONCIERGE · 管家侍水");
+        startEvianPourCeremony(e.clientX - rect.left, e.clientY - rect.top);
       } else if (action === "hifi") {
         const on = sfx.toggleHifi();
         syncConciergeUi();
@@ -2184,6 +2234,40 @@ export function mountLivingRoomHub(container, opts = {}) {
     }, 2400);
   }
 
+  function startEvianPourCeremony(fxX = null, fxY = null) {
+    if (destroyed || activeActId) return;
+    setConciergeOpen(false);
+    sfx.playConciergeBell();
+    const is2F = activeFloor === "2f";
+    if (!is2F && activeFloor !== "1f") {
+      switchFloor("1f", { animate: false, greet: false });
+    }
+    const rect = stageEl.getBoundingClientRect();
+    const px = Number.isFinite(fxX) ? fxX : rect.width * 0.52;
+    const py = Number.isFinite(fxY) ? fxY : rect.height * 0.54;
+    spawnFxParticles(px, py, "water", 16);
+    sayBruce("butler_water_lines", 4800, "CONCIERGE · 依云侍水");
+    if (is2F) {
+      later(() => sfx.playGlassPour(), 320);
+      flyCamera(
+        new THREE.Vector3(-8.2, 11.65, 0.95),
+        new THREE.Vector3(-5.85, 10.55, 3.25),
+        880,
+        () => {
+          walkBruceTo(-6.3, 0.95, { silent: true });
+          later(() => bruce.playAction("lick_paw"), 650);
+        },
+      );
+      return;
+    }
+    evianPourAnim = { t: 0, dur: 2.50, soundPlayed: false, walkTriggered: false };
+    flyCamera(
+      new THREE.Vector3(0.42, 1.92, 0.55),
+      new THREE.Vector3(1.24, 0.88, -1.98),
+      780,
+    );
+  }
+
   function walkBruceTo(rawX, rawZ, { silent = false } = {}) {
     const b = getFloorOverview(activeFloor).preset.walkBounds;
     const tx = THREE.MathUtils.clamp(rawX, b.minX, b.maxX);
@@ -2311,6 +2395,7 @@ export function mountLivingRoomHub(container, opts = {}) {
       ...conciergeMeshes,
       ...hifiMeshes,
       ...fireplaceMeshes,
+      ...evianMeshes,
     ].filter(Boolean);
     if (interactiveMeshes.length > 0) {
       const propHits = raycaster.intersectObjects(interactiveMeshes, false);
@@ -2319,6 +2404,10 @@ export function mountLivingRoomHub(container, opts = {}) {
         feedback("small", e.clientX, e.clientY);
         sfx.playTap();
         const stageRect = stageEl.getBoundingClientRect();
+        if (evianMeshes.includes(hitObj)) {
+          startEvianPourCeremony(e.clientX - stageRect.left, e.clientY - stageRect.top);
+          return;
+        }
         if (hitObj === patronCardMesh) {
           spawnFxParticles(e.clientX - stageRect.left, e.clientY - stageRect.top, "gold", 12);
           triggerPatronCardDeparture();
@@ -2512,14 +2601,11 @@ export function mountLivingRoomHub(container, opts = {}) {
       rainGeo.attributes.position.needsUpdate = true;
     }
 
-    // Dynamic wood-burning fireplace flames, rising ember sparks, & hearth flicker
-    const flicker =
-      Math.sin(elapsed * 9.3) * 0.22 +
-      Math.sin(elapsed * 17.1 + 1.4) * 0.14 +
-      Math.cos(elapsed * 5.7) * 0.12;
-    fireplaceLight.intensity = 2.30 + flicker * 0.95;
+    // Smooth calm hearth glow & gentle wood-flame breathing (zero strobe / Z-fighting!)
+    const calmGlow = Math.sin(elapsed * 2.4) * 0.12 + Math.sin(elapsed * 4.1 + 1.2) * 0.06;
+    fireplaceLight.intensity = 2.20 + calmGlow;
     if (fireplaceEmberMesh?.material) {
-      fireplaceEmberMesh.material.emissiveIntensity = 0.95 + flicker * 0.35;
+      fireplaceEmberMesh.material.emissiveIntensity = 0.92 + calmGlow * 0.18;
     }
     const hifiActive = sfx.isHifiOn();
     for (let i = 0; i < hifiHaloMats.length; i++) {
@@ -2529,14 +2615,74 @@ export function mountLivingRoomHub(container, opts = {}) {
     }
     for (let i = 0; i < flameRibbons.length; i++) {
       const f = flameRibbons[i];
-      const w1 = Math.sin(elapsed * f.speed + f.phase);
-      const w2 = Math.cos(elapsed * (f.speed * 1.43) + f.phase * 0.7);
-      const hScale = f.baseScale * (0.94 + w1 * 0.20 + w2 * 0.10);
-      f.mesh.scale.set(f.baseScale * (0.90 + w2 * 0.12), hScale, 1.0);
+      const w1 = Math.sin(elapsed * 3.2 + f.phase);
+      const w2 = Math.cos(elapsed * 4.7 + f.phase * 0.7);
+      const hScale = f.baseScale * (0.94 + w1 * 0.12 + w2 * 0.06);
+      f.mesh.scale.set(f.baseScale * (0.92 + w2 * 0.08), hScale, 1.0);
       f.mesh.position.y = 1.66 + 0.33 * hScale;
-      f.mesh.position.z = f.baseZ + w2 * 0.035;
-      f.mesh.position.x = f.baseX + w1 * 0.02;
-      f.mat.opacity = 0.74 + Math.max(0, w1) * 0.24;
+      f.mesh.position.z = f.baseZ + w2 * 0.025;
+      f.mesh.position.x = f.baseX + w1 * 0.008;
+      f.mat.opacity = 0.78 + Math.max(0, w1) * 0.14;
+    }
+
+    // Evian Uncap & Pour 3D Animation
+    if (evianPourAnim) {
+      evianPourAnim.t += dt;
+      const t = evianPourAnim.t;
+      const clamp01 = (v) => Math.max(0, Math.min(1, v));
+      const smooth = (u) => u * u * (3 - 2 * u);
+      if (evianCapPivot) {
+        if (t < 0.48) {
+          const u = smooth(clamp01(t / 0.48));
+          evianCapPivot.position.set(1.15 - u * 0.16, 1.11 + Math.sin(u * Math.PI) * 0.09 - u * 0.32, -1.96 + u * 0.12);
+          evianCapPivot.rotation.y = u * Math.PI * 3.0;
+        } else if (t < 1.95) {
+          evianCapPivot.position.set(0.99, 0.79, -1.84);
+          evianCapPivot.rotation.y = Math.PI * 3.0;
+        } else {
+          const u = smooth(clamp01((t - 1.95) / 0.50));
+          evianCapPivot.position.set(0.99 + u * 0.16, 0.79 + Math.sin(u * Math.PI) * 0.09 + u * 0.32, -1.84 - u * 0.12);
+          evianCapPivot.rotation.y = (1 - u) * Math.PI * 3.0;
+        }
+      }
+      if (evianBottlePivot) {
+        let liftU = 0;
+        if (t >= 0.42 && t < 0.90) liftU = smooth(clamp01((t - 0.42) / 0.48));
+        else if (t >= 0.90 && t < 1.65) liftU = 1.0;
+        else if (t >= 1.65 && t < 2.15) liftU = 1.0 - smooth(clamp01((t - 1.65) / 0.50));
+        evianBottlePivot.position.set(1.15 + liftU * 0.09, 0.94 + liftU * 0.25, -1.96 + liftU * 0.02);
+        evianBottlePivot.rotation.z = -1.10 * liftU;
+      }
+      const streaming = t >= 0.78 && t <= 1.72;
+      if (streaming && !evianPourAnim.soundPlayed) {
+        evianPourAnim.soundPlayed = true;
+        sfx.playGlassPour();
+      }
+      evianStreamMesh.visible = streaming;
+      crystalRippleMesh.visible = streaming;
+      if (streaming) {
+        const sU = clamp01((t - 0.78) / 0.94);
+        evianStreamMat.opacity = 0.65 + 0.2 * Math.sin(t * 18.0);
+        const rScale = 0.55 + ((t * 2.4) % 1.0) * 0.95;
+        crystalRippleMesh.scale.setScalar(rScale);
+        crystalRippleMesh.position.y = 0.818 + sU * 0.028;
+        crystalRippleMat.opacity = (1.0 - ((t * 2.4) % 1.0)) * 0.65;
+        if (crystalWaterMesh) crystalWaterMesh.position.y = sU * 0.028;
+      } else if (t > 1.72 && crystalWaterMesh) {
+        crystalWaterMesh.position.y = 0.028 * Math.max(0, 1.0 - (t - 1.72) * 0.15);
+      }
+      if (t >= 1.45 && !evianPourAnim.walkTriggered) {
+        evianPourAnim.walkTriggered = true;
+        walkBruceTo(1.35, -0.85, { silent: true });
+        later(() => bruce.playAction("lick_paw"), 650);
+      }
+      if (t >= evianPourAnim.dur) {
+        evianPourAnim = null;
+        evianStreamMesh.visible = false;
+        crystalRippleMesh.visible = false;
+        if (evianBottlePivot) { evianBottlePivot.position.set(1.15, 0.94, -1.96); evianBottlePivot.rotation.set(0, 0, 0); }
+        if (evianCapPivot) { evianCapPivot.position.set(1.15, 1.11, -1.96); evianCapPivot.rotation.set(0, 0, 0); }
+      }
     }
     const spArr = sparkGeo.attributes.position.array;
     for (let i = 0; i < sparkCount; i++) {
@@ -2610,6 +2756,7 @@ export function mountLivingRoomHub(container, opts = {}) {
       nextTvChannel: () => cycleTvChannel(elapsed),
       toggleDusk: () => toggleSunsetDuskMood(),
       triggerMeteor: (b = null) => meteorCtrl.triggerNow(b),
+      startEvianPour: () => startEvianPourCeremony(),
       startSunsetCuddle: () => startSunsetCuddleMoment(),
       finishSunsetCuddle: () => finishSunsetCuddleMoment(),
     };

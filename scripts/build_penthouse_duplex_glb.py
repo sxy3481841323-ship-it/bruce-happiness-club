@@ -29,7 +29,12 @@ from penthouse_kit.tex_oldmoney_surfaces import (
     make_marmorino_boiserie_tex,
     make_handknotted_salon_rug_tex,
     make_loft_aubusson_rug_tex,
+    make_verde_alpi_marble_tex,
+    make_rift_oak_tex,
+    make_celadon_plaster_tex,
+    make_slate_linen_tex,
     make_headland_rock_tex,
+    make_coastal_pine_slope_tex,
 )
 from penthouse_kit.tex_pbr import (
     make_herringbone_oak_tex,
@@ -76,8 +81,13 @@ def build_duplex():
     walnut_fluted_img = make_fluted_walnut_tex(1024)
     rug_img = make_handknotted_salon_rug_tex(2048)
     rug_2f_img = make_loft_aubusson_rug_tex(1024)
+    verde_alpi_img = make_verde_alpi_marble_tex(1024)
+    rift_oak_img = make_rift_oak_tex(1024)
+    celadon_img = make_celadon_plaster_tex(1024)
+    slate_linen_img = make_slate_linen_tex(512)
     marmorino_img = make_marmorino_boiserie_tex(1024)
     headland_img = make_headland_rock_tex(512)
+    coastal_pine_img = make_coastal_pine_slope_tex(1024)
     sheer_linen_img = make_sheer_linen_tex(1024)
     cognac_suede_img = make_cognac_suede_tex(1024)
     sky_sunny_img = make_sunset_sky_panorama(4096, 1024)
@@ -99,6 +109,10 @@ def build_duplex():
     mats = {
         "oak": ctx.tex_mat("HerringboneOak", oak_img, roughness=0.44, metalness=0.04, quality=92),
         "marble": ctx.tex_mat("CalacattaGoldMarble", marble_img, roughness=0.18, metalness=0.04, quality=92),
+        "verde_alpi": ctx.tex_mat("VerdeAlpiMarble", verde_alpi_img, roughness=0.22, metalness=0.04, quality=92),
+        "rift_oak": ctx.tex_mat("SmokedRiftOak", rift_oak_img, roughness=0.46, metalness=0.04, quality=90),
+        "celadon_plaster": ctx.tex_mat("CeladonMineralPlaster", celadon_img, roughness=0.72, metalness=0.01, quality=90),
+        "slate_linen": ctx.tex_mat("SlateMistLinen", slate_linen_img, roughness=0.88, metalness=0.0, quality=90),
         "smoked_stone": ctx.tex_mat("SmokedEmperadorStone", smoked_stone_img, roughness=0.22, metalness=0.06, quality=90),
         "evian_flint_glass": ctx.color_mat("EvianFlintGlass", (0.70, 0.90, 0.96, 0.62), roughness=0.05, metalness=0.12, alpha_blend=True, double_sided=True),
         "evian_cap": ctx.color_mat("EvianRoseCap", (0.92, 0.72, 0.76, 1.0), roughness=0.28, metalness=0.15),
@@ -121,6 +135,8 @@ def build_duplex():
         "rug": ctx.tex_mat("HandKnottedSalonRug", rug_img, roughness=0.90, metalness=0.0, quality=92),
         "rug_2f": ctx.tex_mat("AubussonLoftRug", rug_2f_img, roughness=0.90, metalness=0.0, quality=90),
         "headland_rock": ctx.tex_mat("MediterraneanHeadlandRock", headland_img, roughness=0.88, metalness=0.02, quality=88, double_sided=True),
+        "coastal_pine": ctx.tex_mat("MediterraneanPineSlope", coastal_pine_img, roughness=0.90, metalness=0.01, quality=88, double_sided=True),
+        "far_mist_mountain": ctx.color_mat("FarMistMountain", (0.43, 0.49, 0.59, 1.0), roughness=0.96, metalness=0.0, double_sided=True),
         "horizon_ocean": ctx.color_mat("SunsetHorizonSea", (0.14, 0.25, 0.36, 1.0), roughness=0.14, metalness=0.22),
         "sail_canvas": ctx.color_mat("ClassicRegattaSail", (0.95, 0.91, 0.84, 1.0), roughness=0.72, metalness=0.02, double_sided=True),
         "burgundy": ctx.color_mat("OxbloodCashmere", (0.36, 0.09, 0.13, 1.0), roughness=0.82, metalness=0.01),

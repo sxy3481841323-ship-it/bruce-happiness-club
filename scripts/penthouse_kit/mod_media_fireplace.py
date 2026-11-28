@@ -14,31 +14,27 @@ def build_media_fireplace(ctx, mats):
     bp.add_box(13.30, 0.40, -1.80, 1.94, 0.04, 9.84)
     bp.add_box(13.30, 1.365, -1.80, 1.98, 0.015, 9.92)
 
-    b = ctx.mb("FireplaceBreast", mats["marble"])
-    b.add_rounded_box(14.18, 5.10, -1.80, 0.85, 7.20, 10.00, bevel=0.04, uv_tile=1.8)
+    b = ctx.mb("FireplaceBreast", mats["verde_alpi"])
+    b.add_rounded_box(14.18, 5.10, -1.80, 0.85, 7.20, 10.00, bevel=0.04, uv_tile=0.0)
 
-    # firebox recess at Y = 1.54..2.52 matching roomHub.js animated flames & sparks
+    # firebox recess at Y = 1.54..2.52 (recessed cleanly behind animated flames X=13.78 so 0 Z-fighting!)
     b = ctx.mb("FireboxRecess", mats["charcoal"])
-    b.add_box(14.08, 2.03, -1.80, 0.72, 0.98, 4.40)
+    b.add_box(14.14, 2.03, -1.80, 0.68, 0.98, 4.40)
     bf = ctx.mb("FireplaceSurround", mats["brass"])
     bf.add_box(13.70, 2.54, -1.80, 0.10, 0.06, 4.54)
     bf.add_box(13.70, 1.52, -1.80, 0.10, 0.06, 4.54)
 
-    # embers + logs (Y = 1.62..1.85)
+    # embers + logs (X = 13.98, separated cleanly from animated flame ribbons X = 13.76)
     b = ctx.mb("FireplaceEmbers", mats["fire_ember"])
-    b.add_box(14.06, 1.62, -1.80, 0.56, 0.05, 4.00)
+    b.add_box(14.00, 1.62, -1.80, 0.44, 0.05, 4.00)
     for i in range(9):
         z = -3.45 + i * 0.41
-        b.add_sphere(14.04 + ((i % 2) * 0.06 - 0.03), 1.66, z, 0.14, 0.08, 0.14, rings=8, segs=12)
+        b.add_sphere(13.98 + ((i % 2) * 0.04 - 0.02), 1.66, z, 0.14, 0.08, 0.14, rings=8, segs=12)
 
     b = ctx.mb("FireplaceLogs", mats["charred_bark"])
     for i in range(6):
         z = -3.35 + i * 0.62
-        b.add_cylinder(14.04, 1.76, z - 0.35, 0.065, 0.058, 0.82, segs=10, rot_x=1.5708)
-
-    b = ctx.mb("FireplaceGlow", mats["fireplace_glow"])
-    b.add_quad((13.72, 1.62, -3.75), (13.72, 1.62, 0.15),
-               (13.72, 2.38, 0.15), (13.72, 2.38, -3.75))
+        b.add_cylinder(13.98, 1.76, z - 0.35, 0.065, 0.058, 0.82, segs=10, rot_x=1.5708)
 
     # ------------------------------------------------------------------ #
     # 2. HI-FI TOWERS (Harman smoked-glass acoustic towers) at tower_x=13.05
@@ -48,7 +44,7 @@ def build_media_fireplace(ctx, mats):
         pl.add_box(13.05, 0.04, tz, 0.78, 0.08, 0.78)
         b = ctx.mb("HiFiTower", mats["charcoal"])
         b.add_cylinder(13.05, 0.14, tz, 0.34, 0.28, 2.08, segs=24)
-        rb = ctx.mb("HiFiRibs", mats["walnut_fluted"])
+        rb = ctx.mb("HiFiRibs", mats["rift_oak"])
         for side in (-1, 1):
             for k in range(5):
                 ang = side * (0.35 + k * 0.20)

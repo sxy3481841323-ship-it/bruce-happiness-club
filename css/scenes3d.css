@@ -352,9 +352,16 @@
   bottom: 112px !important;
 }
 
+.sc3d-yacht-wrap .hub3d-chat-popover {
+  bottom: 122px !important;
+}
+
 @media (max-width: 1000px) {
   .sc3d-yacht-wrap .hub3d-speech {
     bottom: 162px !important;
+  }
+  .sc3d-yacht-wrap .hub3d-chat-popover {
+    bottom: 168px !important;
   }
   .sc3d-yacht-cam-strip {
     max-width: calc(100vw - 148px);

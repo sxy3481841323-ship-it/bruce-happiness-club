@@ -8,9 +8,11 @@ def build_loft_2f(ctx, mats):
     y0 = 9.21
     wall_x = -14.54
 
-    # ------------------------------------------------------------------ carpet
+    # ------------------------------------------------------------------ carpet (1:1 single top quad!)
     b = ctx.mb("loft_rug", mats["rug_2f"])
-    b.add_box(-8.2, y0 + 0.02, -4.2, 6.8, 0.04, 6.2, uv_tile=0.0)
+    b.add_box(-8.2, y0 + 0.015, -4.2, 6.8, 0.03, 6.2, uv_tile=0.0)
+    b.add_quad((-11.6, y0 + 0.032, -1.1), (-4.8, y0 + 0.032, -1.1),
+               (-4.8, y0 + 0.032, -7.3), (-11.6, y0 + 0.032, -7.3), uv_scale=(1.0, 1.0))
 
     # ------------------------------------------------- monumental masterwork
     gz, cy = -3.4, 13.35
@@ -51,7 +53,7 @@ def build_loft_2f(ctx, mats):
                    mats["marmorino"])
         b.add_box(wall_x + 0.10, cy, pz, 0.20, 3.60, 0.55)
         b = ctx.mb("loft_pilaster_walnut_%s" % ("a" if pz < -3 else "b"),
-                   mats["walnut_fluted"])
+                   mats["rift_oak"])
         b.add_box(wall_x + 0.22, cy, pz, 0.10, 3.40, 0.42)
         b = ctx.mb("loft_pilaster_cap_%s" % ("a" if pz < -3 else "b"),
                    mats["brass"])
@@ -84,14 +86,14 @@ def build_loft_2f(ctx, mats):
     b.add_rounded_box(px, y0 + 0.20, pz, 0.90, 0.40, 0.90, bevel=0.05)
     b = ctx.mb("loft_pet_throne_cushion", mats["burgundy"])
     b.add_rounded_box(px, y0 + 0.46, pz, 0.80, 0.14, 0.80, bevel=0.06)
-    b = ctx.mb("loft_pet_throne_back", mats["walnut_fluted"])
+    b = ctx.mb("loft_pet_throne_back", mats["rift_oak"])
     b.add_box(px, y0 + 0.75, pz - 0.42, 0.90, 0.70, 0.10)
 
     # ------------------------------------------------------- vinyl hi-fi
     vx, vz = -13.1, -11.4
-    b = ctx.mb("loft_credenza", mats["walnut_fluted"])
+    b = ctx.mb("loft_credenza", mats["rift_oak"])
     b.add_rounded_box(vx, y0 + 0.35, vz, 2.40, 0.70, 0.55, bevel=0.04)
-    b = ctx.mb("loft_credenza_top", mats["marble"])
+    b = ctx.mb("loft_credenza_top", mats["verde_alpi"])
     b.add_box(vx, y0 + 0.72, vz, 2.44, 0.04, 0.58)
 
     b = ctx.mb("LoftTurntableVinyl", mats["vinyl_black"])

@@ -19,6 +19,7 @@ import { feedback } from "../juice.js";
 
 const ASSET_URLS = {
   berth: "./assets/models/yacht_berth.glb",
+  club_lounge: "./assets/models/yacht_club_lounge.glb",
   hull_rig: "./assets/models/yacht_hull_rig.glb",
   deck_salon: "./assets/models/yacht_deck_salon.glb",
   furniture_props: "./assets/models/yacht_furniture_props.glb",
@@ -158,6 +159,7 @@ export function mountYachtHub(container, opts = {}) {
         <div class="sc3d-yacht-cam-strip" role="group" aria-label="游艇机位切换">
           <span class="sc3d-yacht-crest">${WORDLESS_CREST_SVG}</span>
           <button type="button" class="sc3d-yacht-pill is-active" data-cam="overview">主总览</button>
+          <button type="button" class="sc3d-yacht-pill" data-cam="club_lounge">岸畔酒廊</button>
           <button type="button" class="sc3d-yacht-pill" data-cam="starboard_scenic">右舷观海</button>
           <button type="button" class="sc3d-yacht-pill" data-cam="aft_door">后沙龙敞门</button>
           <button type="button" class="sc3d-yacht-pill" data-cam="cabin_bar">舱内吧台</button>
@@ -317,8 +319,9 @@ export function mountYachtHub(container, opts = {}) {
       }
     `,
   });
-  const skyDome = new THREE.Mesh(new THREE.SphereGeometry(195, 40, 24), skyDomeMat);
+  const skyDome = new THREE.Mesh(new THREE.SphereGeometry(360, 40, 24), skyDomeMat);
   skyDome.name = "RivieraSkyDome";
+  skyDome.frustumCulled = false;
   scene.add(skyDome);
   disposables.push(skyDome.geometry, skyDomeMat);
 
@@ -524,7 +527,7 @@ export function mountYachtHub(container, opts = {}) {
   const walkMeshes = [];
   const yachtSurfaceMeshes = [];
 
-  const camera = new THREE.PerspectiveCamera(43, 16 / 9, 0.08, 220);
+  const camera = new THREE.PerspectiveCamera(43, 16 / 9, 0.08, 850);
   const initCam = adaptPoseForAspect(YACHT_CAM_PRESETS.overview.camPos, YACHT_CAM_PRESETS.overview.lookAt, 43, 16 / 9);
   camera.position.copy(initCam.pos);
 
@@ -799,16 +802,16 @@ export function mountYachtHub(container, opts = {}) {
       // Beat 1: walk onto cushioned linen mat (-1.05, 1.31, -3.85), lie chest-down 2.6s -> single line
       const matX = anchors.dog_mat.x;
       const matZ = anchors.dog_mat.z;
-      const surfaceY = sampleYachtDeckSurface(matX, matZ, 1.385, 2.2);
+      const surfaceY = sampleYachtDeckSurface(matX, matZ, 1.41, 2.2);
       const startX = matX - 0.28;
       const startZ = matZ - 0.28;
-      bruce.root.position.set(startX, sampleYachtDeckSurface(startX, startZ, 1.30, 2.2), startZ);
+      bruce.root.position.set(startX, sampleYachtDeckSurface(startX, startZ, 1.32, 2.2), startZ);
       switchCameraPreset("aft_door", { durationSec: 1.6 });
       sayBruce("yacht_shade_mat", 4800, "BRUCE · 风过耳边");
       bruce.walkTo(matX, matZ, {
         speedScale: 1.35,
         onArrive() {
-          bruce.root.position.set(matX, Math.max(1.38, surfaceY), matZ);
+          bruce.root.position.set(matX, Math.max(1.40, surfaceY), matZ);
           bruce.root.rotation.y = Math.PI * 0.85;
           bruce.setResting("chest_down");
           bruce.setWind(0.75);
@@ -1067,14 +1070,16 @@ export function mountYachtHub(container, opts = {}) {
 
   const assetsReady = Promise.all([
     loadAssetPart("berth"),
+    loadAssetPart("club_lounge"),
     loadAssetPart("hull_rig"),
     loadAssetPart("deck_salon"),
     loadAssetPart("furniture_props"),
   ])
-    .then(([berthRes, hullRes, salonRes, propsRes]) => {
+    .then(([berthRes, clubRes, hullRes, salonRes, propsRes]) => {
       if (destroyed) return false;
       const parts = {
         berth: berthRes,
+        club_lounge: clubRes,
         hull_rig: hullRes,
         deck_salon: salonRes,
         furniture_props: propsRes,
@@ -1091,7 +1096,7 @@ export function mountYachtHub(container, opts = {}) {
             obj.receiveShadow = !isGlass;
             const gIdx = obj.geometry?.index;
             tris += gIdx ? gIdx.count / 3 : (obj.geometry?.attributes?.position?.count || 0) / 3;
-            if (key === "berth") walkMeshes.push(obj);
+            if (key === "berth" || key === "club_lounge") walkMeshes.push(obj);
             else {
               yachtSurfaceMeshes.push(obj);
               walkMeshes.push(obj);
@@ -1107,7 +1112,7 @@ export function mountYachtHub(container, opts = {}) {
         };
       }
 
-      berthRoot.add(parts.berth.gltf.scene);
+      berthRoot.add(parts.berth.gltf.scene, parts.club_lounge.gltf.scene);
       yachtRoot.add(parts.hull_rig.gltf.scene, parts.deck_salon.gltf.scene, parts.furniture_props.gltf.scene);
       yachtRoot.updateMatrixWorld(true);
       const evReport = measureGreyCardEV();
@@ -1241,6 +1246,7 @@ export function mountYachtHub(container, opts = {}) {
     });
 
     skyUniforms.uTime.value = simClock;
+    skyDome.position.set(camera.position.x, 0, camera.position.z);
     lhBeacon.intensity = (sunsetMode ? 3.8 : 2.0) + Math.sin(simClock * 2.2) * 0.9;
     distantSails.forEach((s, idx) => {
       const span = ((simClock * s.speed + idx * 14) % 44) - 22;

@@ -205,7 +205,7 @@ function makeSpectrum() {
   return map;
 }
 
-export function createHarbourWater({ lowTier = false, size = 240, segments = 128 } = {}) {
+export function createHarbourWater({ lowTier = false, size = 560, segments = 128 } = {}) {
   const mirrorWidth = lowTier ? 512 : 768;
   const mirrorHeight = lowTier ? 288 : 432;
 

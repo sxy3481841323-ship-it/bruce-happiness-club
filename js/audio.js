@@ -97,84 +97,114 @@ class SoundEngine {
     this.soundscape.playChauffeurReady();
   }
 
-  _tone(freq, dur, type = "sine", gainVal = 0.08, delay = 0) {
+  _uiBus(ctx) {
+    if (!this._bus && ctx) {
+      const lp = ctx.createBiquadFilter();
+      lp.type = "lowpass";
+      lp.frequency.value = 1050;
+      lp.Q.value = 0.7;
+      const g = ctx.createGain();
+      g.gain.value = 0.55;
+      lp.connect(g).connect(ctx.destination);
+      this._bus = lp;
+      this._busNoise = null;
+    }
+    return this._bus || ctx.destination;
+  }
+
+  _tone(freq, dur, type = "sine", gainVal = 0.045, delay = 0) {
     const ctx = this._ensureCtx();
     if (!ctx) return;
+    const bus = this._uiBus(ctx);
     const now = ctx.currentTime + delay;
+    const safeType = type === "sawtooth" || type === "square" ? "sine" : type;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, now);
-    gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(gainVal, now + 0.015);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+    osc.type = safeType;
+    osc.frequency.setValueAtTime(Math.min(freq, 760), now);
+    gain.gain.setValueAtTime(0.001, now);
+    gain.gain.linearRampToValueAtTime(gainVal, now + Math.min(0.022, dur * 0.25));
+    gain.gain.exponentialRampToValueAtTime(0.001, now + Math.max(0.04, dur));
     osc.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(bus);
     osc.start(now);
-    osc.stop(now + dur + 0.02);
+    osc.stop(now + dur + 0.03);
   }
 
   playTap() {
-    this._tone(520, 0.07, "triangle", 0.05);
+    const ctx = this._ensureCtx();
+    if (!ctx) return;
+    const bus = this._uiBus(ctx);
+    const now = ctx.currentTime;
+    // Soft organic wooden/leather micro-thock instead of piercing piezo click
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(195, now);
+    osc.frequency.exponentialRampToValueAtTime(108, now + 0.026);
+    g.gain.setValueAtTime(0.001, now);
+    g.gain.linearRampToValueAtTime(0.028, now + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.036);
+    osc.connect(g).connect(bus);
+    osc.start(now);
+    osc.stop(now + 0.045);
   }
 
   playSuccess() {
-    this._tone(523.25, 0.14, "triangle", 0.08, 0);
-    this._tone(659.25, 0.16, "triangle", 0.08, 0.07);
-    this._tone(783.99, 0.24, "sine", 0.09, 0.14);
+    this._tone(261.63, 0.18, "sine", 0.045, 0);
+    this._tone(329.63, 0.22, "sine", 0.045, 0.075);
+    this._tone(392.00, 0.30, "sine", 0.050, 0.15);
   }
 
   playFail() {
-    this._tone(310, 0.16, "sawtooth", 0.05, 0);
-    this._tone(215, 0.28, "triangle", 0.07, 0.11);
+    this._tone(196.0, 0.18, "sine", 0.036, 0);
+    this._tone(155.56, 0.28, "sine", 0.040, 0.11);
   }
 
   playPhoneBuzz() {
-    this._tone(740, 0.06, "square", 0.03, 0);
-    this._tone(740, 0.06, "square", 0.03, 0.09);
+    this._tone(220.0, 0.075, "sine", 0.024, 0);
+    this._tone(220.0, 0.075, "sine", 0.024, 0.11);
   }
 
   playSwapCelebration() {
-    [523.25, 659.25, 783.99, 1046.5].forEach((f, idx) => {
-      this._tone(f, 0.25, "triangle", 0.08, idx * 0.08);
+    [261.63, 329.63, 392.00, 493.88].forEach((f, idx) => {
+      this._tone(f, 0.32, "sine", 0.045, idx * 0.085);
     });
   }
 
   playElevatorChime() {
-    this._tone(783.99, 0.28, "sine", 0.06, 0);
-    this._tone(1567.98, 0.22, "triangle", 0.02, 0);
-    this._tone(659.25, 0.42, "sine", 0.065, 0.19);
-    this._tone(1318.5, 0.34, "triangle", 0.02, 0.19);
+    this._tone(392.00, 0.34, "sine", 0.042, 0);
+    this._tone(329.63, 0.46, "sine", 0.045, 0.20);
   }
 
   playDoorPaws() {
-    [172, 198, 165, 206].forEach((f, idx) => {
-      this._tone(f, 0.055, "triangle", 0.036, idx * 0.095);
+    [138, 158, 132, 162].forEach((f, idx) => {
+      this._tone(f, 0.055, "sine", 0.028, idx * 0.095);
     });
   }
 
   playDoorUnlock() {
-    this._tone(920, 0.045, "triangle", 0.05, 0);
-    this._tone(420, 0.06, "triangle", 0.045, 0.045);
-    [523.25, 659.25, 783.99, 987.77].forEach((f, idx) => {
-      this._tone(f, 0.36, "sine", 0.055, 0.12 + idx * 0.045);
+    this._tone(310, 0.05, "sine", 0.032, 0);
+    this._tone(220, 0.07, "sine", 0.030, 0.05);
+    [261.63, 329.63, 392.00, 493.88].forEach((f, idx) => {
+      this._tone(f, 0.40, "sine", 0.040, 0.12 + idx * 0.05);
     });
   }
 
   playPawStep(soft = false) {
-    const pitch = soft ? 162 + Math.random() * 28 : 185 + Math.random() * 30;
-    this._tone(pitch, 0.048, "triangle", soft ? 0.022 : 0.032, 0);
+    const pitch = soft ? 128 + Math.random() * 20 : 146 + Math.random() * 24;
+    this._tone(pitch, 0.048, "sine", soft ? 0.018 : 0.025, 0);
   }
 
   playRollJoy() {
-    this._tone(440, 0.1, "sine", 0.045, 0);
-    this._tone(554.37, 0.12, "triangle", 0.05, 0.09);
-    this._tone(659.25, 0.16, "sine", 0.05, 0.18);
+    this._tone(293.66, 0.13, "sine", 0.034, 0);
+    this._tone(349.23, 0.16, "sine", 0.036, 0.09);
+    this._tone(440.00, 0.22, "sine", 0.036, 0.18);
   }
 
   playStretchSigh() {
-    this._tone(392, 0.16, "sine", 0.04, 0);
-    this._tone(523.25, 0.24, "sine", 0.04, 0.1);
+    this._tone(261.63, 0.18, "sine", 0.030, 0);
+    this._tone(329.63, 0.28, "sine", 0.030, 0.11);
   }
 }
 

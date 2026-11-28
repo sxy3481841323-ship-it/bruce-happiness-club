@@ -108,7 +108,7 @@ for side in (-1,1):
         ya = sheer(za); yb = sheer(zb)
         mb.add_quad((side*1.06,ya,za),(xa,ya,za),(xb,yb,zb),(side*1.06,yb,zb),flip=(side<0))
 
-# ---- Deck (true 0.64m x 2.56m quarter-sawn Burma teak plank scaling!) ----
+# ---- Deck (true 0.64m x 2.56m quarter-sawn Burma teak plank scaling, +Y normal!) ----
 ND = 64
 md = gb.mesh(teak, "deck")
 grid = []; uvg = []
@@ -118,7 +118,7 @@ for i in range(ND+1):
     row = [(-w, sheer(z), z), (w, sheer(z), z)]
     uvr = [(-w / 0.64, z / 2.56), (w / 0.64, z / 2.56)]
     grid.append(row); uvg.append(uvr)
-md.add_grid(to_grid(grid), to_grid(uvg), flip=True, smooth_normals=True)
+md.add_grid(to_grid(grid), to_grid(uvg), flip=False, smooth_normals=True)
 
 # ---- Deckhead dark backing 4cm below teak ----
 mh_back = gb.mesh(hull_mat, "deckhead_backing")
@@ -170,39 +170,50 @@ for side in (-1,1):
         z0,y0 = steps[i]; z1,y1 = steps[i+1]
         mt.add_tube((side*1.06,y0,z0),(side*1.06,y1,z1),0.012,0.012,segs=6)
 
-# ---- Stanchions + lifelines + top rail ----
+# ---- Superyacht Coaming Bulwark + Glass Windbreak + Sculpted Teak/PVD Bow Rail (Zero Prison Cage!) ----
 mstan = gb.mesh(pvd, "stanchions")
-mline = gb.mesh(pvd, "lifelines")
 mrail = gb.mesh(teak_rail, "top_rail")
-H = 0.68
-for side in (-1,1):
-    zs = []
-    z = -9.5
-    while z < 9.0:
-        if not (side==-1 and -5.75 < z < -4.65):
-            zs.append(z)
-        z += 1.3
-    pts = []
-    for z in zs:
-        w = hw(z)-0.035
+H = 0.56
+for side in (-1, 1):
+    # Aft & midship solid sculpted coaming bulwark + frameless glass screen (Z = -9.65 .. +2.20, leaving port gangway [-5.75..-4.65] open)
+    for za, zb in ((-9.65, -5.80), (-4.60, 2.20)) if side == -1 else ((-9.65, 2.20),):
+        n_sub = max(6, int((zb - za) / 0.7))
+        for k in range(n_sub):
+            z0 = za + (zb - za) * k / n_sub
+            z1 = za + (zb - za) * (k + 1) / n_sub
+            x0 = side * (hw(z0) - 0.035)
+            x1 = side * (hw(z1) - 0.035)
+            y0, y1 = sheer(z0), sheer(z1)
+            # Low architectural painted bulwark wall (0.26m tall)
+            mb.add_quad((x0, y0, z0), (x1, y1, z1), (x1, y1 + 0.26, z1), (x0, y0 + 0.26, z0), flip=(side < 0))
+            mb.add_quad((x0, y0, z0), (x1, y1, z1), (x1, y1 + 0.26, z1), (x0, y0 + 0.26, z0), flip=(side > 0))
+            # Tinted laminated glass windbreak band (0.26m -> 0.54m)
+            mw.add_quad((x0, y0 + 0.26, z0), (x1, y1 + 0.26, z1), (x1, y1 + H - 0.02, z1), (x0, y0 + H - 0.02, z0), flip=(side < 0))
+            mw.add_quad((x0, y0 + 0.26, z0), (x1, y1 + 0.26, z1), (x1, y1 + H - 0.02, z1), (x0, y0 + H - 0.02, z0), flip=(side > 0))
+            # Continuous Burma-teak oval cap rail
+            mrail.add_tube((x0, y0 + H, z0), (x1, y1 + H, z1), 0.028, 0.028, segs=10, cap=True)
+        # Brass end pilasters at bulwark thresholds
+        for ze in (za, zb):
+            we = hw(ze) - 0.035
+            ye = sheer(ze)
+            mstan.add_tube((side * we, ye, ze), (side * we, ye + H, ze), 0.020, 0.015, segs=10)
+
+    # Foredeck sleek open PVD stanchions (3 spaced posts Z = 2.2 -> 4.6 -> 7.0 -> 9.0) + single sculpted teak handrail to bow tip
+    fore_zs = [2.20, 4.60, 7.00, 9.00]
+    fore_pts = []
+    for z in fore_zs:
+        w = hw(z) - 0.035
         y = sheer(z)
-        mstan.add_tube((side*w,y,z),(side*w,y+H,z),0.016,0.011,segs=8)
-        pts.append((side*w,y,z))
-    for i in range(len(pts)-1):
-        p0 = pts[i]; p1 = pts[i+1]
-        for frac in (0.25,0.50):
-            mline.add_tube((p0[0],p0[1]+H*frac,p0[2]),(p1[0],p1[1]+H*frac,p1[2]),0.005,0.005,segs=6,cap=False)
-        mrail.add_tube((p0[0],p0[1]+H,p0[2]),(p1[0],p1[1]+H,p1[2]),0.021,0.021,segs=8,cap=False)
-    p_end = pts[-1]
-    p_bow_knuckle = (side*(hw(9.0)-0.035), sheer(9.0), 9.0)
-    p_bow_tip = (0.0, sheer(9.5)+0.05, 9.5)
-    mstan.add_tube(p_bow_knuckle, (p_bow_knuckle[0], p_bow_knuckle[1]+H, p_bow_knuckle[2]), 0.016, 0.012, segs=8)
-    for frac in (0.25, 0.50):
-        mline.add_tube((p_end[0], p_end[1]+H*frac, p_end[2]), (p_bow_knuckle[0], p_bow_knuckle[1]+H*frac, p_bow_knuckle[2]), 0.005, 0.005, segs=6, cap=False)
-        mline.add_tube((p_bow_knuckle[0], p_bow_knuckle[1]+H*frac, p_bow_knuckle[2]), (p_bow_tip[0], p_bow_tip[1]+H*frac, p_bow_tip[2]), 0.005, 0.005, segs=6, cap=False)
-    mrail.add_tube((p_end[0], p_end[1]+H, p_end[2]), (p_bow_knuckle[0], p_bow_knuckle[1]+H, p_bow_knuckle[2]), 0.021, 0.021, segs=8, cap=False)
-    mrail.add_tube((p_bow_knuckle[0], p_bow_knuckle[1]+H, p_bow_knuckle[2]), (p_bow_tip[0], p_bow_tip[1]+H, p_bow_tip[2]), 0.021, 0.021, segs=8)
-mstan.add_tube((0.0, sheer(9.45), 9.45), (0.0, sheer(9.5)+H+0.05, 9.5), 0.016, 0.012, segs=8)
+        if z > 2.25:
+            mstan.add_tube((side * w, y, z), (side * w, y + H, z), 0.018, 0.013, segs=10)
+        fore_pts.append((side * w, y, z))
+    for i in range(len(fore_pts) - 1):
+        p0, p1 = fore_pts[i], fore_pts[i + 1]
+        mrail.add_tube((p0[0], p0[1] + H, p0[2]), (p1[0], p1[1] + H, p1[2]), 0.024, 0.024, segs=10, cap=False)
+    p_bow_knuckle = (side * (hw(9.0) - 0.035), sheer(9.0), 9.0)
+    p_bow_tip = (0.0, sheer(9.5) + 0.05, 9.5)
+    mrail.add_tube((p_bow_knuckle[0], p_bow_knuckle[1] + H, p_bow_knuckle[2]), (p_bow_tip[0], p_bow_tip[1] + H, p_bow_tip[2]), 0.024, 0.022, segs=10)
+mstan.add_tube((0.0, sheer(9.45), 9.45), (0.0, sheer(9.5) + H + 0.05, 9.5), 0.018, 0.014, segs=10)
 
 # ---- Mast, boom, sails (Corinthian 6-panel SolidSail with lower 3 folded 42 deg!) ----
 mm = gb.mesh(pvd, "mast")

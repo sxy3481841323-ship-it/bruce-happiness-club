@@ -63,13 +63,16 @@ for z in (-11.4, -5.7, 0.0, 5.7, 11.4):
     m_float.add_tube((-5.42, -0.94, z), (-5.42, 0.72, z), 0.075, segs=12)
     m_pvd.add_tube((-5.42, 0.72, z), (-5.42, 0.77, z), 0.085, segs=12)
 
-# 4. Railing: stanchions, cables, handrail
-zs = [-11.4 + i * 2.28 for i in range(11)]
-for z in zs:
-    m_brz.add_tube((-5.34, 0.72, z), (-5.34, 1.25, z), 0.018, 0.013, segs=10)
-for y in (0.88, 1.02, 1.16):
-    m_pvd.add_tube((-5.34, y, -11.6), (-5.34, y, 11.6), 0.005, segs=8)
-m_tf.add_chamfer_box((-5.34, 1.265, 0.0), (0.065, 0.036, 23.2), bevel=0.004, uv_tile=1.0)
+# 4. Low Travertine/Glass Promenade Guard along Z in [-7.5, +11.6] (leaving Z in [-11.5, -7.7] open to shoreline Club Lounge bridge!)
+m_trav.add_chamfer_box((-5.34, 0.85, 2.05), (0.14, 0.26, 19.10), bevel=0.006, uv_tile=1.0)
+for z in (-7.4, -3.6, 0.2, 4.0, 7.8, 11.4):
+    m_brz.add_tube((-5.34, 0.72, z), (-5.34, 1.16, z), 0.024, 0.018, segs=10)
+m_pvd.add_box((-5.34, 1.07, 2.05), (0.012, 0.16, 18.80))
+m_tf.add_chamfer_box((-5.34, 1.175, 2.05), (0.075, 0.036, 19.10), bevel=0.004, uv_tile=1.0)
+# Twin sculpted entrance plinth lanterns flanking the shore bridge opening
+for zb in (-11.55, -7.65):
+    m_brz.add_tube((-5.34, 0.72, zb), (-5.34, 1.08, zb), 0.068, 0.055, segs=12)
+    m_amber.add_tube((-5.34, 1.08, zb), (-5.34, 1.17, zb), 0.055, 0.045, segs=12)
 
 # 5. Amber bollards
 for z in (-9.2, -5.4, -1.8, 1.8, 5.4, 9.2):

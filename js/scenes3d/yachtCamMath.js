@@ -17,6 +17,14 @@ export const YACHT_CAM_PRESETS = {
     fov: 44,
     narrowScale: 1.24,
   },
+  club_lounge: {
+    id: "club_lounge",
+    label: "岸畔酒廊",
+    camPos: [-13.20, 3.05, -10.80],
+    lookAt: [-0.80, 2.05, -1.50],
+    fov: 46,
+    narrowScale: 1.15,
+  },
   starboard_scenic: {
     id: "starboard_scenic",
     label: "右舷观海",
