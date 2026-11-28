@@ -1,11 +1,9 @@
 import * as THREE from "three";
 
 /**
- * Modular controller for 1F West Mountain-View Kitchen interactive rituals:
- * 1. Built-in French Double-Door Refrigerator (±96° hinged swing, 4200K LED, dairy/produce HUD)
- * 2. Morning Espresso Extraction + Granola Bar + Bruce Zoomies lap around the island
- * 3. Herb Window Rosemary Snip + Sea-Salt Ribeye Prep + Bruce tasting dish
- * 4. Evening Champagne Decanting + Chef's Table Teppanyaki Stage
+ * Modular controller for 1F South Marble-Grey Culinary Hall interactive rituals
+ * (built at true 2.65x Penthouse scale), North-South ocean look-back, Pool/BBQ lighting,
+ * and Built-In French Double-Door Refrigerator (±95° outward hinge swing).
  */
 export function createKitchenRituals({
   scene,
@@ -20,6 +18,7 @@ export function createKitchenRituals({
   dockEl,
   fridgeDrawerEl,
   onOpenShop,
+  onOpenSmartPanel,
   highlightTrickBtn,
 }) {
   let fridgeLeftDoorPivot = null;
@@ -31,28 +30,39 @@ export function createKitchenRituals({
   const espressoMeshes = [];
   const steakHerbMeshes = [];
   const champagneChefMeshes = [];
+  const smartPanelMeshes = [];
+  const grandEntryMeshes = [];
 
   let fridgeOpenTarget = 0;
   let fridgeOpenAmount = 0;
   let chefStageOn = false;
+  let courtyardLightsOn = true;
   let zoomiesQueue = [];
 
-  // Lighting tuned for Calacatta Viola waterfall island & bright fridge showcase
-  const kitchenPendantLight = new THREE.PointLight(0xffe0b2, 1.35, 16, 1.3);
-  kitchenPendantLight.position.set(-10.4, 2.24, -9.8);
+  // Lighting tuned for South Pietra-Grey Island, 7.1 WU Fridge & Outdoor Pool/BBQ Courtyard
+  const kitchenPendantLight = new THREE.PointLight(0xffe6c4, 1.85, 26, 1.2);
+  kitchenPendantLight.position.set(3.2, 5.4, 19.4);
   scene.add(kitchenPendantLight);
 
-  const fridgeInteriorLight = new THREE.PointLight(0xebf6ff, 0.35, 7, 1.35);
-  fridgeInteriorLight.position.set(-14.28, 1.72, -3.20);
+  const fridgeInteriorLight = new THREE.PointLight(0xebf6ff, 0.55, 16, 1.2);
+  fridgeInteriorLight.position.set(13.40, 4.10, 22.00);
   scene.add(fridgeInteriorLight);
 
-  // Espresso crema pour stream (-14.09, 1.31 -> 1.09, -5.20)
+  const southCourtyardPoolLight = new THREE.PointLight(0x74d8ff, 2.1, 28, 1.2);
+  southCourtyardPoolLight.position.set(5.0, 4.2, 37.25);
+  scene.add(southCourtyardPoolLight);
+
+  const southCourtyardBbqLight = new THREE.PointLight(0xffbe7a, 1.8, 22, 1.25);
+  southCourtyardBbqLight.position.set(-12.2, 5.2, 36.2);
+  scene.add(southCourtyardBbqLight);
+
+  // Scaled espresso extraction stream at (12.65, 3.00 -> 2.46, 26.20)
   const espressoCurve = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(-14.09, 1.31, -5.20),
-    new THREE.Vector3(-14.085, 1.22, -5.20),
-    new THREE.Vector3(-14.08, 1.11, -5.20),
+    new THREE.Vector3(12.65, 3.00, 26.20),
+    new THREE.Vector3(12.65, 2.74, 26.20),
+    new THREE.Vector3(12.65, 2.46, 26.20),
   ]);
-  const espressoStreamGeo = new THREE.TubeGeometry(espressoCurve, 12, 0.008, 8, false);
+  const espressoStreamGeo = new THREE.TubeGeometry(espressoCurve, 12, 0.020, 8, false);
   const espressoStreamMat = new THREE.MeshBasicMaterial({
     color: 0x6f3a18,
     transparent: true,
@@ -62,45 +72,45 @@ export function createKitchenRituals({
   espressoStreamMesh.visible = false;
   scene.add(espressoStreamMesh);
 
-  // Champagne arc pour stream into crystal decanter (-10.24, 1.30 -> -10.22, 1.00, -12.06)
+  // Scaled champagne arc pour stream into crystal decanter (-0.75, 2.32, 19.50)
   const champagneCurve = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(-10.26, 1.30, -12.08),
-    new THREE.Vector3(-10.23, 1.22, -12.07),
-    new THREE.Vector3(-10.22, 1.08, -12.06),
-    new THREE.Vector3(-10.22, 0.98, -12.06),
+    new THREE.Vector3(-0.62, 3.24, 19.52),
+    new THREE.Vector3(-0.71, 3.02, 19.51),
+    new THREE.Vector3(-0.75, 2.74, 19.50),
+    new THREE.Vector3(-0.75, 2.46, 19.50),
   ]);
-  const champagneStreamGeo = new THREE.TubeGeometry(champagneCurve, 16, 0.010, 8, false);
+  const champagneStreamGeo = new THREE.TubeGeometry(champagneCurve, 16, 0.024, 8, false);
   const champagneStreamMat = new THREE.MeshBasicMaterial({
     color: 0xf7df94,
     transparent: true,
-    opacity: 0.88,
+    opacity: 0.90,
     depthWrite: false,
   });
   const champagneStreamMesh = new THREE.Mesh(champagneStreamGeo, champagneStreamMat);
   champagneStreamMesh.visible = false;
   scene.add(champagneStreamMesh);
 
-  // Gliding rosemary sprig for afternoon steak prep
-  const rosemaryGeo = new THREE.CapsuleGeometry(0.016, 0.14, 4, 8);
+  // Scaled rosemary sprig gliding from West herb counter (-13.6, 2.85, 20.1) to steak board (2.8, 2.52, 19.6)
+  const rosemaryGeo = new THREE.CapsuleGeometry(0.036, 0.34, 4, 8);
   rosemaryGeo.rotateZ(Math.PI * 0.42);
-  const rosemaryMat = new THREE.MeshStandardMaterial({ color: 0x45693d, roughness: 0.65 });
+  const rosemaryMat = new THREE.MeshStandardMaterial({ color: 0x3b6335, roughness: 0.65 });
   const rosemarySprigMesh = new THREE.Mesh(rosemaryGeo, rosemaryMat);
   rosemarySprigMesh.visible = false;
   scene.add(rosemarySprigMesh);
 
-  // Subtle teppanyaki & steam motes above (-10.55, 0.96, -8.0)
-  const steamCount = 24;
+  // Teppanyaki warm steam motes above (5.8, 2.40, 19.6)
+  const steamCount = 26;
   const steamPos = new Float32Array(steamCount * 3);
   for (let i = 0; i < steamCount; i++) {
-    steamPos[i * 3] = -10.55 + ((i * 0.19) % 0.56) - 0.28;
-    steamPos[i * 3 + 1] = 0.96 + ((i * 0.13) % 0.65);
-    steamPos[i * 3 + 2] = -8.00 + ((i * 0.27) % 0.88) - 0.44;
+    steamPos[i * 3] = 5.8 + ((i * 0.41) % 1.8) - 0.9;
+    steamPos[i * 3 + 1] = 2.40 + ((i * 0.31) % 1.4);
+    steamPos[i * 3 + 2] = 19.6 + ((i * 0.37) % 1.1) - 0.55;
   }
   const steamGeo = new THREE.BufferGeometry();
   steamGeo.setAttribute("position", new THREE.BufferAttribute(steamPos, 3));
   const steamMat = new THREE.PointsMaterial({
     color: 0xfff8ee,
-    size: 0.085,
+    size: 0.16,
     transparent: true,
     opacity: 0.0,
     depthWrite: false,
@@ -136,35 +146,39 @@ export function createKitchenRituals({
       champagneChefMeshes.push(obj);
     } else if (/^KitchenWine|^KitchenCoupes|^KitchenTeppanyaki/i.test(obj.name)) {
       champagneChefMeshes.push(obj);
+    } else if (/^SmartHomePanel/i.test(obj.name)) {
+      smartPanelMeshes.push(obj);
+    } else if (/^GrandEntryDoors|^GrandEntryDoor|^GrandEntryPulls/i.test(obj.name)) {
+      grandEntryMeshes.push(obj);
     }
   }
 
   function attachPivots(roomRoot) {
     if (pendingFridgeLeft.length) {
       fridgeLeftDoorPivot = new THREE.Group();
-      fridgeLeftDoorPivot.position.set(-13.86, 1.34, -4.27);
+      fridgeLeftDoorPivot.position.set(12.65, 3.70, 19.45);
       roomRoot.add(fridgeLeftDoorPivot);
       pendingFridgeLeft.forEach((m) => {
         fridgeLeftDoorPivot.add(m);
-        m.position.set(13.86, -1.34, 4.27);
+        m.position.set(-12.65, -3.70, -19.45);
       });
     }
     if (pendingFridgeRight.length) {
       fridgeRightDoorPivot = new THREE.Group();
-      fridgeRightDoorPivot.position.set(-13.86, 1.34, -2.13);
+      fridgeRightDoorPivot.position.set(12.65, 3.70, 24.55);
       roomRoot.add(fridgeRightDoorPivot);
       pendingFridgeRight.forEach((m) => {
         fridgeRightDoorPivot.add(m);
-        m.position.set(13.86, -1.34, 2.13);
+        m.position.set(-12.65, -3.70, -24.55);
       });
     }
     if (pendingWineBottle.length) {
       kitchenWineBottlePivot = new THREE.Group();
-      kitchenWineBottlePivot.position.set(-10.55, 1.08, -12.10);
+      kitchenWineBottlePivot.position.set(0.10, 2.76, 19.55);
       roomRoot.add(kitchenWineBottlePivot);
       pendingWineBottle.forEach((m) => {
         kitchenWineBottlePivot.add(m);
-        m.position.set(10.55, -1.08, 12.10);
+        m.position.set(-0.10, -2.76, -19.55);
       });
     }
     pendingFridgeLeft = [];
@@ -190,18 +204,18 @@ export function createKitchenRituals({
     if (next) {
       setDockVisibility("kitchen");
       flyCamera(
-        new THREE.Vector3(-9.2, 2.05, -2.65),
-        new THREE.Vector3(-14.25, 1.48, -3.20),
-        760,
+        new THREE.Vector3(3.4, 4.15, 21.8),
+        new THREE.Vector3(13.5, 3.65, 22.0),
+        780,
       );
-      walkBruceTo(-12.2, -3.3, { silent: true });
+      walkBruceTo(8.8, 22.0, { silent: true });
       sayBruce(
-        "嵌入式双门鲜食冰箱拉开啦——上层有有机鲜奶与 0% 无糖希腊酸奶，中层码满蓝莓、树莓、牛油果和鲜蔬，底层 0°C 抽屉还备着你的鲜切牛排与本汪的冰鲜食。",
+        "整面 7.1 单位内嵌双门冰箱拉开——顶层有机鲜奶与 6 罐 0% 无糖希腊酸奶，中层蓝莓、草莓、牛油果、黄柠檬和鲜蔬保鲜盒，底层 0°C 抽屉备着肋眼牛排与本汪的冰鲜食。",
         5200,
         "KITCHEN · 内嵌双门鲜食库",
       );
     } else {
-      sayBruce("轻推合上胡桃木暗门，双开门齐平隐进厨电墙里。", 3000, "KITCHEN · 隐形收合");
+      sayBruce("轻推合上哑光石墨灰暗门，双开门齐平收进高柜墙里。", 3000, "KITCHEN · 隐形收合");
     }
     return next;
   }
@@ -212,12 +226,12 @@ export function createKitchenRituals({
     spawnFxParticles(r.width * 0.48, r.height * 0.52, "water", 14);
     toggleFridge(false);
     flyCamera(
-      new THREE.Vector3(-7.6, 1.95, -7.8),
-      new THREE.Vector3(-10.1, 0.96, -8.8),
-      720,
+      new THREE.Vector3(-1.8, 3.75, 15.2),
+      new THREE.Vector3(1.2, 2.45, 18.6),
+      740,
     );
     sayBruce(
-      "舀两勺 0% 无糖希腊酸奶配新鲜蓝莓树莓放在紫脉石岛台上，窗外是晨雾山脊，什么正事也不干才最舒坦。",
+      "舀一大碗 0% 无糖希腊酸奶配新鲜蓝莓树莓放在深灰云石岛台上，窗外是雪山峭壁和泳池水光。",
       4600,
       "KITCHEN · 晨间酸奶碗",
     );
@@ -225,15 +239,15 @@ export function createKitchenRituals({
 
   function startZoomies() {
     zoomiesQueue = [
-      [-8.6, -13.6],
-      [-12.6, -10.6],
-      [-12.4, -5.8],
-      [-8.5, -6.2],
-      [-8.6, -9.4],
+      [-3.6, 17.0],
+      [-3.6, 22.4],
+      [9.8, 22.4],
+      [9.8, 16.8],
+      [-2.4, 17.6],
     ];
     const [nx, nz] = zoomiesQueue.shift();
     bruce.setResting(null);
-    bruce.walkTo(nx, nz, { speedScale: 1.82 });
+    bruce.walkTo(nx, nz, { speedScale: 1.85 });
     later(() => bruce.triggerHappyHop?.(), 420);
   }
 
@@ -241,14 +255,14 @@ export function createKitchenRituals({
     espressoAnim = { t: 0, dur: 2.8, soundPlayed: false, zoomiesStarted: false };
     sfx.playTap();
     const r = stageEl.getBoundingClientRect();
-    spawnFxParticles(r.width * 0.42, r.height * 0.48, "warm", 14);
+    spawnFxParticles(r.width * 0.56, r.height * 0.48, "warm", 14);
     flyCamera(
-      new THREE.Vector3(-10.4, 2.08, -4.0),
-      new THREE.Vector3(-14.2, 1.28, -5.05),
+      new THREE.Vector3(5.6, 4.15, 24.4),
+      new THREE.Vector3(13.0, 2.95, 26.45),
       780,
     );
     sayBruce(
-      "不用闹钟，咖啡豆香配手烤燕麦坚果棒在西窗下慢慢散开，本汪绕着整石大岛台先跑两圈早安 Zoomies！",
+      "不必等闹钟，浓缩油脂流进瓷杯配烤燕麦坚果棒，窗外山脊泛亮，本汪绕着 10.6 单位大岛台先跑两圈早安 Zoomies！",
       5000,
       "RITUAL · 晨间手冲与奔跑",
     );
@@ -258,18 +272,18 @@ export function createKitchenRituals({
     steakAnim = { t: 0, dur: 2.9, doneWalk: false };
     sfx.playTap();
     rosemarySprigMesh.visible = true;
-    rosemarySprigMesh.position.set(-14.3, 1.38, -9.1);
+    rosemarySprigMesh.position.set(-13.6, 2.95, 20.1);
     const r = stageEl.getBoundingClientRect();
-    spawnFxParticles(r.width * 0.46, r.height * 0.52, "gold", 14);
+    spawnFxParticles(r.width * 0.5, r.height * 0.52, "gold", 14);
     flyCamera(
-      new THREE.Vector3(-8.2, 2.25, -8.4),
-      new THREE.Vector3(-11.2, 1.02, -10.2),
+      new THREE.Vector3(1.4, 4.65, 14.8),
+      new THREE.Vector3(2.8, 2.45, 19.6),
       780,
     );
     sayBruce(
-      "从西窗香草园现剪一枝迷迭香，三块厚切肋眼排排坐落盐静置，岛台边黄铜小碟里也分好了本汪的一小口无盐鲜肉～",
+      "从西侧备餐台香草盆现剪一枝迷迭香，三块厚切肋眼在大岛台上排排坐静置，本汪也在铂金小食碗旁蹲好等分那口无盐鲜肉啦～",
       5000,
-      "RITUAL · 窗边采香与慢切",
+      "RITUAL · 采香与慢切牛排",
     );
   }
 
@@ -281,20 +295,55 @@ export function createKitchenRituals({
     const r = stageEl.getBoundingClientRect();
     spawnFxParticles(r.width * 0.5, r.height * 0.5, "gold", 16);
     flyCamera(
-      new THREE.Vector3(-7.4, 2.25, -13.6),
-      new THREE.Vector3(-10.5, 1.10, -10.8),
+      new THREE.Vector3(-3.4, 4.35, 15.6),
+      new THREE.Vector3(0.8, 2.55, 19.5),
       820,
     );
     sayBruce(
       chefStageOn
-        ? "入夜把紫脉岛台切成私厨社交剧场，琥珀吊灯聚光，香槟沿水晶醒酒器徐徐流下，铁板温热微烟。"
-        : "收起铁板热烟，留一杯微晃香槟在岛台边陪山风发呆。",
+        ? "入夜把灰云石大岛台切成私厨剧场，线型吊灯聚光，香槟缓缓注入水晶醒酒器，铁板台升起细暖微烟。"
+        : "收起铁板热烟，留一杯微晃香槟陪着法式推拉门外的山风发呆。",
       5000,
       "RITUAL · 私厨剧场与醒酒",
     );
   }
 
+  function lookNorthToOcean() {
+    sfx.playTap();
+    flyCamera(
+      new THREE.Vector3(3.2, 4.45, 24.8),
+      new THREE.Vector3(1.2, 2.75, -18.0),
+      860,
+    );
+    walkBruceTo(3.2, 22.6, { silent: true });
+    sayBruce(
+      "站在主厨岛台后方朝北望去，视线直穿客厅与壁炉落日海景落地窗——全屋发生的一切与远方海平线尽收眼底。",
+      5200,
+      "C-AXIS · 岛台回望大海",
+    );
+  }
+
+  function toggleCourtyardLights(force = null) {
+    courtyardLightsOn = force === null ? !courtyardLightsOn : Boolean(force);
+    southCourtyardPoolLight.intensity = courtyardLightsOn ? 2.1 : 0.15;
+    southCourtyardBbqLight.intensity = courtyardLightsOn ? 1.8 : 0.12;
+    return courtyardLightsOn;
+  }
+
   function handleRaycastHit(hitObj) {
+    if (smartPanelMeshes.includes(hitObj)) {
+      onOpenSmartPanel?.();
+      return true;
+    }
+    if (grandEntryMeshes.includes(hitObj)) {
+      flyCamera(
+        new THREE.Vector3(-7.6, 4.2, -3.6),
+        new THREE.Vector3(-14.7, 3.8, -3.6),
+        740,
+      );
+      sayBruce("铸铜灰云石双开大门旁就是全屋智能中控屏，点一下屏幕或顶部入口就能总控灯光、壁炉、哈曼与泳池。", 4400, "FOYER · 双开入户大门");
+      return true;
+    }
     if (fridgeDoorMeshes.includes(hitObj)) {
       toggleFridge();
       return true;
@@ -314,7 +363,6 @@ export function createKitchenRituals({
     return false;
   }
 
-  // Bind Kitchen HUD dock & fridge popover buttons
   dockEl?.querySelectorAll("[data-kitchen-act]").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -323,6 +371,7 @@ export function createKitchenRituals({
       else if (act === "espresso") startMorningEspresso();
       else if (act === "steak") startHerbSteakPrep();
       else if (act === "champagne") startChampagneChefStage();
+      else if (act === "ocean") lookNorthToOcean();
     });
   });
 
@@ -342,18 +391,16 @@ export function createKitchenRituals({
   });
 
   function update(dt, elapsed, duskMode) {
-    // Smooth French double-door hinge swing (±96°) + interior LED ramp
     fridgeOpenAmount = THREE.MathUtils.lerp(fridgeOpenAmount, fridgeOpenTarget, Math.min(1, dt * 6.5));
-    const swingRad = fridgeOpenAmount * 1.68;
-    if (fridgeLeftDoorPivot) fridgeLeftDoorPivot.rotation.y = swingRad;
-    if (fridgeRightDoorPivot) fridgeRightDoorPivot.rotation.y = -swingRad;
-    fridgeInteriorLight.intensity = 0.35 + fridgeOpenAmount * 2.35;
-    kitchenPendantLight.intensity = chefStageOn ? 2.45 : duskMode ? 1.85 : 1.35;
+    const swingRad = fridgeOpenAmount * 1.65;
+    if (fridgeLeftDoorPivot) fridgeLeftDoorPivot.rotation.y = -swingRad;
+    if (fridgeRightDoorPivot) fridgeRightDoorPivot.rotation.y = swingRad;
+    fridgeInteriorLight.intensity = 0.55 + fridgeOpenAmount * 3.85;
+    kitchenPendantLight.intensity = chefStageOn ? 3.25 : duskMode ? 2.45 : 1.85;
 
-    // Bruce Morning Zoomies multi-waypoint runner
     if (zoomiesQueue.length > 0 && !bruce.isWalking?.()) {
       const [nx, nz] = zoomiesQueue.shift();
-      bruce.walkTo(nx, nz, { speedScale: 1.78 });
+      bruce.walkTo(nx, nz, { speedScale: 1.82 });
       if (zoomiesQueue.length === 0) {
         later(() => {
           bruce.playAction("play_bow");
@@ -362,7 +409,6 @@ export function createKitchenRituals({
       }
     }
 
-    // Morning Espresso pour stream
     if (espressoAnim) {
       espressoAnim.t += dt;
       const t = espressoAnim.t;
@@ -381,20 +427,19 @@ export function createKitchenRituals({
       }
     }
 
-    // Herb snip & steak marination glide
     if (steakAnim) {
       steakAnim.t += dt;
       const p = Math.min(1, steakAnim.t / 1.45);
       const ease = p * p * (3 - 2 * p);
       rosemarySprigMesh.position.set(
-        THREE.MathUtils.lerp(-14.3, -10.52, ease),
-        1.01 + Math.sin(ease * Math.PI) * 0.42,
-        THREE.MathUtils.lerp(-9.1, -10.30, ease),
+        THREE.MathUtils.lerp(-13.6, 2.8, ease),
+        2.56 + Math.sin(ease * Math.PI) * 1.15,
+        THREE.MathUtils.lerp(20.1, 19.6, ease),
       );
       rosemarySprigMesh.rotation.y = ease * Math.PI * 1.5;
       if (steakAnim.t >= 1.2 && !steakAnim.doneWalk) {
         steakAnim.doneWalk = true;
-        walkBruceTo(-9.25, -13.1, { silent: true });
+        walkBruceTo(-2.8, 19.4, { silent: true });
         later(() => bruce.playAction("lick_paw"), 750);
       }
       if (steakAnim.t >= steakAnim.dur) {
@@ -402,7 +447,6 @@ export function createKitchenRituals({
       }
     }
 
-    // Champagne bottle lift & arc pour
     if (champagneAnim) {
       champagneAnim.t += dt;
       const t = champagneAnim.t;
@@ -415,11 +459,11 @@ export function createKitchenRituals({
 
       if (kitchenWineBottlePivot) {
         kitchenWineBottlePivot.position.set(
-          -10.55 + lift * 0.18,
-          1.08 + lift * 0.26,
-          -12.10 + lift * 0.02,
+          0.10 - lift * 0.28,
+          2.76 + lift * 0.62,
+          19.55 - lift * 0.02,
         );
-        kitchenWineBottlePivot.rotation.z = -1.12 * lift;
+        kitchenWineBottlePivot.rotation.z = 1.12 * lift;
       }
       const pouring = t >= 0.55 && t <= 1.75;
       champagneStreamMesh.visible = pouring;
@@ -428,26 +472,25 @@ export function createKitchenRituals({
         sfx.playGlassPour();
       }
       if (decanterWineMesh && pouring) {
-        decanterWineMesh.position.y = cl((t - 0.55) / 1.2) * 0.024;
+        decanterWineMesh.position.y = cl((t - 0.55) / 1.2) * 0.05;
       }
       if (t >= champagneAnim.dur) {
         champagneAnim = null;
         champagneStreamMesh.visible = false;
         if (kitchenWineBottlePivot) {
-          kitchenWineBottlePivot.position.set(-10.55, 1.08, -12.10);
+          kitchenWineBottlePivot.position.set(0.10, 2.76, 19.55);
           kitchenWineBottlePivot.rotation.set(0, 0, 0);
         }
       }
     }
 
-    // Teppanyaki subtle steam particles when Chef Stage active
     steamPoints.visible = chefStageOn;
     if (chefStageOn) {
       steamMat.opacity = 0.28 + Math.sin(elapsed * 2.1) * 0.08;
       const arr = steamGeo.attributes.position.array;
       for (let i = 0; i < steamCount; i++) {
-        arr[i * 3 + 1] += dt * 0.34;
-        if (arr[i * 3 + 1] > 1.72) arr[i * 3 + 1] = 0.96 + (i % 4) * 0.03;
+        arr[i * 3 + 1] += dt * 0.52;
+        if (arr[i * 3 + 1] > 3.85) arr[i * 3 + 1] = 2.40 + (i % 4) * 0.08;
       }
       steamGeo.attributes.position.needsUpdate = true;
     }
@@ -473,17 +516,22 @@ export function createKitchenRituals({
     startMorningEspresso,
     startHerbSteakPrep,
     startChampagneChefStage,
+    lookNorthToOcean,
+    toggleCourtyardLights,
     handleRaycastHit,
     getInteractiveMeshes: () => [
       ...fridgeDoorMeshes,
       ...espressoMeshes,
       ...steakHerbMeshes,
       ...champagneChefMeshes,
+      ...smartPanelMeshes,
+      ...grandEntryMeshes,
     ],
     getState: () => ({
       fridgeOpen: fridgeOpenTarget > 0.5,
       fridgeOpenAmount: +fridgeOpenAmount.toFixed(2),
       chefStageOn,
+      courtyardLightsOn,
     }),
     update,
     dispose,

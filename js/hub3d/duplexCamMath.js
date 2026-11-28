@@ -51,29 +51,29 @@ export const FLOOR_PRESETS = {
     floorY: 0.04,
     brucePos: [1.2, 0.04, 2.6],
     bruceRot: -0.24,
-    walkBounds: { minX: -13.4, maxX: 7.2, minZ: -27.8, maxZ: 8.6 },
+    walkBounds: { minX: -13.4, maxX: 11.6, minZ: -27.8, maxZ: 27.2 },
     walkSpots: [
       [1.2, 2.6],
       [3.4, 4.0],
       [-0.8, 3.2],
-      [-8.6, -8.8],
+      [3.2, 16.8],
       [-1.35, -22.60]
     ]
   },
   'kitchen': {
     id: 'kitchen',
     label: '1F · 山景餐厨',
-    camPos: [-2.6, 3.05, 2.8],
-    target: [-11.6, 1.45, -6.2],
+    camPos: [-6.4, 4.5, 11.8],
+    target: [4.2, 3.2, 22.8],
     floorY: 0.04,
-    brucePos: [-7.1, 0.04, -5.9],
-    bruceRot: -1.32,
-    walkBounds: { minX: -13.4, maxX: 7.2, minZ: -27.8, maxZ: 8.6 },
+    brucePos: [-2.4, 0.04, 17.6],
+    bruceRot: 0.45,
+    walkBounds: { minX: -13.4, maxX: 11.6, minZ: -27.8, maxZ: 27.2 },
     walkSpots: [
-      [-7.1, -5.9],
-      [-12.4, -3.2],
-      [-12.5, -10.4],
-      [-8.8, -13.6]
+      [-2.4, 17.6],
+      [10.2, 22.0],
+      [3.2, 22.2],
+      [-9.8, 22.0]
     ]
   },
   '2f': {

@@ -66,13 +66,15 @@ from penthouse_kit.mod_loft_2f import build_loft_2f
 from penthouse_kit.mod_terrace_sky import build_terrace_and_sky
 from penthouse_kit.mod_entry_and_niches import build_entry_and_niches
 from penthouse_kit.tex_kitchen_surfaces import (
-    make_calacatta_viola_tex,
-    make_gunmetal_brushed_tex,
-    make_terracotta_pot_tex,
+    make_pietra_grey_marble_tex,
+    make_tundra_grey_floor_tex,
+    make_platinum_slate_tex,
+    make_alpine_granite_cliff_tex,
+    make_smart_panel_tex,
     make_organic_dairy_label_tex,
 )
-from penthouse_kit.mod_west_kitchen import build_west_kitchen
-from penthouse_kit.mod_west_mountain_vista import build_west_mountain_vista
+from penthouse_kit.mod_south_kitchen import build_south_kitchen
+from penthouse_kit.mod_south_terrace_mountains import build_south_terrace_and_mountains
 
 
 def build_duplex():
@@ -113,9 +115,11 @@ def build_duplex():
     foyer_medallion_img = make_foyer_medallion_tex(1024)
     fire_ember_img = make_fire_ember_tex(512, 256)
     charred_bark_img = make_charred_bark_tex(512, 256)
-    calacatta_viola_img = make_calacatta_viola_tex(1024)
-    gunmetal_img = make_gunmetal_brushed_tex(512)
-    terracotta_img = make_terracotta_pot_tex(512)
+    pietra_grey_img = make_pietra_grey_marble_tex(1024)
+    tundra_grey_img = make_tundra_grey_floor_tex(1024)
+    graphite_slate_img = make_platinum_slate_tex(512)
+    alpine_granite_img = make_alpine_granite_cliff_tex(1024)
+    smart_panel_img = make_smart_panel_tex(1024, 704)
     dairy_label_img = make_organic_dairy_label_tex(512)
 
     mats = {
@@ -178,9 +182,15 @@ def build_duplex():
         "glass_smoke": ctx.color_mat("SmokedBorosilicateGlass", (0.14, 0.15, 0.17, 0.34), roughness=0.06, metalness=0.15, alpha_blend=True, double_sided=True),
         "crystal_glass": ctx.color_mat("ClearCrystalGlass", (0.56, 0.84, 0.96, 0.60), roughness=0.05, metalness=0.14, alpha_blend=True, double_sided=True),
         "orchid_white": ctx.color_mat("PhalaenopsisOrchid", (0.98, 0.97, 0.95, 1.0), roughness=0.45, metalness=0.02),
-        "calacatta_viola": ctx.tex_mat("CalacattaViolaMarble", calacatta_viola_img, roughness=0.18, metalness=0.04, quality=92),
-        "gunmetal": ctx.tex_mat("BrushedPVDGunmetal", gunmetal_img, roughness=0.30, metalness=0.82, quality=90),
-        "terracotta": ctx.tex_mat("AgedTuscanTerracotta", terracotta_img, roughness=0.82, metalness=0.02, quality=88),
+        "pietra_grey": ctx.tex_mat("PietraGreyMarble", pietra_grey_img, roughness=0.18, metalness=0.05, quality=92),
+        "tundra_grey": ctx.tex_mat("TundraGreySlab", tundra_grey_img, roughness=0.28, metalness=0.04, quality=92),
+        "graphite_slate": ctx.tex_mat("GraphiteSlateLacquer", graphite_slate_img, roughness=0.34, metalness=0.45, quality=90),
+        "platinum": ctx.color_mat("BrushedPlatinum", (0.81, 0.83, 0.87, 1.0), roughness=0.22, metalness=0.90),
+        "nordic_slate": ctx.color_mat("NordicSlateNubuck", (0.23, 0.29, 0.34, 1.0), roughness=0.78, metalness=0.02),
+        "alpine_granite": ctx.tex_mat("AlpineGraniteCrag", alpine_granite_img, roughness=0.88, metalness=0.02, quality=90, double_sided=True),
+        "pool_water": ctx.color_mat("InfinityPoolTurquoise", (0.07, 0.46, 0.58, 0.88), roughness=0.06, metalness=0.14, emissive=(0.02, 0.14, 0.19), alpha_blend=True),
+        "terracotta": ctx.color_mat("AgedTerracottaClay", (0.68, 0.41, 0.30, 1.0), roughness=0.82, metalness=0.02),
+        "smart_panel": ctx.tex_mat("SmartHomeOLED", smart_panel_img, roughness=0.16, metalness=0.06, quality=94, emissive=(0.72, 0.76, 0.82)),
         "dairy_label": ctx.tex_mat("OrganicDairyLabel", dairy_label_img, roughness=0.36, metalness=0.02, quality=92),
         "berry_blue": ctx.color_mat("OrganicBlueberry", (0.14, 0.18, 0.34, 1.0), roughness=0.42, metalness=0.02),
         "berry_red": ctx.color_mat("HeirloomBerryRed", (0.58, 0.09, 0.13, 1.0), roughness=0.38, metalness=0.02),
@@ -198,8 +208,8 @@ def build_duplex():
     build_loft_2f(ctx, mats)
     build_terrace_and_sky(ctx, mats)
     build_entry_and_niches(ctx, mats)
-    build_west_kitchen(ctx, mats)
-    build_west_mountain_vista(ctx, mats)
+    build_south_kitchen(ctx, mats)
+    build_south_terrace_and_mountains(ctx, mats)
 
     info = ctx.export_glb(OUT_GLB)
     for req in (
@@ -207,8 +217,9 @@ def build_duplex():
         "FireplaceEmbers", "FireplaceLogs", "HiFiGlassDome",
         "ConciergePager1F", "ConciergePager2F", "EvianBottles1F",
         "TerraceSofaSeat", "OceanVistaWater",
+        "GrandEntryDoors", "SmartHomePanelScreen",
         "FridgeDoorLeft", "FridgeDoorRight", "FridgeMilkBottles", "FridgeGreekYogurt",
-        "KitchenIslandStone", "KitchenWindowGlass", "WestMidMountainSlope",
+        "KitchenIslandStone", "KitchenFrenchGlass", "SouthPoolWater", "SouthGraniteCrags",
     ):
         assert req in info["mesh_names"], f"Missing required mesh {req}"
     assert info["size_mb"] <= 15.0, f"GLB exceeds 15 MB cap: {info['size_mb']} MB"

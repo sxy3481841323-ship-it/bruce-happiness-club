@@ -214,4 +214,4 @@ def build_terrace_and_sky(ctx, mats):
 
     sk = ctx.mb("SkyCyclorama", mats["sky_sunny"])
     sk.add_lathe(0.0, -26.0, 0.0,
-                 [(148.0, 0.0), (148.0, 102.0), (0.0, 102.0)], segs=32)
+                 [(220.0, 0.0), (220.0, 128.0), (0.0, 128.0)], segs=32)

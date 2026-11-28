@@ -127,8 +127,8 @@ const DEFAULT_HUB_COPY = {
       "羊羔绒沙发和洞石茶几晒得好暖和，今天在一楼陪我丢球吧？",
     ],
     kitchen_greet: [
-      "欢迎来到西侧山景开放厨房！站在紫脉大岛台边，左边是青山香草窗，抬头就是落日露台与客厅壁炉。",
-      "双开门鲜食冰箱已经满格保鲜：有机鲜奶、无糖希腊酸奶、浆果和嫩菠菜都在冷光格里等着呢。",
+      "欢迎步入南翼大理石灰开放厨房！站在 10.6 单位大岛台后方，抬眼越过壁炉和沙发直看大海，转身三联法式推拉门外就是无边泳池、BBQ亭与皑皑群山。",
+      "高柜墙里的 7.1 单位内嵌双门冰箱已经满载：牧场鲜奶、0% 无糖希腊酸奶、蓝莓牛油果和时令青菜一应俱全。",
     ],
     floor_2f_greet: [
       "欢迎登上二楼阳光阁楼！玻璃护栏外面视野超棒，还有我的丝绒窝～",
@@ -343,19 +343,20 @@ export function mountLivingRoomHub(container, opts = {}) {
           <button type="button" class="kitchen-dock-pill" data-kitchen-act="espresso">☕ 晨间手冲·跑圈</button>
           <button type="button" class="kitchen-dock-pill" data-kitchen-act="steak">🌿 迷迭香·牛排</button>
           <button type="button" class="kitchen-dock-pill" data-kitchen-act="champagne">🥂 醒香槟·主厨台</button>
+          <button type="button" class="kitchen-dock-pill" data-kitchen-act="ocean">🌊 岛台回望看海</button>
         </div>
         <aside class="hub3d-fridge-drawer" id="hub3d-fridge-drawer" role="dialog" aria-label="内嵌双门鲜食冰箱">
           <div class="fridge-drawer-head">
             <div>
               <div class="fridge-drawer-kicker">BUILT-IN FRENCH DOOR · 0°C – 4°C</div>
-              <div class="fridge-drawer-title">西翼内嵌双门鲜食冰箱</div>
+              <div class="fridge-drawer-title">南翼内嵌式双门鲜食冰箱</div>
             </div>
             <button type="button" class="fridge-drawer-close" id="btn-fridge-close" aria-label="关上冰箱门">×</button>
           </div>
           <div class="fridge-shelf-list">
             <div class="fridge-shelf-row">
               <div class="fridge-shelf-label">TOP SHELF · 有机乳品</div>
-              <div class="fridge-shelf-items">牧场有机全脂鲜奶 · 植物燕麦奶 · 0% 无糖希腊酸奶（5 罐）</div>
+              <div class="fridge-shelf-items">牧场有机全脂鲜奶 · 植物燕麦奶 · 0% 无糖希腊酸奶（6 罐）</div>
             </div>
             <div class="fridge-shelf-row">
               <div class="fridge-shelf-label">UPPER MID · 鲜摘水果碗</div>
@@ -375,6 +376,47 @@ export function mountLivingRoomHub(container, opts = {}) {
             <button type="button" class="fridge-act-btn" id="btn-fridge-pantry">🥩 打开布鲁斯私厨鲜食清单 →</button>
           </div>
         </aside>
+        <section class="hub3d-smart-panel" id="hub3d-smart-panel" role="dialog" aria-label="全屋智能中控屏" aria-hidden="true">
+          <div class="smart-panel-head">
+            <div>
+              <div class="smart-panel-kicker">WHOLE-HOME INTELLIGENCE · WEST ENTRANCE</div>
+              <div class="smart-panel-title">入户门旁全屋智能总控中心</div>
+            </div>
+            <button type="button" class="smart-panel-close" id="btn-smart-close" aria-label="关闭全屋智控屏">×</button>
+          </div>
+          <div class="smart-panel-grid">
+            <button type="button" class="smart-tile is-on" data-smart="lights">
+              <span class="smart-tile-kicker">ATMOSPHERE · 全屋照明</span>
+              <span class="smart-tile-name">落日 / 暮色灯光</span>
+              <span class="smart-tile-state" id="smart-state-lights">黄金夕照</span>
+            </button>
+            <button type="button" class="smart-tile is-on" data-smart="hearth">
+              <span class="smart-tile-kicker">HEARTH · 客厅壁炉</span>
+              <span class="smart-tile-name">橡木真火炉膛</span>
+              <span class="smart-tile-state" id="smart-state-hearth">旺火 · 215°C</span>
+            </button>
+            <button type="button" class="smart-tile" data-smart="hifi">
+              <span class="smart-tile-kicker">ACOUSTICS · 哈曼音室</span>
+              <span class="smart-tile-name">全屋漫反射爵士</span>
+              <span class="smart-tile-state" id="smart-state-hifi">待机</span>
+            </button>
+            <button type="button" class="smart-tile is-on" data-smart="tv">
+              <span class="smart-tile-kicker">GALLERY · 墙面放映</span>
+              <span class="smart-tile-name">私享画框频道</span>
+              <span class="smart-tile-state" id="smart-state-tv">CH 01</span>
+            </button>
+            <button type="button" class="smart-tile" data-smart="fridge">
+              <span class="smart-tile-kicker">CULINARY · 南翼冷柜</span>
+              <span class="smart-tile-name">双门鲜食冰箱</span>
+              <span class="smart-tile-state" id="smart-state-fridge">已闭合 · 2°C</span>
+            </button>
+            <button type="button" class="smart-tile is-on" data-smart="pool">
+              <span class="smart-tile-kicker">COURTYARD · 户外庭院</span>
+              <span class="smart-tile-name">泳池 & BBQ 照明</span>
+              <span class="smart-tile-state" id="smart-state-pool">亮灯 · 27°C</span>
+            </button>
+          </div>
+        </section>
         <div class="hub3d-tv-osd" id="hub3d-tv-osd" aria-live="polite">
           <div class="tv-osd-code" id="tv-osd-code">CH 01 · REGATTA</div>
           <div class="tv-osd-title" id="tv-osd-title">地中海古典 J-Class 帆船赛</div>
@@ -416,6 +458,13 @@ export function mountLivingRoomHub(container, opts = {}) {
             <button type="button" class="concierge-close" id="btn-concierge-close" aria-label="关闭内线面板">×</button>
           </div>
           <div class="concierge-grid">
+            <button type="button" class="concierge-action-btn" data-concierge="smart-home">
+              <span class="concierge-act-main">
+                <span class="concierge-act-name">全屋智控 · 入户中控面板</span>
+                <span class="concierge-act-sub">一站总控灯效 / 客厅壁炉 / 哈曼 / 冰箱 / 户外泳池</span>
+              </span>
+              <span class="concierge-act-tag">SMART</span>
+            </button>
             <button type="button" class="concierge-action-btn" data-concierge="water">
               <span class="concierge-act-main">
                 <span class="concierge-act-name">管家侍水 · 现开冰镇依云</span>
@@ -533,6 +582,8 @@ export function mountLivingRoomHub(container, opts = {}) {
   const floorButtons = Array.from(container.querySelectorAll(".floor-pill[data-floor]"));
   const kitchenDockEl = container.querySelector("#hub3d-kitchen-dock");
   const fridgeDrawerEl = container.querySelector("#hub3d-fridge-drawer");
+  const smartPanelEl = container.querySelector("#hub3d-smart-panel");
+  const smartCloseBtn = container.querySelector("#btn-smart-close");
   const keyholderEl = container.querySelector(".hub3d-keyholder");
   const keyholderBtn = container.querySelector(".keyholder-btn");
   const keyholderTray = container.querySelector(".keyholder-tray");
@@ -898,6 +949,39 @@ export function mountLivingRoomHub(container, opts = {}) {
     rippleAge = 0;
   }
 
+  let hearthHigh = true;
+  let smartPanelRef = null;
+  function syncSmartPanelUi() {
+    if (!smartPanelEl) return;
+    const hifiActive = sfx.isHifiOn();
+    const kState = kitchenRituals.getState();
+    const lEl = smartPanelEl.querySelector("#smart-state-lights");
+    const fEl = smartPanelEl.querySelector("#smart-state-hearth");
+    const aEl = smartPanelEl.querySelector("#smart-state-hifi");
+    const tEl = smartPanelEl.querySelector("#smart-state-tv");
+    const frEl = smartPanelEl.querySelector("#smart-state-fridge");
+    const pEl = smartPanelEl.querySelector("#smart-state-pool");
+    if (lEl) lEl.textContent = duskMode ? "暮色微醺" : "黄金夕照";
+    if (fEl) fEl.textContent = hearthHigh ? "旺火 · 215°C" : "柔焰 · 160°C";
+    if (aEl) aEl.textContent = hifiActive ? "爵士声场开启" : "待机";
+    if (tEl) tEl.textContent = oldMoneyTv.getChannel().code;
+    if (frEl) frEl.textContent = kState.fridgeOpen ? "已开启 · 2°C" : "已闭合 · 2°C";
+    if (pEl) pEl.textContent = kState.courtyardLightsOn ? "亮灯 · 27°C" : "夜间休眠";
+    smartPanelEl.querySelector('[data-smart="hifi"]')?.classList.toggle("is-on", hifiActive);
+    smartPanelEl.querySelector('[data-smart="hearth"]')?.classList.toggle("is-on", hearthHigh);
+    smartPanelEl.querySelector('[data-smart="fridge"]')?.classList.toggle("is-on", kState.fridgeOpen);
+    smartPanelEl.querySelector('[data-smart="pool"]')?.classList.toggle("is-on", kState.courtyardLightsOn);
+  }
+
+  function setSmartPanelOpen(open) {
+    if (open) {
+      setConciergeOpen(false);
+      syncSmartPanelUi();
+    }
+    smartPanelEl?.classList.toggle("is-open", Boolean(open));
+    smartPanelEl?.setAttribute("aria-hidden", open ? "false" : "true");
+  }
+
   const kitchenRituals = createKitchenRituals({
     scene,
     sfx,
@@ -911,7 +995,43 @@ export function mountLivingRoomHub(container, opts = {}) {
     dockEl: kitchenDockEl,
     fridgeDrawerEl,
     onOpenShop: opts.onOpenShop,
+    onOpenSmartPanel: () => {
+      sfx.playConciergeBell();
+      setSmartPanelOpen(true);
+      sayBruce("已唤醒西侧双开大门旁的全屋智能中控屏，一站调控全屋灯光、壁炉、音响与户外泳池。", 4200, "SMART · 全屋智控中心");
+    },
     highlightTrickBtn: (...args) => highlightTrickBtn(...args),
+  });
+
+  smartCloseBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    sfx.playTap();
+    setSmartPanelOpen(false);
+  });
+
+  smartPanelEl?.querySelectorAll("[data-smart]").forEach((tile) => {
+    tile.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const k = tile.getAttribute("data-smart");
+      sfx.playTap();
+      if (k === "lights") {
+        toggleSunsetDuskMood();
+      } else if (k === "hearth") {
+        hearthHigh = !hearthHigh;
+        sfx.stokeFireplace();
+      } else if (k === "hifi") {
+        sfx.toggleHifi();
+        syncConciergeUi();
+      } else if (k === "tv") {
+        cycleTvChannel();
+      } else if (k === "fridge") {
+        setSmartPanelOpen(false);
+        kitchenRituals.toggleFridge();
+      } else if (k === "pool") {
+        kitchenRituals.toggleCourtyardLights();
+      }
+      syncSmartPanelUi();
+    });
   });
 
   // Load Two-Floor Luxury Penthouse Duplex GLB
@@ -1276,7 +1396,13 @@ export function mountLivingRoomHub(container, opts = {}) {
       feedback("small", e.clientX, e.clientY);
       const rect = stageEl.getBoundingClientRect();
 
-      if (action === "water") {
+      if (action === "smart-home") {
+        setConciergeOpen(false);
+        sfx.playConciergeBell();
+        flyCamera(new THREE.Vector3(-7.4, 4.2, 1.4), new THREE.Vector3(-14.6, 3.65, 2.1), 700, () => {
+          setSmartPanelOpen(true);
+        });
+      } else if (action === "water") {
         setConciergeOpen(false);
         startEvianPourCeremony(e.clientX - rect.left, e.clientY - rect.top);
       } else if (action === "hifi") {
@@ -2638,7 +2764,7 @@ export function mountLivingRoomHub(container, opts = {}) {
       } else {
         camera.position.x = THREE.MathUtils.clamp(camera.position.x, -14.3, 14.0);
         camera.position.y = THREE.MathUtils.clamp(camera.position.y, 1.4, 17.6);
-        camera.position.z = THREE.MathUtils.clamp(camera.position.z, -15.1, 14.8);
+        camera.position.z = THREE.MathUtils.clamp(camera.position.z, -15.1, 27.6);
       }
     }
 
@@ -2678,7 +2804,7 @@ export function mountLivingRoomHub(container, opts = {}) {
 
     // Smooth calm hearth glow & gentle wood-flame breathing (zero strobe / Z-fighting!)
     const calmGlow = Math.sin(elapsed * 2.4) * 0.12 + Math.sin(elapsed * 4.1 + 1.2) * 0.06;
-    fireplaceLight.intensity = 2.20 + calmGlow;
+    fireplaceLight.intensity = (hearthHigh ? 2.20 : 1.05) + calmGlow;
     if (fireplaceEmberMesh?.material) {
       fireplaceEmberMesh.material.emissiveIntensity = 0.92 + calmGlow * 0.18;
     }
@@ -2839,6 +2965,9 @@ export function mountLivingRoomHub(container, opts = {}) {
       startMorningEspresso: () => kitchenRituals.startMorningEspresso(),
       startHerbSteakPrep: () => kitchenRituals.startHerbSteakPrep(),
       startChampagneChefStage: () => kitchenRituals.startChampagneChefStage(),
+      lookNorthToOcean: () => kitchenRituals.lookNorthToOcean(),
+      openSmartPanel: () => setSmartPanelOpen(true),
+      closeSmartPanel: () => setSmartPanelOpen(false),
     };
     if (Math.floor(elapsed * 2) !== Math.floor((elapsed - dt) * 2)) {
       stageEl.dataset.penthouseDiag = JSON.stringify(pDiag);

@@ -52,14 +52,21 @@ def build_arch_shell(ctx, mats):
     b = ctx.mb("RightWallMarmorino", mats["marmorino"])
     b.add_box(14.9, 9.3, -0.2, 0.30, 18.6, 32.0, uv_tile=4.0)
 
-    # Left West wall carved open for 7.8m x 3.84m Mountain-View Herb Garden Window (Z=-14.4..-6.6, Y=1.08..4.92)
-    b.add_box(-14.9, 9.3, 4.6, 0.30, 18.6, 22.4, uv_tile=4.0)
-    b.add_box(-14.9, 9.3, -15.3, 0.30, 18.6, 1.8, uv_tile=4.0)
-    b.add_box(-14.9, 0.54, -10.5, 0.30, 1.08, 7.8, uv_tile=4.0)
-    b.add_box(-14.9, 11.76, -10.5, 0.30, 13.68, 7.8, uv_tile=4.0)
+    b = ctx.mb("LeftWallMarmorino", mats["marmorino"])
+    b.add_box(-14.9, 9.3, -0.2, 0.30, 18.6, 32.0, uv_tile=4.0)
 
+    # Open 1F South wall (X in [-13.6, +13.6], Y in [0.0, 8.80]) into South Marble-Grey Kitchen
     b = ctx.mb("SouthWallMarmorino", mats["marmorino"])
-    b.add_box(0.0, 9.3, 15.4, 30.4, 18.6, 0.30, uv_tile=4.0)
+    b.add_box(-14.4, 9.3, 15.4, 1.60, 18.6, 0.34, uv_tile=4.0)
+    b.add_box(14.4, 9.3, 15.4, 1.60, 18.6, 0.34, uv_tile=4.0)
+    b.add_box(0.0, 13.70, 15.4, 30.4, 9.80, 0.34, uv_tile=4.0)
+
+    b = ctx.mb("SouthPortalSoffit", mats["graphite_slate"])
+    b.add_box(0.0, 8.82, 15.4, 27.6, 0.44, 0.52)
+    b = ctx.mb("SouthPortalTrim", mats["platinum"])
+    b.add_box(0.0, 8.59, 15.4, 27.6, 0.04, 0.56)
+    b.add_box(-13.62, 4.30, 15.4, 0.05, 8.60, 0.42)
+    b.add_box(13.62, 4.30, 15.4, 0.05, 8.60, 0.42)
 
     # ---------------- CELADON RECESSED BAYS ----------------
     b = ctx.mb("RightCeladonBays", mats["celadon_plaster"])
@@ -76,7 +83,7 @@ def build_arch_shell(ctx, mats):
         x = -11.0 + i * 4.4
         if -6.8 <= x <= 0.0:
             continue
-        b.add_box(x, 9.3, 15.22, 3.2, 12.0, 0.06, uv_tile=3.0)
+        b.add_box(x, 13.7, 15.20, 3.2, 6.8, 0.06, uv_tile=3.0)
 
     # ---------------- RIFT-OAK PILASTERS + BRASS FILLETS ----------------
     b = ctx.mb("RightRiftOakStiles", mats["rift_oak"])
@@ -84,21 +91,17 @@ def build_arch_shell(ctx, mats):
         b.add_box(14.62, 9.3, z, 0.07, 18.0, 0.42, uv_tile=2.0)
 
     b = ctx.mb("LeftRiftOakStiles", mats["rift_oak"])
-    for z in (-13.4, -7.0):
-        b.add_box(-14.62, 13.8, z, 0.07, 9.0, 0.42, uv_tile=2.0)
-    for z in (0.4, 6.2, 13.0):
+    for z in (-13.4, -8.2, 3.4, 9.6, 13.0):
         b.add_box(-14.62, 9.3, z, 0.07, 18.0, 0.42, uv_tile=2.0)
 
     b = ctx.mb("SouthRiftOakStiles", mats["rift_oak"])
     for x in (-13.4, -6.6, 2.2, 8.8, 13.4):
-        b.add_box(x, 9.3, 15.12, 0.42, 18.0, 0.07, uv_tile=2.0)
+        b.add_box(x, 13.7, 15.12, 0.42, 8.6, 0.07, uv_tile=2.0)
 
     b = ctx.mb("BrassStileFillets", mats["brass"])
     for z in (-13.4, -9.4, -6.2, 2.0, 6.4, 13.0):
         b.add_box(14.58, 9.3, z + 0.235, 0.025, 18.0, 0.025)
-    for z in (-13.4, -7.0):
-        b.add_box(-14.58, 13.8, z + 0.235, 0.025, 9.0, 0.025)
-    for z in (0.4, 6.2, 13.0):
+    for z in (-13.4, -8.2, 3.4, 9.6, 13.0):
         b.add_box(-14.58, 9.3, z + 0.235, 0.025, 18.0, 0.025)
 
     # ---------------- VERDE ALPI CHIMNEY BREAST ----------------
@@ -107,36 +110,8 @@ def build_arch_shell(ctx, mats):
     b.add_box(14.55, 0.9, -1.8, 0.85, 0.30, 4.0, uv_tile=1.0)
     b.add_box(14.55, 9.35, -1.8, 0.85, 0.20, 4.0, uv_tile=1.0)
 
-    # ---------------- ENTRANCE ----------------
-    b = ctx.mb("EntranceDoors", mats["rift_oak"])
-    b.add_box(-14.85, 3.7, 2.2, 0.18, 7.4, 2.6, uv_tile=2.0)
-
-    b = ctx.mb("EntranceArchitrave", mats["brass"])
-    b.add_box(-14.72, 7.45, 2.2, 0.06, 0.10, 2.9)
-    b.add_box(-14.72, 3.7, 0.85, 0.06, 7.4, 0.06)
-    b.add_box(-14.72, 3.7, 3.55, 0.06, 7.4, 0.06)
-
-    b = ctx.mb("EntrancePulls", mats["brass"])
-    b.add_cylinder(-14.68, 3.4, 1.55, 0.03, 0.03, 0.9, segs=10)
-    b.add_cylinder(-14.68, 3.4, 2.85, 0.03, 0.03, 0.9, segs=10)
-
-    # (West Kitchen Wing at Z = -14.8..-0.2 is now completely open to the Salon)
-
-    # ---------------- GALLERY CREDENZA ----------------
-    b = ctx.mb("GalleryCredenza", mats["rift_oak"])
-    b.add_box(3.4, 1.6, 15.1, 3.6, 1.4, 0.55, uv_tile=2.0)
-
-    b = ctx.mb("GalleryCredenzaBrass", mats["brass"])
-    b.add_box(3.4, 2.32, 15.1, 3.7, 0.04, 0.60)
-    b.add_box(3.4, 0.88, 15.1, 3.7, 0.04, 0.60)
-
-    b = ctx.mb("GalleryBooks", mats["slate_linen"])
-    for x in (-0.9, -0.4, 0.2, 0.7, 1.2):
-        b.add_box(3.4 + x, 2.55, 15.1, 0.10, 0.42, 0.32)
-    b = ctx.mb("GalleryBooksBurgundy", mats["burgundy"])
-    b.add_box(3.4 - 1.3, 2.55, 15.1, 0.10, 0.40, 0.32)
-    b = ctx.mb("GalleryBooksCognac", mats["cognac_suede"])
-    b.add_box(3.4 + 1.6, 2.55, 15.1, 0.10, 0.38, 0.32)
+    # Grand West Double Entrance Doors & Whole-Home Smart Panel are built in mod_entry_and_niches.py
+    # GalleryCredenza removed from Z=15.1 so 1F opens seamlessly into South Culinary Hall
 
     # ---------------- MEZZANINE ----------------
     b = ctx.mb("MezzanineSlab", mats["oak"])

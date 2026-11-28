@@ -1809,3 +1809,134 @@ body.is-hub3d-act .hub3d-kitchen-dock {
   background: rgba(101, 44, 57, 0.72);
   border-color: rgba(223, 190, 125, 0.56);
 }
+
+/* 入户门旁 Whole-Home Smart Control Panel (Apple Home / Lutron 黑曜石触控智控屏) */
+.hub3d-smart-panel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(0.96);
+  z-index: 26;
+  width: min(92vw, 440px);
+  padding: 16px 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(223, 190, 125, 0.44);
+  background: rgba(15, 17, 21, 0.88);
+  backdrop-filter: blur(24px) saturate(170%);
+  box-shadow: 0 28px 64px rgba(0, 0, 0, 0.56);
+  color: #F4F6FA;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease, transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hub3d-smart-panel.is-open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.smart-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.smart-panel-kicker {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: #DFBE7D;
+  font-weight: 800;
+}
+
+.smart-panel-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-top: 2px;
+}
+
+.smart-panel-close {
+  appearance: none;
+  border: none;
+  background: rgba(255, 255, 255, 0.10);
+  color: #F4F6FA;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.smart-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.smart-tile {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.05);
+  color: #E8ECF2;
+  font-family: var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 140ms ease, border-color 140ms ease, transform 120ms ease;
+}
+
+.smart-tile:active {
+  transform: scale(0.97);
+}
+
+.smart-tile.is-on {
+  background: rgba(71, 168, 189, 0.18);
+  border-color: rgba(127, 216, 255, 0.55);
+}
+
+.smart-tile-kicker {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #9FB0C4;
+}
+
+.smart-tile-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.smart-tile-state {
+  font-size: 11px;
+  color: #DFBE7D;
+}
+
+@media (max-width: 720px) {
+  .hub3d-kitchen-dock {
+    left: 10px;
+    top: 128px;
+    padding: 4px;
+    gap: 3px;
+  }
+  .kitchen-dock-pill {
+    font-size: 10.5px;
+    padding: 5px 8px;
+  }
+  .hub3d-fridge-drawer {
+    left: 12px;
+    top: auto;
+    bottom: 108px;
+    transform: translateY(8px) scale(0.97);
+  }
+  .hub3d-fridge-drawer.is-open {
+    transform: translateY(0) scale(1);
+  }
+}

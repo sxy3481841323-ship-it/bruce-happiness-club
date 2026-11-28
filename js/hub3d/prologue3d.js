@@ -139,29 +139,27 @@ function makeFoyerRunnerTexture() {
   c.width = 512;
   c.height = 1024;
   const ctx = c.getContext("2d");
-  // Hand-knotted Tibetan wool & raw silk foyer runner (oatmeal taupe + burgundy-brass borders)
-  ctx.fillStyle = "#D8CEBC";
+  // Midnight Slate & Champagne-Gold woven runner (distinct palette for Exterior Foyer!)
+  ctx.fillStyle = "#242B35";
   ctx.fillRect(0, 0, 512, 1024);
   for (let y = 0; y < 1024; y += 4) {
-    const tone = 208 + Math.round(Math.sin(y * 0.045) * 6 + ((y * 7) % 5));
-    ctx.fillStyle = `rgba(${tone}, ${tone - 11}, ${tone - 26}, 0.45)`;
+    const tone = 38 + Math.round(Math.sin(y * 0.045) * 4 + ((y * 7) % 4));
+    ctx.fillStyle = `rgba(${tone}, ${tone + 6}, ${tone + 15}, 0.45)`;
     ctx.fillRect(0, y, 512, 2);
   }
-  // Outer espresso-umber border & antique brass key border & #652C39 selvedge pinstripe
-  ctx.strokeStyle = "#4A3A2C";
+  ctx.strokeStyle = "#171A20";
   ctx.lineWidth = 28;
   ctx.strokeRect(18, 18, 476, 988);
-  ctx.strokeStyle = "#B39256";
+  ctx.strokeStyle = "#DFBE7D";
   ctx.lineWidth = 8;
   ctx.strokeRect(42, 42, 428, 940);
   ctx.strokeStyle = "#652C39";
   ctx.lineWidth = 4;
   ctx.strokeRect(56, 56, 400, 912);
-  // Dual subtle tonal diamond medallions
   [300, 724].forEach((cy) => {
     ctx.save();
     ctx.translate(256, cy);
-    ctx.strokeStyle = "rgba(101, 44, 57, 0.55)";
+    ctx.strokeStyle = "rgba(223, 190, 125, 0.65)";
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(0, -110);
@@ -169,10 +167,10 @@ function makeFoyerRunnerTexture() {
     ctx.lineTo(0, 110);
     ctx.lineTo(-96, 0);
     ctx.closePath();
-    ctx.fillStyle = "rgba(182, 152, 98, 0.16)";
+    ctx.fillStyle = "rgba(223, 190, 125, 0.14)";
     ctx.fill();
     ctx.stroke();
-    ctx.strokeStyle = "#9C7F49";
+    ctx.strokeStyle = "#DFBE7D";
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(0, -68);
@@ -495,244 +493,242 @@ export function mountPrologue3D(canvasEl, opts = {}) {
   scene.add(elevDoorL, elevDoorR);
 
   // =========================================================================
-  // ARCHITECTURAL SHELL: PENTHOUSE PRIVATE FOYER (z = 0 .. 2.75)
+  // ARCHITECTURAL SHELL: PALATIAL PENTHOUSE FOYER (z = 0 .. 2.80, x = +-3.45, h = 4.10)
   // =========================================================================
-  // Left & Right Marmorino/Walnut Boiserie Foyer Walls (zero blank white walls!)
+  const matPietra = trackMat(new THREE.MeshStandardMaterial({
+    color: 0x454950,
+    roughness: 0.20,
+    metalness: 0.12,
+  }));
+  const matTravertine = trackMat(new THREE.MeshStandardMaterial({
+    color: 0xd5d2ca,
+    roughness: 0.42,
+    metalness: 0.04,
+  }));
+  const matObsidian = trackMat(new THREE.MeshStandardMaterial({
+    color: 0x13161b,
+    roughness: 0.16,
+    metalness: 0.65,
+  }));
+  const sconceGlassMat = trackMat(new THREE.MeshBasicMaterial({ color: 0xffefc9 }));
+
   [-1, 1].forEach((side) => {
-    const wx = side * 2.75;
-    const upperWall = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.18, 3.36, 3.0)), matStoneWall);
-    upperWall.position.set(wx, 1.68, 1.38);
+    const wx = side * 3.45;
+    const upperWall = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.18, 4.10, 3.1)), matStoneWall);
+    upperWall.position.set(wx, 2.05, 1.38);
     upperWall.receiveShadow = true;
     scene.add(upperWall);
 
-    // Lower walnut architectural wainscoting + brass shadow-gap base
-    const wainscot = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.06, 1.15, 2.8)), matWalnut);
-    wainscot.position.set(wx - side * 0.1, 0.58, 1.38);
-    const chairRail = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.08, 0.05, 2.82)), matBrass);
-    chairRail.position.set(wx - side * 0.1, 1.16, 1.38);
-    const baseSkirt = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.08, 0.12, 2.82)), matBronze);
-    baseSkirt.position.set(wx - side * 0.1, 0.06, 1.38);
+    const wainscot = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.08, 1.30, 2.9)), matPietra);
+    wainscot.position.set(wx - side * 0.10, 0.65, 1.38);
+    const chairRail = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.10, 0.05, 2.92)), matBrass);
+    chairRail.position.set(wx - side * 0.10, 1.32, 1.38);
+    const baseSkirt = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.10, 0.14, 2.92)), matBronze);
+    baseSkirt.position.set(wx - side * 0.10, 0.07, 1.38);
 
-    // Upper boiserie walnut pilasters + framed archival etching art on BOTH side walls
-    [0.52, 2.24].forEach((pz) => {
-      const pilaster = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.08, 3.24, 0.26)), matWalnutPanel);
-      pilaster.position.set(wx - side * 0.10, 1.62, pz);
-      const brassBead = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.09, 3.24, 0.03)), matBrass);
-      brassBead.position.set(wx - side * 0.10, 1.62, pz);
+    [0.42, 2.34].forEach((pz) => {
+      const pilaster = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.10, 4.00, 0.30)), matTravertine);
+      pilaster.position.set(wx - side * 0.10, 2.00, pz);
+      const brassBead = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.11, 4.00, 0.03)), matBrass);
+      brassBead.position.set(wx - side * 0.10, 2.00, pz);
       scene.add(pilaster, brassBead);
     });
-    const boiserieFrame = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.04, 1.56, 1.24)), matWalnut);
-    boiserieFrame.position.set(wx - side * 0.10, 2.08, 1.38);
+    const boiserieFrame = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.05, 1.90, 1.44)), matBronze);
+    boiserieFrame.position.set(wx - side * 0.10, 2.40, 1.38);
     const artPlate = new THREE.Mesh(
-      trackGeo(new THREE.BoxGeometry(0.05, 1.24, 0.94)),
+      trackGeo(new THREE.BoxGeometry(0.06, 1.54, 1.12)),
       trackMat(new THREE.MeshStandardMaterial({ map: side < 0 ? artTex1 : artTex2, roughness: 0.42 })),
     );
-    artPlate.position.set(wx - side * 0.11, 2.08, 1.38);
-    const crownCornice = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.14, 0.12, 2.9)), matWalnut);
-    crownCornice.position.set(wx - side * 0.12, 3.26, 1.38);
-    scene.add(wainscot, chairRail, baseSkirt, boiserieFrame, artPlate, crownCornice);
+    artPlate.position.set(wx - side * 0.11, 2.40, 1.38);
+    scene.add(wainscot, chairRail, baseSkirt, boiserieFrame, artPlate);
   });
 
-  // Back wall around the 3D entrance doorway (z = 0.0) — clad in walnut & travertine boiserie panels
-  const backWallL = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(2.1, 3.36, 0.28)), matStoneWall);
-  backWallL.position.set(-1.82, 1.68, 0.0);
+  // Back portal wall framing monumental 2.96m x 3.45m mansion double doorway
+  const backWallL = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(2.1, 4.10, 0.30)), matStoneWall);
+  backWallL.position.set(-2.55, 2.05, 0.0);
   backWallL.receiveShadow = true;
-  const backWallR = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(2.1, 3.36, 0.28)), matStoneWall);
-  backWallR.position.set(1.82, 1.68, 0.0);
+  const backWallR = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(2.1, 4.10, 0.30)), matStoneWall);
+  backWallR.position.set(2.55, 2.05, 0.0);
   backWallR.receiveShadow = true;
-  const backWallTop = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(1.7, 0.78, 0.28)), matStoneWall);
-  backWallTop.position.set(0, 2.97, 0.0);
+  const backWallTop = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(3.2, 0.65, 0.30)), matStoneWall);
+  backWallTop.position.set(0, 3.78, 0.0);
   scene.add(backWallL, backWallR, backWallTop);
 
   [-1, 1].forEach((side) => {
-    const panelX = side * 1.62;
-    const dado = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(1.32, 1.15, 0.06)), matWalnut);
-    dado.position.set(panelX, 0.58, 0.15);
-    const dadoRail = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(1.34, 0.05, 0.08)), matBrass);
-    dadoRail.position.set(panelX, 1.16, 0.15);
-    const upperWalnutPanel = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.92, 1.72, 0.05)), matWalnutPanel);
-    upperWalnutPanel.position.set(panelX, 2.18, 0.145);
-    const upperBrassTrim = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.98, 1.78, 0.03)), matBrass);
-    upperBrassTrim.position.set(panelX, 2.18, 0.14);
-    const flankPilaster = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.24, 3.30, 0.09)), matWalnut);
-    flankPilaster.position.set(side * 2.48, 1.65, 0.15);
-    scene.add(dado, dadoRail, upperWalnutPanel, upperBrassTrim, flankPilaster);
+    const panelX = side * 2.45;
+    const travPanel = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(1.56, 3.92, 0.08)), matTravertine);
+    travPanel.position.set(panelX, 1.96, 0.15);
+    const innerPietra = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(1.18, 3.30, 0.06)), matPietra);
+    innerPietra.position.set(panelX, 1.92, 0.17);
+    const brassTrim = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(1.24, 3.36, 0.04)), matBrass);
+    brassTrim.position.set(panelX, 1.92, 0.165);
+    scene.add(travPanel, innerPietra, brassTrim);
+
+    // Sculpted bronze/alabaster wall sconce columns flanking double doors
+    const sx = side * 1.76;
+    const backplate = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.14, 0.92, 0.04)), matBrass);
+    backplate.position.set(sx, 2.18, 0.18);
+    const shade = new THREE.Mesh(trackGeo(new THREE.CylinderGeometry(0.065, 0.055, 0.72, 18)), sconceGlassMat);
+    shade.position.set(sx, 2.18, 0.24);
+    scene.add(backplate, shade);
   });
 
-  // Two 3D Brass & Frosted Glass Wall Sconces flanking the doorway
-  const sconceGlassMat = trackMat(new THREE.MeshBasicMaterial({ color: 0xffefc9 }));
+  // Obsidian Entry Smart Terminal beside right door jamb (echoes interior Smart Home Panel!)
+  const extSmartFrame = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.36, 0.48, 0.04)), matBrass);
+  extSmartFrame.position.set(1.76, 1.38, 0.19);
+  const extSmartGlass = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.32, 0.44, 0.045)), matObsidian);
+  extSmartGlass.position.set(1.76, 1.38, 0.20);
+  const extSmartGlow = new THREE.Mesh(
+    trackGeo(new THREE.PlaneGeometry(0.24, 0.12)),
+    trackMat(new THREE.MeshBasicMaterial({ color: 0x7fd8ff })),
+  );
+  extSmartGlow.position.set(1.76, 1.44, 0.226);
+  scene.add(extSmartFrame, extSmartGlass, extSmartGlow);
+
+  // Symmetrical Sculpted Silver-Travertine & Pietra-Grey Consoles (left & right foyer!)
   [-1, 1].forEach((side) => {
-    const sx = side * 1.24;
-    const backplate = new THREE.Mesh(trackGeo(new THREE.CylinderGeometry(0.08, 0.08, 0.03, 18)), matBrass);
-    backplate.rotation.x = Math.PI / 2;
-    backplate.position.set(sx, 1.92, 0.16);
-    const shade = new THREE.Mesh(trackGeo(new THREE.CylinderGeometry(0.055, 0.042, 0.28, 16)), sconceGlassMat);
-    shade.position.set(sx, 2.02, 0.23);
-    const ring = new THREE.Mesh(trackGeo(new THREE.TorusGeometry(0.056, 0.008, 8, 24)), matBrass);
-    ring.rotation.x = Math.PI / 2;
-    ring.position.set(sx, 1.89, 0.23);
-    scene.add(backplate, shade, ring);
+    const cg = new THREE.Group();
+    cg.position.set(side * 2.48, 0, 1.05);
+    const plinthL = new THREE.Mesh(trackGeo(new THREE.CylinderGeometry(0.14, 0.18, 0.86, 20)), matTravertine);
+    plinthL.position.set(0, 0.43, -0.36);
+    const plinthR = new THREE.Mesh(trackGeo(new THREE.CylinderGeometry(0.14, 0.18, 0.86, 20)), matTravertine);
+    plinthR.position.set(0, 0.43, 0.36);
+    const topSlab = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.62, 0.09, 1.38)), matPietra);
+    topSlab.position.set(0, 0.90, 0);
+    topSlab.castShadow = true;
+    const brassBand = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.64, 0.025, 1.40)), matBrass);
+    brassBand.position.set(0, 0.855, 0);
+    // Warm alabaster console lamp on rear end
+    const lampBase = new THREE.Mesh(trackGeo(new THREE.CylinderGeometry(0.09, 0.12, 0.28, 18)), matBrass);
+    lampBase.position.set(0, 1.08, -0.44);
+    const lampShade = new THREE.Mesh(trackGeo(new THREE.CylinderGeometry(0.14, 0.16, 0.24, 20)), sconceGlassMat);
+    lampShade.position.set(0, 1.32, -0.44);
+    cg.add(plinthL, plinthR, topSlab, brassBand, lampBase, lampShade);
+
+    if (side < 0) {
+      // Left console: sculptural porcelain vessel + blooming orchid sprays + bronze valet dish
+      const vase = new THREE.Mesh(
+        trackGeo(new THREE.CylinderGeometry(0.11, 0.15, 0.36, 20)),
+        trackMat(new THREE.MeshStandardMaterial({ color: 0xf4efe6, roughness: 0.28 })),
+      );
+      vase.position.set(0, 1.12, 0.16);
+      const orchidMat = trackMat(new THREE.MeshStandardMaterial({ color: 0xfbf9f4, roughness: 0.4 }));
+      for (let k = 0; k < 5; k++) {
+        const bl = new THREE.Mesh(trackGeo(new THREE.SphereGeometry(0.055, 10, 8)), orchidMat);
+        bl.scale.set(1.0, 0.55, 1.0);
+        bl.position.set((k % 2 ? 0.04 : -0.04), 1.42 + k * 0.05, 0.16 + (k - 2) * 0.04);
+        cg.add(bl);
+      }
+      cg.add(vase);
+    } else {
+      // Right console: champagne-gold sculptural torus centerpiece + travertine art block
+      const sculp = new THREE.Mesh(trackGeo(new THREE.TorusGeometry(0.16, 0.038, 14, 32)), matBrass);
+      sculp.position.set(0, 1.16, 0.14);
+      sculp.rotation.y = Math.PI * 0.35;
+      const artPed = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.22, 0.07, 0.22)), matTravertine);
+      artPed.position.set(0, 0.98, 0.14);
+      cg.add(sculp, artPed);
+    }
+    scene.add(cg);
   });
 
-  // Left Marble & Brass Entry Console Table + Decorative Vase (frames doorway nicely)
-  const consoleGroup = new THREE.Group();
-  consoleGroup.position.set(-1.62, 0, 1.05);
-  const consoleTop = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.55, 0.05, 1.15)), matMarble);
-  consoleTop.position.y = 0.84;
-  consoleTop.castShadow = true;
-  consoleGroup.add(consoleTop);
-  [[-0.22, -0.5], [0.22, -0.5], [-0.22, 0.5], [0.22, 0.5]].forEach(([lx, lz]) => {
-    const leg = new THREE.Mesh(trackGeo(new THREE.CylinderGeometry(0.018, 0.018, 0.84, 10)), matBrass);
-    leg.position.set(lx, 0.42, lz);
-    consoleGroup.add(leg);
-  });
-  const vase = new THREE.Mesh(
-    trackGeo(new THREE.CylinderGeometry(0.08, 0.11, 0.34, 18)),
-    trackMat(new THREE.MeshStandardMaterial({ color: 0xece3d5, roughness: 0.35 })),
-  );
-  vase.position.set(0, 1.03, -0.22);
-  const brassTray = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.24, 0.02, 0.18)), matBrass);
-  brassTray.position.set(0.04, 0.875, 0.22);
-  consoleGroup.add(vase, brassTray);
-  scene.add(consoleGroup);
-
-  // Right Architectural Brass Planter Stand + Greenery (balances right side of Foyer)
-  const planterGroup = new THREE.Group();
-  planterGroup.position.set(1.62, 0, 1.02);
-  const potMesh = new THREE.Mesh(
-    trackGeo(new THREE.CylinderGeometry(0.22, 0.17, 0.48, 20)),
-    trackMat(new THREE.MeshStandardMaterial({ color: 0x262425, roughness: 0.5 })),
-  );
-  potMesh.position.y = 0.38;
-  const potStand = new THREE.Mesh(trackGeo(new THREE.CylinderGeometry(0.23, 0.23, 0.04, 20)), matBrass);
-  potStand.position.y = 0.14;
-  const leafMat = trackMat(new THREE.MeshStandardMaterial({ color: 0x2a523c, roughness: 0.72 }));
-  for (let i = 0; i < 6; i++) {
-    const a = (i / 6) * Math.PI * 2;
-    const leaf = new THREE.Mesh(trackGeo(new THREE.SphereGeometry(0.14, 10, 8)), leafMat);
-    leaf.scale.set(1.2, 0.45, 0.7);
-    leaf.position.set(Math.cos(a) * 0.15, 0.74 + (i % 2) * 0.08, Math.sin(a) * 0.15);
-    leaf.rotation.set(0.3, a, 0.35);
-    planterGroup.add(leaf);
-  }
-  planterGroup.add(potMesh, potStand);
-  scene.add(planterGroup);
-
-  // Woven Burgundy Runner Carpet leading up to the door threshold
-  const runnerMesh = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(1.42, 0.014, 2.3)), matRug);
-  runnerMesh.position.set(0, 0.008, 1.38);
+  // Woven Midnight-Slate Runner Carpet leading up to the double door threshold
+  const runnerMesh = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(2.16, 0.016, 2.35)), matRug);
+  runnerMesh.position.set(0, 0.008, 1.40);
   runnerMesh.receiveShadow = true;
-  const runnerBorder = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(1.48, 0.01, 2.36)), matBrass);
-  runnerBorder.position.set(0, 0.005, 1.38);
+  const runnerBorder = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(2.24, 0.01, 2.42)), matBrass);
+  runnerBorder.position.set(0, 0.005, 1.40);
   scene.add(runnerBorder, runnerMesh);
 
   // =========================================================================
-  // SCULPTED 3D AMERICAN WALNUT ENTRANCE DOOR + BRASS ARCHITRAVE + HINGE PIVOT
+  // PALATIAL 2.88m x 3.45m CAST-BRONZE & PIETRA-GREY DOUBLE ENTRANCE DOORS
   // =========================================================================
-  // Deep stepped 3D walnut & brass architrave frame
-  const jambL = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.14, 2.66, 0.34)), matWalnut);
-  jambL.position.set(-0.81, 1.33, 0.04);
-  const jambR = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.14, 2.66, 0.34)), matWalnut);
-  jambR.position.set(0.81, 1.33, 0.04);
-  const jambTop = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(1.82, 0.16, 0.36)), matWalnut);
-  jambTop.position.set(0, 2.64, 0.04);
-  const jambBrassTrim = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(1.56, 2.6, 0.3)), matBrass);
-  jambBrassTrim.position.set(0, 1.3, 0.02);
-  // Hollow out center visually by keeping trim only as thin border strips:
-  jambBrassTrim.visible = false;
-  const brassBorderL = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.025, 2.62, 0.35)), matBrass);
-  brassBorderL.position.set(-0.745, 1.31, 0.04);
-  const brassBorderR = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.025, 2.62, 0.35)), matBrass);
-  brassBorderR.position.set(0.745, 1.31, 0.04);
-  const brassBorderTop = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(1.52, 0.025, 0.35)), matBrass);
-  brassBorderTop.position.set(0, 2.57, 0.04);
-  const threshold = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(1.56, 0.024, 0.32)), matBrass);
-  threshold.position.set(0, 0.012, 0.04);
-  scene.add(jambL, jambR, jambTop, brassBorderL, brassBorderR, brassBorderTop, threshold);
+  const jambL = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.22, 3.48, 0.38)), matBronze);
+  jambL.position.set(-1.55, 1.74, 0.04);
+  const jambR = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.22, 3.48, 0.38)), matBronze);
+  jambR.position.set(1.55, 1.74, 0.04);
+  const jambTop = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(3.34, 0.24, 0.42)), matBronze);
+  jambTop.position.set(0, 3.52, 0.04);
+  const threshold = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(3.04, 0.028, 0.36)), matBrass);
+  threshold.position.set(0, 0.014, 0.04);
+  scene.add(jambL, jambR, jambTop, threshold);
 
-  // Hinge group pivoted cleanly on the inside left jamb (-0.73, 0, 0.02) for inward swing
-  const doorHingeGroup = new THREE.Group();
-  doorHingeGroup.position.set(-0.73, 0, 0.02);
-  scene.add(doorHingeGroup);
-
-  const doorBodyGroup = new THREE.Group();
-  doorBodyGroup.position.set(0.73, 0, 0);
-  doorHingeGroup.add(doorBodyGroup);
-
-  // Main thick walnut slab (1.46w x 2.53h x 0.11d, leaving 2.8cm warm light gap at floor)
-  const doorSlab = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(1.46, 2.53, 0.11)), matWalnut);
-  doorSlab.position.set(0, 1.292, 0);
-  doorSlab.castShadow = true;
-  doorSlab.receiveShadow = true;
-  doorBodyGroup.add(doorSlab);
-
-  // 4 Sculpted Raised 3D Coffer Panels + Beveled Trim
-  const cofferDefs = [
-    { x: -0.31, y: 1.78, w: 0.46, h: 0.72 },
-    { x: 0.31, y: 1.78, w: 0.46, h: 0.72 },
-    { x: -0.31, y: 0.78, w: 0.46, h: 0.86 },
-    { x: 0.31, y: 0.78, w: 0.46, h: 0.86 },
-  ];
-  cofferDefs.forEach((p) => {
-    const outer = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(p.w, p.h, 0.032)), matBrass);
-    outer.position.set(p.x, p.y, 0.056);
-    const inner = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(p.w - 0.05, p.h - 0.05, 0.045)), matWalnutPanel);
-    inner.position.set(p.x, p.y, 0.062);
-    inner.castShadow = true;
-    doorBodyGroup.add(outer, inner);
-  });
-
-  // 3D Brushed-Brass Residential Crest Plate mounted upper-center
+  // Overhead Illuminated Champagne-Gold Crest Transom
   const nameplateMesh = new THREE.Mesh(
-    trackGeo(new THREE.BoxGeometry(0.68, 0.17, 0.025)),
+    trackGeo(new THREE.BoxGeometry(1.36, 0.30, 0.04)),
     [
       matBrass, matBrass, matBrass, matBrass,
       trackMat(new THREE.MeshStandardMaterial({ map: plateTex, roughness: 0.25, metalness: 0.85 })),
       matBrass,
     ],
   );
-  nameplateMesh.position.set(0, 2.28, 0.068);
-  doorBodyGroup.add(nameplateMesh);
+  nameplateMesh.position.set(0, 3.22, 0.20);
+  scene.add(nameplateMesh);
 
-  // 3 Left Barrel Hinges in 3D brass
-  [0.42, 1.32, 2.22].forEach((hy) => {
-    const hinge = new THREE.Mesh(trackGeo(new THREE.CylinderGeometry(0.02, 0.02, 0.12, 12)), matBrass);
-    hinge.position.set(-0.725, hy, 0.052);
-    doorBodyGroup.add(hinge);
+  // Twin Hinged Leaves pivoting outward/inward smoothly (-1.44 & +1.44)
+  const doorHingeGroup = new THREE.Group();
+  doorHingeGroup.position.set(-1.44, 0, 0.02);
+  scene.add(doorHingeGroup);
+
+  const doorHingeGroupR = new THREE.Group();
+  doorHingeGroupR.position.set(1.44, 0, 0.02);
+  scene.add(doorHingeGroupR);
+
+  const doorBodyL = new THREE.Group();
+  doorBodyL.position.set(0.72, 0, 0);
+  doorHingeGroup.add(doorBodyL);
+
+  const doorBodyR = new THREE.Group();
+  doorBodyR.position.set(-0.72, 0, 0);
+  doorHingeGroupR.add(doorBodyR);
+
+  const leafGeo = trackGeo(new THREE.BoxGeometry(1.42, 3.04, 0.12));
+  const cofferOuterGeo = trackGeo(new THREE.BoxGeometry(0.96, 1.24, 0.032));
+  const cofferInnerGeo = trackGeo(new THREE.BoxGeometry(0.88, 1.16, 0.045));
+  const barPullGeo = trackGeo(new THREE.CylinderGeometry(0.024, 0.024, 1.38, 14));
+
+  const doorSlab = new THREE.Mesh(leafGeo, matBronze);
+  doorSlab.position.set(0, 1.54, 0);
+  doorSlab.castShadow = true;
+  doorBodyL.add(doorSlab);
+
+  const doorSlabR = new THREE.Mesh(leafGeo, matBronze);
+  doorSlabR.position.set(0, 1.54, 0);
+  doorSlabR.castShadow = true;
+  doorBodyR.add(doorSlabR);
+
+  [doorBodyL, doorBodyR].forEach((body, idx) => {
+    [2.28, 0.88].forEach((cy) => {
+      const outer = new THREE.Mesh(cofferOuterGeo, matBrass);
+      outer.position.set(0, cy, 0.06);
+      const inner = new THREE.Mesh(cofferInnerGeo, matPietra);
+      inner.position.set(0, cy, 0.068);
+      body.add(outer, inner);
+    });
+    const pullX = idx === 0 ? 0.56 : -0.56;
+    const pull = new THREE.Mesh(barPullGeo, matBrass);
+    pull.position.set(pullX, 1.42, 0.12);
+    body.add(pull);
   });
 
-  // Machined 3D Brass Escutcheon & Rotating Lever Handle (right edge)
-  const escutcheon = new THREE.Mesh(trackGeo(new THREE.BoxGeometry(0.07, 0.28, 0.024)), matBrass);
-  escutcheon.position.set(0.61, 1.12, 0.064);
-  doorBodyGroup.add(escutcheon);
-
   const handlePivot = new THREE.Group();
-  handlePivot.position.set(0.61, 1.18, 0.088);
-  const handleStem = new THREE.Mesh(trackGeo(new THREE.CylinderGeometry(0.018, 0.018, 0.055, 14)), matBrass);
-  handleStem.rotation.x = Math.PI / 2;
-  const handleLever = new THREE.Mesh(trackGeo(new THREE.CylinderGeometry(0.016, 0.015, 0.19, 14)), matBrass);
-  handleLever.rotation.z = Math.PI / 2;
-  handleLever.position.set(-0.085, 0, 0.026);
-  const handleTip = new THREE.Mesh(trackGeo(new THREE.SphereGeometry(0.017, 12, 10)), matBrass);
-  handleTip.position.set(-0.18, 0, 0.026);
-  handlePivot.add(handleStem, handleLever, handleTip);
-  doorBodyGroup.add(handlePivot);
+  handlePivot.position.set(0.56, 1.42, 0.12);
+  doorBodyL.add(handlePivot);
 
-  // Warm sunlight portal chamber BEHIND the door (revealed smoothly as the door swings inward)
+  // Warm sunlight portal chamber BEHIND the double doors
   const portalBackMat = trackMat(new THREE.MeshBasicMaterial({ color: 0xfff3d4 }));
-  const portalChamber = new THREE.Mesh(trackGeo(new THREE.PlaneGeometry(4.2, 4.0)), portalBackMat);
-  portalChamber.position.set(0, 1.65, -1.35);
+  const portalChamber = new THREE.Mesh(trackGeo(new THREE.PlaneGeometry(5.8, 4.6)), portalBackMat);
+  portalChamber.position.set(0, 1.9, -1.35);
   scene.add(portalChamber);
 
-  // Glowing golden under-door sunlight seam strip on threshold floor
   const seamMat = trackMat(new THREE.MeshBasicMaterial({
     color: 0xffdf94,
     transparent: true,
     opacity: 0.92,
   }));
-  const underDoorGlow = new THREE.Mesh(trackGeo(new THREE.PlaneGeometry(1.42, 0.16)), seamMat);
+  const underDoorGlow = new THREE.Mesh(trackGeo(new THREE.PlaneGeometry(2.86, 0.18)), seamMat);
   underDoorGlow.rotation.x = -Math.PI / 2;
-  underDoorGlow.position.set(0, 0.026, 0.12);
+  underDoorGlow.position.set(0, 0.026, 0.14);
   scene.add(underDoorGlow);
 
   // =========================================================================
@@ -777,7 +773,7 @@ export function mountPrologue3D(canvasEl, opts = {}) {
 
   const raycaster = new THREE.Raycaster();
   const ndc = new THREE.Vector2();
-  const doorHitTargets = [doorSlab, handlePivot];
+  const doorHitTargets = [doorSlab, doorSlabR, handlePivot];
 
   const onPointerMove = (e) => {
     const w = window.innerWidth || 1;
@@ -875,8 +871,8 @@ export function mountPrologue3D(canvasEl, opts = {}) {
     } else if (phase === "foyer") {
       elevDoorL.position.x = -1.62;
       elevDoorR.position.x = 1.62;
-      baseCamPos.set(0, 1.48, 3.45);
-      baseLookAt.set(0, 1.34, 0.0);
+      baseCamPos.set(0, 1.62, 3.85);
+      baseLookAt.set(0, 1.56, 0.0);
       seamMat.opacity = 0.78 + Math.sin(now * 0.0032) * 0.16;
     } else if (phase === "unlocking") {
       const pHandle = Math.min(1, dtPhase / 0.18);
@@ -884,9 +880,10 @@ export function mountPrologue3D(canvasEl, opts = {}) {
 
       const pSwing = Math.min(1, Math.max(0, (dtPhase - 0.08) / 0.76));
       const eSwing = easeInOutQuart(pSwing);
-      doorHingeGroup.rotation.y = THREE.MathUtils.lerp(0, -1.22, eSwing);
-      baseCamPos.set(0, 1.48, THREE.MathUtils.lerp(3.45, 0.95, eSwing));
-      baseLookAt.set(0, 1.44, -1.2);
+      doorHingeGroup.rotation.y = THREE.MathUtils.lerp(0, -1.16, eSwing);
+      doorHingeGroupR.rotation.y = THREE.MathUtils.lerp(0, 1.16, eSwing);
+      baseCamPos.set(0, 1.62, THREE.MathUtils.lerp(3.85, 0.95, eSwing));
+      baseLookAt.set(0, 1.56, -1.2);
       sunBehindDoor.intensity = THREE.MathUtils.lerp(4.0, 26.0, eSwing);
       renderer.toneMappingExposure = THREE.MathUtils.lerp(1.08, 1.85, eSwing);
 

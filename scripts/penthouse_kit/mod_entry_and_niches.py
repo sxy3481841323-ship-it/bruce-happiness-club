@@ -208,3 +208,64 @@ def build_entry_and_niches(ctx, mats):
         (0.14, 0.16), (0.10, 0.26), (0.07, 0.32),
         (0.08, 0.36), (0.00, 0.36)
     ], segs=20)
+
+    # ------------------------------------------------------------------
+    # 4. PALATIAL WEST GRAND DOUBLE ENTRANCE DOORS (6.40 WU wide x 8.40 WU tall)
+    # ------------------------------------------------------------------
+    # Stepped Silver-Travertine & Obsidian Cast-Bronze Architrave (X=-14.78, Z in [-6.8, -0.4])
+    b = ctx.mb("GrandEntryPortalStone", mats["travertine"])
+    b.add_box(-14.74, 4.25, -7.12, 0.44, 8.50, 0.64)
+    b.add_box(-14.74, 4.25, -0.08, 0.44, 8.50, 0.64)
+    b.add_box(-14.74, 8.20, -3.60, 0.48, 0.72, 7.68)
+
+    b = ctx.mb("GrandEntryPortalBronze", mats["bronze_dark"])
+    b.add_box(-14.66, 4.00, -6.82, 0.26, 8.00, 0.14)
+    b.add_box(-14.66, 4.00, -0.38, 0.26, 8.00, 0.14)
+    b.add_box(-14.66, 7.72, -3.60, 0.28, 0.18, 6.58)
+    b.add_box(-14.66, 0.04, -3.60, 0.32, 0.08, 6.58)
+
+    # Twin Mansion Cast-Bronze & Grey-Marble Double Door Leaves (Z in [-6.72, -3.62] and [-3.58, -0.48])
+    b = ctx.mb("GrandEntryDoors", mats["bronze_dark"])
+    b.add_box(-14.74, 3.82, -5.17, 0.18, 7.56, 3.06)
+    b.add_box(-14.74, 3.82, -2.03, 0.18, 7.56, 3.06)
+
+    b = ctx.mb("GrandEntryDoorStoneInlay", mats["pietra_grey"])
+    for dz in (-5.17, -2.03):
+        b.add_box(-14.63, 5.20, dz, 0.04, 2.95, 2.24)
+        b.add_box(-14.63, 1.95, dz, 0.04, 2.65, 2.24)
+
+    # Brushed Champagne-Gold Coffer Mouldings, Overhead Crest Transom & Twin Vertical Bar Pulls
+    b = ctx.mb("GrandEntryDoorBrassTrim", mats["brass"])
+    for dz in (-5.17, -2.03):
+        b.add_box(-14.60, 5.20, dz - 1.15, 0.05, 3.02, 0.06)
+        b.add_box(-14.60, 5.20, dz + 1.15, 0.05, 3.02, 0.06)
+        b.add_box(-14.60, 1.95, dz - 1.15, 0.05, 2.72, 0.06)
+        b.add_box(-14.60, 1.95, dz + 1.15, 0.05, 2.72, 0.06)
+    # Center astragal bead + tall architectural pulls
+    b.add_box(-14.62, 3.82, -3.60, 0.08, 7.56, 0.06)
+    b.add_box(-14.60, 7.64, -3.60, 0.10, 0.08, 6.32)
+    b = ctx.mb("GrandEntryPulls", mats["brass"])
+    for pz in (-3.92, -3.28):
+        b.add_cylinder(-14.48, 2.05, pz, 0.048, 0.048, 3.40, segs=16)
+        b.add_cylinder(-14.56, 2.40, pz, 0.030, 0.030, 0.18, segs=10, rot_z=1.5708)
+        b.add_cylinder(-14.56, 5.10, pz, 0.030, 0.030, 0.18, segs=10, rot_z=1.5708)
+
+    # Tall Fluted Alabaster Sconces Flanking the Grand Double Doors
+    b = ctx.mb("GrandEntrySconces", mats["warm_bulb"])
+    for sz in (-7.65, 0.45):
+        b.add_cylinder(-14.52, 3.30, sz, 0.12, 0.12, 1.65, segs=18)
+    b = ctx.mb("GrandEntrySconceCaps", mats["brass"])
+    for sz in (-7.65, 0.45):
+        b.add_box(-14.56, 3.24, sz, 0.22, 0.10, 0.30)
+        b.add_box(-14.56, 4.98, sz, 0.22, 0.10, 0.30)
+
+    # ------------------------------------------------------------------
+    # 5. WHOLE-HOME SMART CONTROL WALL PANEL (Right next to Grand Entrance at Z=+2.10)
+    # ------------------------------------------------------------------
+    b = ctx.mb("SmartHomePanelFrame", mats["platinum"])
+    b.add_rounded_box(-14.70, 3.65, 2.10, 0.09, 1.24, 1.78, bevel=0.025)
+    b = ctx.mb("SmartHomePanelCove", mats["warm_led"])
+    b.add_box(-14.73, 3.65, 2.10, 0.02, 1.30, 1.84)
+    b = ctx.mb("SmartHomePanelScreen", mats["smart_panel"])
+    b.add_quad((-14.64, 3.12, 2.91), (-14.64, 3.12, 1.29),
+               (-14.64, 4.18, 1.29), (-14.64, 4.18, 2.91), uv_scale=(1.0, 1.0))
