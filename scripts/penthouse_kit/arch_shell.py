@@ -190,12 +190,13 @@ def build_arch_shell(ctx, mats: dict):
         x = 0.8 + i * 0.6
         b.add_box(x, 1.0, 15.05, 0.4, 1.0, 0.5, uv_tile=1.0)
 
-    # ---------- 2F MEZZANINE ----------
+    # ---------- 2F MEZZANINE (OPEN STAIR LANDING PORTAL X in [-11.45, -8.15]) ----------
     b = ctx.mb("MezzanineSlab", mats["oak"])
     b.add_box(-9.2, 9.14, -4.6, 11.6, 0.12, 22.4, uv_tile=4.0)
-    b = ctx.mb("MezzanineRail", mats["brass"])
-    b.add_box(-3.4, 9.9, -4.6, 0.06, 1.4, 22.4, uv_tile=1.0)
-    b.add_box(-9.2, 9.9, 6.6, 11.6, 1.4, 0.06, uv_tile=1.0)
+    b = ctx.mb("MezzanineLandingTrim", mats["walnut_solid"])
+    b.add_box(-9.8, 9.21, 6.56, 3.30, 0.03, 0.12, uv_tile=1.0)
+    b = ctx.mb("MezzanineLandingBrass", mats["brass"])
+    b.add_box(-9.8, 9.225, 6.60, 3.30, 0.01, 0.03, uv_tile=1.0)
 
     b = ctx.mb("MasterSuiteDoor", mats["walnut_solid"])
     b.add_box(-14.86, 11.4, 3.6, 0.16, 4.4, 1.6, uv_tile=2.0)

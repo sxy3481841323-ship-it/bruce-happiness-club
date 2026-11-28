@@ -73,7 +73,7 @@ const HOTSPOTS = [
     kind: "act",
     title: "并肩看落日",
     sub: "+2 分 · 纯享海风慢时光",
-    pos: [1.4, 1.38, -22.2],
+    pos: [0.38, 1.32, -22.2],
     icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v3M4.9 6.9l2.1 2.1M19.1 6.9l-2.1 2.1M3 14h18"/><path d="M7 14a5 5 0 0 1 10 0"/><path d="M5 18h14"/></svg>`,
   },
   {
@@ -1383,6 +1383,7 @@ export function mountLivingRoomHub(container, opts = {}) {
     walkSpotCursor = 0;
     rippleMesh.visible = false;
     bruce.stopWalk();
+    bruce.setResting(fl === "terrace" ? "chest_down" : null);
     bruce.root.position.set(...ov.preset.brucePos);
     bruce.root.rotation.y = ov.preset.bruceRot;
 
@@ -2000,7 +2001,7 @@ export function mountLivingRoomHub(container, opts = {}) {
     );
     sfx.playSuccess();
     bruce.setMood("happy");
-    bruce.triggerHappyHop();
+    bruce.setResting("chest_down");
     const rect = stageEl.getBoundingClientRect();
     spawnFxParticles(rect.width * 0.5, rect.height * 0.46, "gold", 20);
 
@@ -2052,10 +2053,10 @@ export function mountLivingRoomHub(container, opts = {}) {
     syncConciergeUi();
 
     bruce.stopWalk();
-    bruce.root.position.set(1.22, 0.56, -22.42);
-    bruce.root.rotation.y = Math.PI * 0.88;
+    bruce.root.position.set(-1.35, 0.68, -22.60);
+    bruce.root.rotation.y = Math.PI * 0.94;
+    bruce.setResting("curl_nap");
     bruce.setMood("happy");
-    bruce.triggerHappyHop();
     sfx.playStretchSigh();
     sayBruce("sunset_cuddle_lines", 5000, "TERRACE · 并肩慢时光");
 
@@ -2063,7 +2064,7 @@ export function mountLivingRoomHub(container, opts = {}) {
     spawnFxParticles(rect.width * 0.48, rect.height * 0.56, "warm", 16);
 
     controls.enabled = false;
-    flyCamera(new THREE.Vector3(3.38, 1.84, -19.72), new THREE.Vector3(-0.25, 1.12, -26.8), 850, () => {
+    flyCamera(new THREE.Vector3(6.2, 3.05, -18.0), new THREE.Vector3(-0.35, 1.30, -26.2), 850, () => {
       if (!destroyed) controls.enabled = true;
     });
 
@@ -2187,6 +2188,7 @@ export function mountLivingRoomHub(container, opts = {}) {
     const b = getFloorOverview(activeFloor).preset.walkBounds;
     const tx = THREE.MathUtils.clamp(rawX, b.minX, b.maxX);
     const tz = THREE.MathUtils.clamp(rawZ, b.minZ, b.maxZ);
+    bruce.setResting(null);
     triggerFloorRipple(tx, tz);
     bruce.walkTo(tx, tz, { speedScale: sulking ? 0.65 : 1.0 });
     if (!silent) sayBruce(sulking ? "walk_sulk" : "walk_call", 3400);
@@ -2482,12 +2484,13 @@ export function mountLivingRoomHub(container, opts = {}) {
     terraceVista.update(dt, elapsed);
     meteorCtrl.update(dt);
 
-    // Smooth vertical perch adjustment when Bruce walks onto/off the plush Terrace sunset sofa
+    // Smooth vertical perch adjustment when Bruce walks onto/off the two Ergonomic Round Terrace Chairs
     if (activeFloor === "terrace" || bruce.root.position.z < -15.6) {
       const bx = bruce.root.position.x;
       const bz = bruce.root.position.z;
-      const onSofa = bx >= -0.45 && bx <= 3.25 && bz >= -23.25 && bz <= -21.75;
-      const desiredY = onSofa ? 0.56 : 0.02;
+      const onChair1 = Math.hypot(bx - (-1.35), bz - (-22.60)) < 1.38;
+      const onChair2 = Math.hypot(bx - 3.55, bz - (-22.60)) < 1.38;
+      const desiredY = onChair1 || onChair2 ? 0.68 : 0.02;
       bruce.root.position.y = THREE.MathUtils.lerp(bruce.root.position.y, desiredY, Math.min(1, dt * 8.0));
     }
 

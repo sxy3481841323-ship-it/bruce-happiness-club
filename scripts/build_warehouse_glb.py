@@ -577,8 +577,31 @@ def build_scene():
     b_wall.add_quad((13.4, 0.0, -19.8), (13.4, 0.0, 18.2), (13.4, 17.6, 18.2), (13.4, 17.6, -19.8), uv_scale=(6.0, 3.0))
     # Back wall (Z = -19.6, facing +Z)
     b_wall.add_quad((-13.4, 0.0, -19.6), (13.4, 0.0, -19.6), (13.4, 17.6, -19.6), (-13.4, 17.6, -19.6), uv_scale=(4.5, 3.0))
-    # Front wall behind camera (Z = +18.2, facing -Z)
+    # Front wall behind camera (Z = +18.2, facing -Z) -> ELOWEN Walnut & Brass Entrance Vestibule
     b_wall.add_quad((13.4, 0.0, 18.2), (-13.4, 0.0, 18.2), (-13.4, 17.6, 18.2), (13.4, 17.6, 18.2), uv_scale=(4.5, 3.0))
+    b_wal_front = mb("FrontWalnutMillwork", m_walnut)
+    b_brass_front = mb("FrontBrassTrim", m_brass)
+    b_fglass_front = mb("FrontPortalGlass", m_freezer_glass)
+    b_led_front = mb("FrontPortalLed", m_led_warm)
+    # Walnut wainscot + brass dado rail across full South wall
+    for fx in (-8.2, 8.2):
+        b_wal_front.add_box(fx, 1.8, 17.98, 10.0, 3.6, 0.24, uv_tile=3.0)
+        b_brass_front.add_box(fx, 3.65, 17.90, 10.0, 0.10, 0.14)
+        b_brass_front.add_box(fx, 7.6, 17.92, 6.4, 6.2, 0.08)
+        b_wal_front.add_box(fx, 7.6, 17.88, 6.0, 5.8, 0.08, uv_tile=2.5)
+        b_led_front.add_box(fx, 10.65, 17.80, 5.8, 0.10, 0.12)
+    for px in (-13.0, -5.0, -2.5, 2.5, 5.0, 13.0):
+        b_wal_front.add_box(px, 8.6, 17.90, 0.65, 17.2, 0.28, uv_tile=3.0)
+        b_brass_front.add_box(px, 0.24, 17.82, 0.72, 0.48, 0.34)
+        b_brass_front.add_box(px, 14.4, 17.82, 0.72, 0.28, 0.34)
+    # Centered double frosted-glass & brushed-brass entrance vestibule portal
+    b_wal_front.add_box(0.0, 5.4, 17.92, 4.9, 10.8, 0.34, uv_tile=3.0)
+    b_fglass_front.add_box(0.0, 5.2, 17.78, 4.2, 9.8, 0.08)
+    b_brass_front.add_box(0.0, 5.2, 17.72, 0.10, 9.8, 0.10)
+    b_brass_front.add_box(0.0, 8.6, 17.72, 4.2, 0.10, 0.10)
+    b_brass_front.add_cylinder(-0.34, 3.6, 17.64, 0.055, 0.055, 2.8, segs=10)
+    b_brass_front.add_cylinder(0.34, 3.6, 17.64, 0.055, 0.055, 2.8, segs=10)
+    b_led_front.add_box(0.0, 10.25, 17.70, 4.0, 0.12, 0.14)
 
     # Rear architectural walnut ribbed feature wall behind Tasting Bar
     b_walnut = mb("DarkWalnutMillwork", m_walnut)

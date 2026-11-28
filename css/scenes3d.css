@@ -349,28 +349,45 @@
 
 .sc3d-yacht-wrap .hub3d-speech {
   z-index: 20;
+  bottom: 112px !important;
 }
 
-@media (max-width: 860px) {
+@media (max-width: 1000px) {
+  .sc3d-yacht-wrap .hub3d-speech {
+    bottom: 162px !important;
+  }
   .sc3d-yacht-cam-strip {
     max-width: calc(100vw - 148px);
     gap: 4px;
   }
   #view-scene .sc3d-yacht-cam-strip {
-    top: 104px;
+    top: 144px;
+    left: 16px;
     max-width: calc(100vw - 32px);
   }
   #view-scene .sc3d-yacht-wrap .vf-stamp {
     display: none;
+  }
+  #view-scene .sc3d-yacht-drone-status {
+    top: 184px;
+    left: 16px;
   }
   .sc3d-yacht-pill {
     padding: 5px 8px;
     font-size: 10.5px;
   }
   .sc3d-yacht-drone-bar {
-    left: 10px;
-    bottom: 64px;
-    max-width: calc(100vw - 20px);
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 118px;
+    max-width: calc(100vw - 24px);
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .sc3d-yacht-drone-bar::-webkit-scrollbar {
+    display: none;
   }
 }
 

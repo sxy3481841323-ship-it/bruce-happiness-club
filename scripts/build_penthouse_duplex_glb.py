@@ -11,6 +11,8 @@ following the AD100 Quiet-Luxury standard (<= 15 MB, high-bitrate textures):
 
 import os
 import sys
+import numpy as np
+from PIL import Image
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(SCRIPT_DIR)
@@ -65,6 +67,10 @@ def build_duplex():
 
     oak_img = make_herringbone_oak_tex(2048)
     marble_img = make_calacatta_marble_tex(2048)
+    smoked_stone_img = Image.fromarray(
+        np.clip(np.asarray(marble_img, dtype=np.float32) * np.array([0.27, 0.21, 0.17]), 14, 155).astype(np.uint8),
+        "RGB",
+    )
     boucle_img = make_boucle_fabric_tex(1024)
     travertine_img = make_travertine_tex(1024)
     walnut_fluted_img = make_fluted_walnut_tex(1024)
@@ -93,6 +99,10 @@ def build_duplex():
     mats = {
         "oak": ctx.tex_mat("HerringboneOak", oak_img, roughness=0.44, metalness=0.04, quality=92),
         "marble": ctx.tex_mat("CalacattaGoldMarble", marble_img, roughness=0.18, metalness=0.04, quality=92),
+        "smoked_stone": ctx.tex_mat("SmokedEmperadorStone", smoked_stone_img, roughness=0.22, metalness=0.06, quality=90),
+        "evian_flint_glass": ctx.color_mat("EvianFlintGlass", (0.70, 0.90, 0.96, 0.62), roughness=0.05, metalness=0.12, alpha_blend=True, double_sided=True),
+        "evian_cap": ctx.color_mat("EvianRoseCap", (0.92, 0.72, 0.76, 1.0), roughness=0.28, metalness=0.15),
+        "water_meniscus": ctx.color_mat("AlpineWaterMeniscus", (0.82, 0.95, 1.0, 0.72), roughness=0.06, metalness=0.10, alpha_blend=True),
         "walnut_fluted": ctx.tex_mat("FlutedWalnut", walnut_fluted_img, roughness=0.46, metalness=0.05, quality=90),
         "walnut_solid": ctx.color_mat("SolidWalnut", (0.26, 0.15, 0.09, 1.0), roughness=0.38, metalness=0.05),
         "marmorino": ctx.tex_mat("MarmorinoLimestoneBoiserie", marmorino_img, roughness=0.68, metalness=0.02, quality=90),

@@ -1,5 +1,6 @@
 import os
 import sys
+import math
 import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -30,39 +31,39 @@ verify_seamless_2x2(orm.astype(np.float64), "hull_satin_orm", 30.0)
 verify_seamless_2x2(norm.astype(np.float64), "hull_satin_norm", 30.0)
 save_bundle("hull_satin", base_rgb, orm, norm, base_fmt="PNG")
 
-# ---------- 2. teak_deck ----------
+# ---------- 2. teak_deck (quarter-sawn golden Burma teak + crisp 6px Sikaflex caulk) ----------
 S2 = 2048
 x = np.arange(S2)[None, :]
 y = np.arange(S2)[:, None]
 plank_id = (x // 256).astype(np.int32)
-offset_v = (plank_id * 512) % 2048
-seam_x = ((x + 6) % 256) < 12
-seam_y = ((y + 6 - offset_v) % 2048) < 12
+offset_v = (plank_id * 640) % 2048
+seam_x = ((x + 3) % 256) < 6
+seam_y = ((y + 3 - offset_v) % 2048) < 6
 seam = seam_x | seam_y
 
-wood = hex_to_srgb_vec("#AE885F")
-caulk = hex_to_srgb_vec("#302923")
+wood = hex_to_srgb_vec("#B68859")
+caulk = hex_to_srgb_vec("#29221D")
 
-lum_off = ((plank_id * 37) % 13) - 6
-grain = periodic_noise(128, 8, S2, seed_offset=10) + periodic_noise(256, 32, S2, seed_offset=11) * 0.45
-wood_rgb = wood[None, None, :] + lum_off[..., None] + grain[..., None] * 6.0
+lum_off = (((plank_id * 37) % 15) - 7) * 1.4
+fine_fiber = periodic_noise(512, 8, S2, seed_offset=10)
+cathedral = np.sin((y / S2) * math.pi * 6.0 + fine_fiber * 3.5) * 0.5
+grain = fine_fiber * 0.8 + periodic_noise(256, 32, S2, seed_offset=11) * 0.45 + cathedral * 0.25
+wood_rgb = wood[None, None, :] + lum_off[..., None] + grain[..., None] * 6.5
 base_rgb = np.where(seam[..., None], caulk[None, None, :], wood_rgb)
 base_rgb = np.clip(base_rgb, 0, 255).astype(np.uint8)
 
-# height: wood 0, caulk -0.00035 with 2px bevel
+# height: wood 0, caulk -0.00028 with 2px bevel
 h = np.zeros((S2, S2), np.float64)
-# distance to seam (approx via shifted masks)
 seam_f = seam.astype(np.float64)
-# bevel: 2px shoulder
 from numpy import roll
 near = np.zeros_like(seam_f)
 for dy in (-2, -1, 1, 2):
     near = np.maximum(near, roll(seam_f, dy, axis=0))
 for dx in (-2, -1, 1, 2):
     near = np.maximum(near, roll(seam_f, dx, axis=1))
-h = np.where(seam, -0.00035, np.where(near > 0, -0.000175, 0.0))
+h = np.where(seam, -0.00028, np.where(near > 0, -0.00014, 0.0))
 
-rough = np.where(seam, 0.80, 0.63 + periodic_noise(64, 64, S2, seed_offset=12) * 0.03)
+rough = np.where(seam, 0.78, 0.58 + periodic_noise(64, 64, S2, seed_offset=12) * 0.04)
 ao = np.where(seam, 0.65, 1.0)
 metal = np.zeros((S2, S2), np.float64)
 orm = pack_orm(ao, rough, metal, (S2, S2))

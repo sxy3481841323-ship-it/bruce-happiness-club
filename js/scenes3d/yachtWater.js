@@ -65,7 +65,7 @@ const FRAGMENT_SHADER = `
   uniform mat4 reflectedVP, inverseVP;
   uniform int lampCount, wakeCount;
   uniform vec4 lamps[${MAX_LIGHTS}], trail[${HISTORY_SIZE}], wakeBounds;
-  uniform vec3 lampPower[${MAX_LIGHTS}], deepColor, shallowColor, skyColor;
+  uniform vec3 lampPower[${MAX_LIGHTS}], deepColor, shallowColor, skyColor, skyZenithColor, skyHorizonColor, sunDir, sunColor;
   varying vec3 world;
   varying vec4 mirrorUV;
   ${SWELL_GLSL}
@@ -129,7 +129,7 @@ const FRAGMENT_SHADER = `
     vec3 reflection = texture2D(tDiffuse, coord).rgb * 0.56 +
       0.22 * (texture2D(tDiffuse, coord + texel).rgb + texture2D(tDiffuse, coord - texel).rgb);
 
-    // Shallow water tint along teak berth (X < -2.6, |Z| < 13) blending into open deep harbour channel
+    // Shallow water tint along teak berth (X < -2.6, |Z| < 13) blending into deep sapphire harbour channel
     float berthDist = max(max(world.x - (-2.85), -5.60 - world.x), abs(world.z) - 12.2);
     float shallowFactor = 1.0 - smoothstep(-0.6, 8.5, berthDist);
     vec3 body = mix(deepColor, shallowColor, clamp(shallowFactor * 0.72, 0.0, 0.78));
@@ -138,10 +138,13 @@ const FRAGMENT_SHADER = `
     vec2 across = vec2(-along.y, along.x);
     float rolled = dot(slope, along);
     float broken = smoothstep(-0.16, 0.18, b.z * 0.79 + c.z * 0.49);
-    float silver = smoothstep(0.018, 0.19, rolled + 0.22 * c.z) * (0.15 + 0.85 * broken);
+    float silver = smoothstep(0.024, 0.21, rolled + 0.20 * c.z) * (0.15 + 0.85 * broken);
 
-    vec3 result = mix(body * (0.90 + 0.24 * a.z), mix(skyColor, reflection, valid), 0.14 + 0.84 * fresnel);
-    result += skyColor * silver * (0.18 + 0.52 * nearWeight) * exp(-abs(ray.y - 0.22) * 3.2);
+    vec3 reflSky = mix(skyHorizonColor, skyZenithColor, clamp(pow(max(ray.y, 0.0), 0.72), 0.0, 1.0));
+    float specSun = pow(max(dot(ray, normalize(sunDir)), 0.0), 96.0);
+    vec3 result = mix(body * (0.94 + 0.22 * a.z), mix(reflSky, reflection, valid), 0.08 + 0.56 * fresnel);
+    result += sunColor * specSun * (0.35 + 0.65 * broken);
+    result += skyHorizonColor * silver * (0.09 + 0.26 * nearWeight) * exp(-abs(ray.y - 0.22) * 3.6);
 
     vec2 width = vec2(0.022, 0.145 + 0.048 * wind);
     vec2 filterWidth = min(0.038 * fwidth(slope) * 8.0, vec2(0.032));
@@ -218,9 +221,13 @@ export function createHarbourWater({ lowTier = false, size = 240, segments = 128
     wakeCount: { value: 0 },
     reflectedVP: { value: new THREE.Matrix4() },
     inverseVP: { value: new THREE.Matrix4() },
-    deepColor: { value: new THREE.Color(0x184771) },
-    shallowColor: { value: new THREE.Color(0x287d73) },
-    skyColor: { value: new THREE.Color(0x9fb8cf) },
+    deepColor: { value: new THREE.Color(0x0a3866) },
+    shallowColor: { value: new THREE.Color(0x1b8278) },
+    skyColor: { value: new THREE.Color(0x3b7ec2) },
+    skyZenithColor: { value: new THREE.Color(0x164a8d) },
+    skyHorizonColor: { value: new THREE.Color(0x8cc2eb) },
+    sunDir: { value: new THREE.Vector3(27.0, 22.8, -26.5).normalize() },
+    sunColor: { value: new THREE.Color(0xffebc2) },
     lamps: { value: Array.from({ length: MAX_LIGHTS }, () => new THREE.Vector4()) },
     lampPower: { value: Array.from({ length: MAX_LIGHTS }, () => new THREE.Vector3()) },
     trail: { value: Array.from({ length: HISTORY_SIZE }, () => new THREE.Vector4()) },
@@ -308,6 +315,19 @@ export function createHarbourWater({ lowTier = false, size = 240, segments = 128
     u.wind.value = Math.max(0, Math.min(1.5, wind));
   }
 
+  function setAtmosphere({ deepColor, shallowColor, skyZenithColor, skyHorizonColor, sunDir, sunColor, wind } = {}) {
+    if (deepColor !== undefined) u.deepColor.value.set(deepColor);
+    if (shallowColor !== undefined) u.shallowColor.value.set(shallowColor);
+    if (skyZenithColor !== undefined) u.skyZenithColor.value.set(skyZenithColor);
+    if (skyHorizonColor !== undefined) {
+      u.skyHorizonColor.value.set(skyHorizonColor);
+      u.skyColor.value.set(skyHorizonColor);
+    }
+    if (sunDir) u.sunDir.value.copy(sunDir).normalize();
+    if (sunColor !== undefined) u.sunColor.value.set(sunColor);
+    if (typeof wind === "number") setWeather(wind);
+  }
+
   function dispose() {
     clearWake();
     root.removeFromParent();
@@ -325,6 +345,7 @@ export function createHarbourWater({ lowTier = false, size = 240, segments = 128
     computeYachtBuoyancyPose,
     setLights,
     setWeather,
+    setAtmosphere,
     setTime,
     clearWake,
     dispose,

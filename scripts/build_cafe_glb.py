@@ -29,6 +29,7 @@ from penthouse_kit.tex_oldmoney_surfaces import (
     make_loft_aubusson_rug_tex,
 )
 from penthouse_kit.tex_pbr import make_fluted_walnut_tex, make_travertine_tex
+from penthouse_kit.cushion_helper import add_designer_pillow
 from cafe_kit_oldmoney import build_cafe_oldmoney_millwork
 
 
@@ -1083,9 +1084,9 @@ def build_scene():
         # Sculpted armrests
         b_fabric.add_box(sx, 1.85, sz + 2.30, 2.72, 1.15, 0.50, uv_tile=3.0)
         b_fabric.add_box(sx, 1.85, sz - 2.30, 2.72, 1.15, 0.50, uv_tile=3.0)
-        # Plump rounded teal & espresso throw cushions
-        b_teal.add_sphere(sx - 0.54, 1.92, sz - 1.35, 0.25, 0.50, 0.52, rings=8, segs=12)
-        b_esp.add_sphere(sx - 0.54, 1.88, sz + 1.35, 0.24, 0.48, 0.48, rings=8, segs=12)
+        # Sculpted pinched-corner piped throw cushions (NO spheres!)
+        add_designer_pillow(b_teal, b_fabric, sx - 0.56, 1.98, sz - 1.38, w=0.92, h=0.84, thick=0.34, yaw=1.35, tilt=-0.24)
+        add_designer_pillow(b_esp, b_fabric, sx - 0.54, 1.94, sz + 1.32, w=0.86, h=0.78, thick=0.32, yaw=1.72, tilt=-0.22)
 
     add_sofa(-9.0, 5.5)
     add_sofa(-9.0, -4.4)

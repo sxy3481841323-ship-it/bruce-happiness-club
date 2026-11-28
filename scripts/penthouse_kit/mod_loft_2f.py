@@ -1,6 +1,7 @@
 """2F Loft — Old-Money collector's gallery, daybed, pet throne, hi-fi, desk."""
 
 import math
+from penthouse_kit.cushion_helper import add_designer_pillow
 
 
 def build_loft_2f(ctx, mats):
@@ -70,9 +71,12 @@ def build_loft_2f(ctx, mats):
     b.add_rounded_box(dx, y0 + 0.22, dz, 2.20, 0.44, 1.10, bevel=0.05)
     b = ctx.mb("loft_daybed_cushion", mats["boucle"])
     b.add_rounded_box(dx, y0 + 0.55, dz, 2.10, 0.22, 1.02, bevel=0.08)
-    b = ctx.mb("loft_daybed_pillow", mats["cream_pillow"])
-    b.add_rounded_box(dx - 0.75, y0 + 0.72, dz, 0.42, 0.20, 0.60, bevel=0.06)
-    b.add_rounded_box(dx - 0.30, y0 + 0.72, dz, 0.42, 0.20, 0.60, bevel=0.06)
+    bp_cream = ctx.mb("loft_daybed_pillow", mats["cream_pillow"])
+    bp_cognac = ctx.mb("loft_daybed_pillow_cognac", mats["cognac_suede"])
+    bp_pipe = ctx.mb("loft_daybed_pipe", mats["brass"])
+    add_designer_pillow(bp_cream, bp_pipe, dx - 0.78, y0 + 0.82, dz - 0.14, w=0.48, h=0.42, thick=0.15, yaw=1.35, tilt=-0.28)
+    add_designer_pillow(bp_cognac, bp_pipe, dx - 0.58, y0 + 0.80, dz + 0.20, w=0.44, h=0.38, thick=0.14, yaw=1.10, tilt=-0.26)
+    add_designer_pillow(bp_cream, bp_pipe, dx + 0.75, y0 + 0.80, dz - 0.10, w=0.46, h=0.40, thick=0.14, yaw=-1.35, tilt=-0.26)
 
     # ---------------------------------------------------------- pet throne
     px, pz = -12.6, -2.2
@@ -109,12 +113,21 @@ def build_loft_2f(ctx, mats):
         for lz in (-0.45, 0.45):
             b.add_cylinder(ex + lx, y0, ez + lz, 0.04, 0.04, 0.72, segs=10)
 
-    b = ctx.mb("EvianBottles2F", mats["glass"])
-    for i, bx in enumerate((-0.55, -0.30, -0.05)):
-        b.add_cylinder(ex + bx, y0 + 0.77, ez - 0.20, 0.045, 0.045, 0.26, segs=12)
+    b = ctx.mb("EvianTray2F", mats["cognac_suede"])
+    b.add_rounded_box(ex - 0.30, y0 + 0.78, ez - 0.20, 0.62, 0.02, 0.26, bevel=0.01)
+    b = ctx.mb("EvianTray2FRim", mats["brass"])
+    b.add_box(ex - 0.30, y0 + 0.79, ez - 0.33, 0.63, 0.02, 0.012)
+    b.add_box(ex - 0.30, y0 + 0.79, ez - 0.07, 0.63, 0.02, 0.012)
+    b = ctx.mb("EvianBottles2F", mats["evian_flint_glass"])
+    for bx in (-0.48, -0.30, -0.12):
+        b.add_cylinder(ex + bx, y0 + 0.79, ez - 0.20, 0.044, 0.044, 0.21, segs=16)
+        b.add_cylinder(ex + bx, y0 + 1.00, ez - 0.20, 0.044, 0.019, 0.06, segs=16)
+    b = ctx.mb("EvianCaps2F", mats["evian_cap"])
+    for bx in (-0.48, -0.30, -0.12):
+        b.add_cylinder(ex + bx, y0 + 1.06, ez - 0.20, 0.020, 0.020, 0.024, segs=14)
     b = ctx.mb("EvianLabels2F", mats["evian_label"])
-    for bx in (-0.55, -0.30, -0.05):
-        b.add_box(ex + bx, y0 + 0.88, ez - 0.20, 0.09, 0.08, 0.09)
+    for bx in (-0.48, -0.30, -0.12):
+        b.add_cylinder(ex + bx, y0 + 0.85, ez - 0.20, 0.046, 0.046, 0.095, segs=16, cap_top=False, cap_bot=False)
 
     b = ctx.mb("ConciergePager2F", mats["bronze_dark"])
     b.add_rounded_box(ex + 0.55, y0 + 0.80, ez + 0.10, 0.14, 0.05, 0.10,

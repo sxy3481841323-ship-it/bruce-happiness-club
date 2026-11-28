@@ -158,6 +158,7 @@ export function mountYachtHub(container, opts = {}) {
         <div class="sc3d-yacht-cam-strip" role="group" aria-label="游艇机位切换">
           <span class="sc3d-yacht-crest">${WORDLESS_CREST_SVG}</span>
           <button type="button" class="sc3d-yacht-pill is-active" data-cam="overview">主总览</button>
+          <button type="button" class="sc3d-yacht-pill" data-cam="starboard_scenic">右舷观海</button>
           <button type="button" class="sc3d-yacht-pill" data-cam="aft_door">后沙龙敞门</button>
           <button type="button" class="sc3d-yacht-pill" data-cam="cabin_bar">舱内吧台</button>
           <button type="button" class="sc3d-yacht-pill" data-cam="bow_bruce">船首特写</button>
@@ -177,6 +178,7 @@ export function mountYachtHub(container, opts = {}) {
           <button type="button" class="sc3d-yacht-pill" data-drone="both">双轨连播</button>
           <button type="button" class="sc3d-yacht-pill" id="btn-yacht-speed" data-speed="1">1.0×</button>
           <button type="button" class="sc3d-yacht-pill" id="btn-yacht-water" data-action="toggle-water">定格水面</button>
+          <button type="button" class="sc3d-yacht-pill" id="btn-yacht-mood" data-action="toggle-mood">🌅 晚航</button>
         </div>
 
         <div class="hub3d-pins"></div>
@@ -259,8 +261,130 @@ export function mountYachtHub(container, opts = {}) {
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(sulking ? 0x62778c : 0xc6dcf0);
-  scene.fog = new THREE.FogExp2(sulking ? 0x5c7287 : 0xc7ddf0, 0.0042);
+  scene.background = new THREE.Color(sulking ? 0x2c4b6e : 0x5c96cc);
+  scene.fog = new THREE.FogExp2(sulking ? 0x456689 : 0x9bc4e8, 0.00072);
+
+  // 360-degree Mediterranean Sky Dome with procedural cirrus/cumulus clouds & sun glow
+  const skyUniforms = {
+    uZenith: { value: new THREE.Color(sulking ? 0x163254 : 0x164a8d) },
+    uMid: { value: new THREE.Color(sulking ? 0x3b638f : 0x478ad1) },
+    uHorizon: { value: new THREE.Color(sulking ? 0xa5bacf : 0xf2ddc0) },
+    uSunDir: { value: new THREE.Vector3(27.0, 22.8, -26.5).normalize() },
+    uSunCol: { value: new THREE.Color(0xfff0cc) },
+    uTime: { value: 0 },
+  };
+  const skyDomeMat = new THREE.ShaderMaterial({
+    uniforms: skyUniforms,
+    side: THREE.BackSide,
+    depthWrite: false,
+    vertexShader: `
+      varying vec3 vDir;
+      void main() {
+        vDir = normalize(position);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 uZenith, uMid, uHorizon, uSunDir, uSunCol;
+      uniform float uTime;
+      varying vec3 vDir;
+      float hash2(vec2 p) {
+        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+      }
+      float vnoise(vec2 p) {
+        vec2 i = floor(p), f = fract(p);
+        f = f * f * (3.0 - 2.0 * f);
+        return mix(
+          mix(hash2(i), hash2(i + vec2(1.0, 0.0)), f.x),
+          mix(hash2(i + vec2(0.0, 1.0)), hash2(i + vec2(1.0, 1.0)), f.x),
+          f.y
+        );
+      }
+      void main() {
+        vec3 d = normalize(vDir);
+        float h = clamp(d.y, 0.0, 1.0);
+        vec3 sky = mix(uHorizon, uMid, smoothstep(0.0, 0.24, h));
+        sky = mix(sky, uZenith, smoothstep(0.18, 0.78, h));
+        float mu = max(dot(d, normalize(uSunDir)), 0.0);
+        sky += uSunCol * (0.24 * pow(mu, 8.0) + 0.70 * pow(mu, 160.0));
+        if (d.y > 0.025) {
+          vec2 cuv = d.xz / (d.y + 0.16) * 1.45 + vec2(uTime * 0.0045, -uTime * 0.002);
+          float cl = 0.55 * vnoise(cuv) + 0.30 * vnoise(cuv * 2.15 + 3.4) + 0.15 * vnoise(cuv * 4.5);
+          float mask = smoothstep(0.56, 0.84, cl) * smoothstep(0.025, 0.19, d.y) * (1.0 - smoothstep(0.45, 0.92, d.y));
+          sky = mix(sky, mix(vec3(0.98, 0.96, 0.92), uSunCol, 0.32), mask * 0.52);
+        }
+        gl_FragColor = vec4(sky, 1.0);
+      }
+    `,
+  });
+  const skyDome = new THREE.Mesh(new THREE.SphereGeometry(195, 40, 24), skyDomeMat);
+  skyDome.name = "RivieraSkyDome";
+  scene.add(skyDome);
+  disposables.push(skyDome.geometry, skyDomeMat);
+
+  // Mediterranean Riviera Coastal Vista (headlands, harbour mole + lighthouse, distant sailing sloops)
+  const vistaGroup = new THREE.Group();
+  vistaGroup.name = "RivieraVista";
+  scene.add(vistaGroup);
+  const headlandRockMat = new THREE.MeshStandardMaterial({ color: 0x8b7a67, roughness: 0.92 });
+  const headlandPineMat = new THREE.MeshStandardMaterial({ color: 0x4b6346, roughness: 0.88 });
+  const lighthouseStoneMat = new THREE.MeshStandardMaterial({ color: 0xdfd6c7, roughness: 0.8 });
+  const distantSailMat = new THREE.MeshStandardMaterial({ color: 0xf5f0e6, roughness: 0.72, side: THREE.DoubleSide });
+  const lighthouseGlowMat = new THREE.MeshBasicMaterial({ color: 0xffd27a });
+  disposables.push(headlandRockMat, headlandPineMat, lighthouseStoneMat, distantSailMat, lighthouseGlowMat);
+
+  [
+    { x: -58, z: 94, rx: 32, ry: 11.5, rz: 20 },
+    { x: -82, z: 62, rx: 24, ry: 8.5, rz: 18 },
+    { x: 76, z: 118, rx: 38, ry: 13.5, rz: 22 },
+    { x: 112, z: 54, rx: 28, ry: 9.5, rz: 20 },
+  ].forEach(({ x, z, rx, ry, rz }) => {
+    const rock = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), headlandRockMat);
+    rock.scale.set(rx, ry, rz);
+    rock.position.set(x, -1.5, z);
+    const pines = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 12), headlandPineMat);
+    pines.scale.set(rx * 0.82, ry * 0.56, rz * 0.78);
+    pines.position.set(x + 1.5, ry * 0.34, z - 1.0);
+    vistaGroup.add(rock, pines);
+  });
+
+  // Stone harbour mole & Mediterranean Lighthouse at (48, 0..14.5, 92)
+  const mole = new THREE.Mesh(new THREE.BoxGeometry(28, 2.2, 5.4), headlandRockMat);
+  mole.position.set(36, 0.1, 92);
+  const lhTower = new THREE.Mesh(new THREE.CylinderGeometry(1.15, 1.85, 12.2, 16), lighthouseStoneMat);
+  lhTower.position.set(48, 6.2, 92);
+  const lhLantern = new THREE.Mesh(new THREE.CylinderGeometry(0.95, 0.95, 1.5, 12), lighthouseGlowMat);
+  lhLantern.position.set(48, 12.9, 92);
+  const lhCap = new THREE.Mesh(new THREE.ConeGeometry(1.35, 1.6, 14), headlandRockMat);
+  lhCap.position.set(48, 14.35, 92);
+  const lhBeacon = new THREE.PointLight(0xffcb74, 2.2, 34, 1.4);
+  lhBeacon.position.set(48, 13.0, 92);
+  vistaGroup.add(mole, lhTower, lhLantern, lhCap, lhBeacon);
+
+  const distantSails = [];
+  [
+    { x: -24, z: 74, dir: 1, speed: 0.42, yaw: 0.25 },
+    { x: 16, z: 98, dir: -1, speed: 0.34, yaw: -0.35 },
+    { x: 64, z: 68, dir: 1, speed: 0.48, yaw: 0.18 },
+  ].forEach((cfg) => {
+    const boat = new THREE.Group();
+    const hull = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.65, 5.4), headlandRockMat);
+    hull.position.y = 0.22;
+    const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.08, 7.6, 8), lighthouseStoneMat);
+    mast.position.set(0, 4.0, 0.2);
+    const sailGeo = new THREE.BufferGeometry();
+    sailGeo.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute([0, 1.1, 0.1, 0, 7.5, 0.1, 0, 1.1, -2.5], 3),
+    );
+    sailGeo.computeVertexNormals();
+    const mainSail = new THREE.Mesh(sailGeo, distantSailMat);
+    boat.add(hull, mast, mainSail);
+    boat.position.set(cfg.x, 0, cfg.z);
+    boat.rotation.y = cfg.yaw;
+    vistaGroup.add(boat);
+    distantSails.push({ boat, originX: cfg.x, dir: cfg.dir, speed: cfg.speed });
+  });
 
   // 7600K crisp sky PMREM environment without bloom blowout
   const pmrem = new THREE.PMREMGenerator(renderer);
@@ -753,6 +877,82 @@ export function mountYachtHub(container, opts = {}) {
     });
   });
 
+  let sunsetMode = false;
+  const moodBtn = container.querySelector("#btn-yacht-mood");
+  const applyAtmosphereMood = () => {
+    const isSunset = sunsetMode;
+    if (isSunset) {
+      skyUniforms.uZenith.value.setHex(sulking ? 0x202742 : 0x223868);
+      skyUniforms.uMid.value.setHex(sulking ? 0x5c5373 : 0x876285);
+      skyUniforms.uHorizon.value.setHex(sulking ? 0xd99e77 : 0xf4a86e);
+      skyUniforms.uSunDir.value.set(-48, 9.5, 62).normalize();
+      skyUniforms.uSunCol.value.setHex(0xffbe76);
+      scene.background.setHex(0x64556d);
+      scene.fog.color.setHex(0xdf9f74);
+      sunLight.color.setHex(0xffb46e);
+      sunLight.intensity = 3.8;
+      sunLight.position.set(-40.0, 9.8, 52.0);
+      hemiLight.color.setHex(0xf6b98e);
+      hemiLight.groundColor.setHex(0x1f283b);
+      hemiLight.intensity = 0.62;
+      lintelCoveLight.intensity = 1.65;
+      sconcePortLight.intensity = 1.35;
+      sconceStbdLight.intensity = 1.35;
+      barGlowLight.intensity = 1.55;
+      water.setAtmosphere({
+        deepColor: 0x0d2b4e,
+        shallowColor: 0x1b5c61,
+        skyZenithColor: 0x223868,
+        skyHorizonColor: 0xf4a86e,
+        sunDir: skyUniforms.uSunDir.value,
+        sunColor: 0xffc67d,
+        wind: 0.45,
+      });
+    } else {
+      skyUniforms.uZenith.value.setHex(sulking ? 0x163254 : 0x164a8d);
+      skyUniforms.uMid.value.setHex(sulking ? 0x3b638f : 0x478ad1);
+      skyUniforms.uHorizon.value.setHex(sulking ? 0xa5bacf : 0xf2ddc0);
+      skyUniforms.uSunDir.value.set(27.0, 22.8, -26.5).normalize();
+      skyUniforms.uSunCol.value.setHex(0xfff0cc);
+      scene.background.setHex(sulking ? 0x2c4b6e : 0x5c96cc);
+      scene.fog.color.setHex(sulking ? 0x456689 : 0x9bc4e8);
+      sunLight.color.setHex(0xffebd2);
+      sunLight.intensity = 4.45;
+      sunLight.position.set(27.0, 22.8, -26.5);
+      hemiLight.color.setHex(0xd9e8f8);
+      hemiLight.groundColor.setHex(0x26435a);
+      hemiLight.intensity = 0.56;
+      lintelCoveLight.intensity = 1.05;
+      sconcePortLight.intensity = 0.85;
+      sconceStbdLight.intensity = 0.85;
+      barGlowLight.intensity = 1.0;
+      water.setAtmosphere({
+        deepColor: 0x0a3866,
+        shallowColor: 0x1b8278,
+        skyZenithColor: sulking ? 0x163254 : 0x164a8d,
+        skyHorizonColor: sulking ? 0xa5bacf : 0x8cc2eb,
+        sunDir: skyUniforms.uSunDir.value,
+        sunColor: 0xffebc2,
+        wind: 0.62,
+      });
+    }
+    if (moodBtn) {
+      moodBtn.textContent = isSunset ? "☀️ 晴海" : "🌅 晚航";
+      moodBtn.classList.toggle("is-active", isSunset);
+    }
+  };
+  const toggleSunsetMood = () => {
+    sunsetMode = !sunsetMode;
+    applyAtmosphereMood();
+    return sunsetMode;
+  };
+  moodBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    sfx.playTap();
+    feedback("small", e.clientX, e.clientY);
+    toggleSunsetMood();
+  });
+
   resetBtn?.addEventListener("click", () => {
     if (droneState) return;
     sfx.playTap();
@@ -1040,6 +1240,15 @@ export function mountYachtHub(container, opts = {}) {
       g.rWing.rotation.z = -flap;
     });
 
+    skyUniforms.uTime.value = simClock;
+    lhBeacon.intensity = (sunsetMode ? 3.8 : 2.0) + Math.sin(simClock * 2.2) * 0.9;
+    distantSails.forEach((s, idx) => {
+      const span = ((simClock * s.speed + idx * 14) % 44) - 22;
+      s.boat.position.x = s.originX + span * s.dir;
+      s.boat.position.y = Math.sin(simClock * 1.4 + idx) * 0.08;
+      s.boat.rotation.z = Math.sin(simClock * 1.1 + idx) * 0.04;
+    });
+
     if (beatState?.id === "yacht_bow_wind") {
       beatState.elapsed += dt;
       // Lift nose into wind, then smoothly pan head 22 deg tracking circling gull
@@ -1129,6 +1338,8 @@ export function mountYachtHub(container, opts = {}) {
         dronePlaying: Boolean(droneState),
         droneTrack: droneState ? droneState.queue[droneState.idx] : null,
         waterPaused,
+        sunsetMode,
+        toggleSunset: () => toggleSunsetMood(),
         yachtPose: { y: +pose.y.toFixed(4), pitch: +pose.pitch.toFixed(4), roll: +pose.roll.toFixed(4) },
         bruceOnYacht,
         brucePos: bruce.root.position.toArray().map((n) => +n.toFixed(3)),
@@ -1156,7 +1367,7 @@ export function mountYachtHub(container, opts = {}) {
     setSulking(nextSulk) {
       sulking = Boolean(nextSulk);
       bruce.setMood(sulking ? "sulk" : "happy");
-      scene.background.setHex(sulking ? 0x62778c : 0xc6dcf0);
+      applyAtmosphereMood();
       sfx.setSceneAmbience("yacht", { sulking });
     },
     setContext({ happiness: nextScore, content: nextContent }) {
