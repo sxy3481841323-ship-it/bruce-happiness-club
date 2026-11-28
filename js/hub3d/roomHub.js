@@ -614,9 +614,9 @@ export function mountLivingRoomHub(container, opts = {}) {
   ]);
   const evianStreamGeo = new THREE.TubeGeometry(evianStreamCurve, 18, 0.011, 8, false);
   const evianStreamMat = new THREE.MeshBasicMaterial({
-    color: 0xaee6fb,
+    color: 0x74dcff,
     transparent: true,
-    opacity: 0.78,
+    opacity: 0.90,
     depthWrite: false,
   });
   const evianStreamMesh = new THREE.Mesh(evianStreamGeo, evianStreamMat);
@@ -626,7 +626,7 @@ export function mountLivingRoomHub(container, opts = {}) {
   const crystalRippleGeo = new THREE.RingGeometry(0.025, 0.095, 24);
   crystalRippleGeo.rotateX(-Math.PI / 2);
   const crystalRippleMat = new THREE.MeshBasicMaterial({
-    color: 0xdff6ff,
+    color: 0xb8f0ff,
     transparent: true,
     opacity: 0.0,
     side: THREE.DoubleSide,
@@ -708,7 +708,7 @@ export function mountLivingRoomHub(container, opts = {}) {
     });
     const mesh = new THREE.Mesh(flameGeo, fm);
     const fz = flameZList[i];
-    const fx = 13.78 + ((i % 2 === 0 ? -1 : 1) * 0.025);
+    const fx = 13.92 + ((i % 2 === 0 ? -1 : 1) * 0.025);
     mesh.position.set(fx, 1.98, fz);
     mesh.rotation.y = -Math.PI * 0.5 + (i % 3 - 1) * 0.16;
     flameGroup.add(mesh);
@@ -729,7 +729,7 @@ export function mountLivingRoomHub(container, opts = {}) {
   const sparkPos = new Float32Array(sparkCount * 3);
   const sparkMeta = [];
   for (let i = 0; i < sparkCount; i++) {
-    const sx = 13.56 + ((i * 0.11) % 0.34);
+    const sx = 13.86 + ((i * 0.09) % 0.28);
     const sy = 1.66 + ((i * 0.27) % 0.72);
     const sz = -3.70 + ((i * 0.43) % 3.80);
     sparkPos[i * 3] = sx;

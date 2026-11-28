@@ -35,21 +35,21 @@
   {
     "id": "hull_rig",
     "file": "yacht_hull_rig.glb",
-    "file_bytes": 2569720,
-    "file_mb": 2.451,
-    "triangles": 13818,
+    "file_bytes": 2561900,
+    "file_mb": 2.443,
+    "triangles": 13780,
     "texture_bytes": 1455989,
     "material_count": 6,
     "world_aabb": [
       [
         -2.386,
         -1.62,
-        -9.9877
+        -9.9878
       ],
       [
         2.386,
         17.95,
-        9.9942
+        9.9943
       ]
     ],
     "anchors": {

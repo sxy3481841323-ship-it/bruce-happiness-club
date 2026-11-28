@@ -129,41 +129,23 @@ def suite(zc):
 suite(-5.2)
 suite(1.8)
 
-def _add_ellipsoid(mesh, cx, cy, cz, rx, ry, rz, rings=10, segs=16):
-    import numpy as np
-    pos = np.zeros((rings + 1, segs + 1, 3), dtype=np.float32)
-    uv = np.zeros((rings + 1, segs + 1, 2), dtype=np.float32)
-    for i in range(rings + 1):
-        v = i / rings
-        phi = (v - 0.5) * math.pi
-        cp, sp = math.cos(phi), math.sin(phi)
-        for j in range(segs + 1):
-            u = j / segs
-            th = u * 2.0 * math.pi
-            pos[i, j] = (cx + rx * cp * math.cos(th), cy + ry * sp, cz + rz * cp * math.sin(th))
-            uv[i, j] = (u, v)
-    mesh.add_grid(pos, uv, flip=True, smooth_normals=True, seam_u=False)
-
-
-# --- Olive planters (sculpted rounded organic Mediterranean olive foliage, never cones!) ---
+# --- Sculpted Roman travertine & amber light bollards at terrace corners (zero blob trees) ---
 for px, pz in ((-10.9, -11.5), (-10.9, 5.5), (-21.0, -11.5), (-21.0, 5.5)):
-    m_trav.add_tube((px, 1.18, pz), (px, 1.72, pz), 0.42, 0.36, segs=16)
-    m_bark.add_tube((px, 1.70, pz), (px, 2.25, pz), 0.055, 0.04, segs=10)
-    _add_ellipsoid(m_olive, px, 2.55, pz, 0.56, 0.42, 0.56, rings=10, segs=16)
-    _add_ellipsoid(m_olive, px + 0.18, 2.75, pz - 0.12, 0.38, 0.30, 0.38, rings=8, segs=12)
+    m_trav.add_box((px, 1.48, pz), (0.38, 0.72, 0.38), uv_tile=(1, 1))
+    m_amber.add_box((px, 1.88, pz), (0.28, 0.08, 0.28))
+    m_brz.add_box((px, 1.94, pz), (0.40, 0.04, 0.40))
 
-# --- Terraced coastal hillside & rounded evergreen pine dunes behind club (zero flat cones!) ---
-for i in range(5):
-    x = -24.5 - i * 3.5
-    y_top = 1.1 + i * 0.65
-    m_trav.add_box((x, y_top / 2, -1.0), (3.5, y_top, 42.0), uv_tile=(2, 10))
-for cx_h, cz_h, rx_h, ry_h, rz_h in (
-    (-30.0, -14.0, 7.5, 4.2, 9.0),
-    (-32.5, -2.0, 8.2, 4.8, 10.5),
-    (-31.0, 10.5, 7.2, 4.0, 8.5),
-    (-38.0, 4.0, 9.0, 5.2, 11.0),
-):
-    _add_ellipsoid(m_olive, cx_h, 2.8, cz_h, rx_h, ry_h, rz_h, rings=10, segs=18)
+# --- Riviera Yacht Club travertine facade & warm glazed French-window arcades (replaces rear green spheres) ---
+m_trav.add_box((-23.6, 3.30, -2.5), (1.10, 4.40, 26.0), uv_tile=(6, 3))
+m_trav.add_box((-23.1, 5.55, -2.5), (1.35, 0.30, 26.8), uv_tile=(8, 1))
+m_teak.add_box((-23.2, 5.38, -2.5), (1.20, 0.08, 26.4), uv_tile=(8, 1))
+for z_bay in (-12.5, -7.5, -2.5, 2.5, 7.5):
+    m_brz.add_box((-23.02, 3.12, z_bay), (0.06, 3.60, 3.60))
+    m_amber.add_box((-23.05, 3.12, z_bay), (0.04, 3.30, 3.30))
+    m_glass.add_box((-22.98, 3.12, z_bay), (0.03, 3.36, 3.36))
+    m_trav.add_box((-22.95, 3.12, z_bay - 2.50), (0.36, 4.00, 0.56), uv_tile=(1, 2))
+m_trav.add_box((-22.95, 3.12, 10.0), (0.36, 4.00, 0.56), uv_tile=(1, 2))
+m_trav.add_box((-28.0, 2.60, -1.0), (8.2, 5.20, 42.0), uv_tile=(4, 10))
 
 gb.add_anchor("bridge_pier", (-5.45, 0.72, -9.6))
 gb.add_anchor("promenade", (-9.2, 1.12, 0.0))

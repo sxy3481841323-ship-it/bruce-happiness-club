@@ -92,11 +92,36 @@ for side in (-1, 1):
         grid.append(row); uvg.append(uvr)
     mh.add_grid(to_grid(grid), to_grid(uvg), flip=(side<0), smooth_normals=True, seam_u=False)
 
-# keel plate
+# keel plate & full underbody stern closure (sealed to ZMIN = -9.98)
 mk = gb.mesh(hull_mat, "keel_plate")
-mk.add_quad((-0.9,-0.58,-9.0),(0.9,-0.58,-9.0),(0.9,-0.58,9.0),(-0.9,-0.58,9.0),flip=True)
+knz = 28
+kgrid = []; kuvg = []
+for i in range(knz + 1):
+    z = ZMIN + (9.0 - ZMIN) * i / knz
+    w = hull_hw(z, -0.58)
+    kgrid.append([(-w, -0.58, z), (w, -0.58, z)])
+    kuvg.append([(0.0, i / knz * 4.0), (1.0, i / knz * 4.0)])
+mk.add_grid(to_grid(kgrid), to_grid(kuvg), flip=True, smooth_normals=False, seam_u=False)
 mk.add_tube((0,-0.58,1.2),(0,-1.55,1.2),0.10,0.06,segs=12)
 mk.add_tube((0,-1.55,1.2),(0,-1.62,1.2),0.06,0.02,segs=12)
+
+# Watertight stern transom hull closure at Z = ZMIN (-9.98)
+mt_cap = gb.mesh(hull_mat, "transom_cap")
+tny = 12
+tg_low = []; tuv_low = []
+for j in range(tny + 1):
+    y = -0.58 + (0.34 - (-0.58)) * j / tny
+    w = hull_hw(ZMIN, y)
+    tg_low.append([(-w, y, ZMIN), (w, y, ZMIN)])
+    tuv_low.append([(0.0, j / tny), (1.0, j / tny)])
+mt_cap.add_grid(to_grid(tg_low), to_grid(tuv_low), flip=False, smooth_normals=False, seam_u=False)
+for side in (-1, 1):
+    w_t = hull_hw(ZMIN, 0.34)
+    y_t = sheer(ZMIN)
+    if side < 0:
+        mt_cap.add_quad((-w_t, 0.34, ZMIN), (-1.06, 0.34, ZMIN), (-1.06, y_t, ZMIN), (-w_t, y_t, ZMIN), flip=True)
+    else:
+        mt_cap.add_quad((1.06, 0.34, ZMIN), (w_t, 0.34, ZMIN), (w_t, y_t, ZMIN), (1.06, y_t, ZMIN), flip=True)
 
 # transom quarter bulwarks
 mb = gb.mesh(hull_mat, "bulwark")
@@ -108,25 +133,49 @@ for side in (-1,1):
         ya = sheer(za); yb = sheer(zb)
         mb.add_quad((side*1.06,ya,za),(xa,ya,za),(xb,yb,zb),(side*1.06,yb,zb),flip=(side<0))
 
-# ---- Deck (true 0.64m x 2.56m quarter-sawn Burma teak plank scaling, +Y normal!) ----
-ND = 64
+# ---- Deck (true 0.64m x 2.56m quarter-sawn Burma teak plank scaling, +Y normal; split around stern stairs) ----
+Z_STAIR = -8.20
+ND = 56
 md = gb.mesh(teak, "deck")
 grid = []; uvg = []
 for i in range(ND+1):
-    z = ZMIN + (ZMAX-ZMIN)*i/ND
+    z = Z_STAIR + (ZMAX - Z_STAIR)*i/ND
     w = hw(z)
     row = [(-w, sheer(z), z), (w, sheer(z), z)]
     uvr = [(-w / 0.64, z / 2.56), (w / 0.64, z / 2.56)]
     grid.append(row); uvg.append(uvr)
 md.add_grid(to_grid(grid), to_grid(uvg), flip=False, smooth_normals=True)
+ND_AFT = 10
+for side in (-1, 1):
+    ag = []; auv = []
+    for i in range(ND_AFT + 1):
+        z = ZMIN + (Z_STAIR - ZMIN) * i / ND_AFT
+        w = max(1.065, hw(z))
+        if side < 0:
+            row = [(-w, sheer(z), z), (-1.06, sheer(z), z)]
+            uvr = [(-w / 0.64, z / 2.56), (-1.06 / 0.64, z / 2.56)]
+        else:
+            row = [(1.06, sheer(z), z), (w, sheer(z), z)]
+            uvr = [(1.06 / 0.64, z / 2.56), (w / 0.64, z / 2.56)]
+        ag.append(row); auv.append(uvr)
+    md.add_grid(to_grid(ag), to_grid(auv), flip=False, smooth_normals=True)
 
-# ---- Deckhead dark backing 4cm below teak ----
+# ---- Deckhead dark backing 4cm below teak (likewise cut around stern stairwell) ----
 mh_back = gb.mesh(hull_mat, "deckhead_backing")
 for i in range(ND):
-    z0 = ZMIN + (ZMAX-ZMIN)*i/ND; z1 = ZMIN + (ZMAX-ZMIN)*(i+1)/ND
+    z0 = Z_STAIR + (ZMAX - Z_STAIR)*i/ND; z1 = Z_STAIR + (ZMAX - Z_STAIR)*(i+1)/ND
     w0, w1 = hw(z0), hw(z1)
     y0, y1 = sheer(z0) - 0.04, sheer(z1) - 0.04
     mh_back.add_quad((-w0, y0, z0), (w0, y0, z0), (w1, y1, z1), (-w1, y1, z1))
+for side in (-1, 1):
+    for i in range(ND_AFT):
+        z0 = ZMIN + (Z_STAIR - ZMIN)*i/ND_AFT; z1 = ZMIN + (Z_STAIR - ZMIN)*(i+1)/ND_AFT
+        w0, w1 = max(1.065, hw(z0)), max(1.065, hw(z1))
+        y0, y1 = sheer(z0) - 0.04, sheer(z1) - 0.04
+        if side < 0:
+            mh_back.add_quad((-w0, y0, z0), (-1.06, y0, z0), (-1.06, y1, z1), (-w1, y1, z1))
+        else:
+            mh_back.add_quad((1.06, y0, z0), (w0, y0, z0), (w1, y1, z1), (1.06, y1, z1))
 
 # ---- Toe-rail / gunwale cap ----
 mr = gb.mesh(teak_rail, "toe_rail")
@@ -157,18 +206,34 @@ for side in (-1,1):
 mf = gb.mesh(teak, "foredeck")
 mf.add_box((0,1.56,7.70),(1.4,0.06,1.2),uv_tile=(2.0,2.0))
 
-# ---- Recessed transom steps ----
+# ---- Watertight Enclosed Transom Swim Platform & Boarding Stairs (zero seawater inside!) ----
+mst_hull = gb.mesh(hull_mat, "transom_well_enclosure")
+# Stairwell port/starboard cheek walls (X = +-1.06, Z = -9.98..-8.20, Y = 0.28..1.20)
+for side in (-1, 1):
+    mst_hull.add_box((side * 1.07, 0.74, -9.09), (0.04, 0.92, 1.78))
+# Solid vertical risers & step under-pans recessed cleanly below each Burma teak tread (no sloping ramp!)
+mst_hull.add_box((0.0, 0.42, -8.98), (2.12, 0.28, 0.04))
+mst_hull.add_box((0.0, 0.39, -8.85), (2.12, 0.22, 0.28))
+mst_hull.add_box((0.0, 0.64, -8.72), (2.12, 0.28, 0.04))
+mst_hull.add_box((0.0, 0.61, -8.59), (2.12, 0.22, 0.28))
+mst_hull.add_box((0.0, 0.86, -8.46), (2.12, 0.28, 0.04))
+mst_hull.add_box((0.0, 0.83, -8.33), (2.12, 0.22, 0.28))
+mst_hull.add_box((0.0, 1.07, -8.20), (2.12, 0.26, 0.04))
+mst_hull.add_box((0.0, 0.14, -9.47), (2.12, 0.32, 0.98))
+
 mst = gb.mesh(teak, "transom_steps")
-steps = [(-8.19,1.20),(-8.45,0.98),(-8.71,0.77),(-8.97,0.55)]
-for i in range(len(steps)-1):
-    z0,y0 = steps[i]; z1,y1 = steps[i+1]
-    mst.add_box((0,(y0+y1)/2-0.02,(z0+z1)/2),(2.12,0.04,abs(z1-z0)+0.02),uv_tile=(3.0,1.0))
-mst.add_box((0,0.30,-9.46),(2.12,0.04,1.00),uv_tile=(3.0,2.0))
+# Swim platform top at Y = 0.34, solid steps at Y = 0.56, 0.78, 1.00
+mst.add_box((0.0, 0.31, -9.47), (2.12, 0.06, 1.00), uv_tile=(3.0, 2.0))
+mst.add_box((0.0, 0.53, -8.85), (2.12, 0.06, 0.28), uv_tile=(3.0, 1.0))
+mst.add_box((0.0, 0.75, -8.59), (2.12, 0.06, 0.28), uv_tile=(3.0, 1.0))
+mst.add_box((0.0, 0.97, -8.33), (2.12, 0.06, 0.28), uv_tile=(3.0, 1.0))
+
+steps = [(-8.20, 1.20), (-8.46, 1.00), (-8.72, 0.78), (-8.98, 0.56)]
 mt = gb.mesh(pvd, "stair_trim")
-for side in (-1,1):
-    for i in range(len(steps)-1):
-        z0,y0 = steps[i]; z1,y1 = steps[i+1]
-        mt.add_tube((side*1.06,y0,z0),(side*1.06,y1,z1),0.012,0.012,segs=6)
+for side in (-1, 1):
+    for i in range(len(steps) - 1):
+        z0, y0 = steps[i]; z1, y1 = steps[i + 1]
+        mt.add_tube((side * 1.045, y0, z0), (side * 1.045, y1, z1), 0.014, 0.014, segs=6)
 
 # ---- Superyacht Coaming Bulwark + Glass Windbreak + Sculpted Teak/PVD Bow Rail (Zero Prison Cage!) ----
 mstan = gb.mesh(pvd, "stanchions")

@@ -484,23 +484,32 @@ export function mountYachtHub(container, opts = {}) {
     gulls.push({ group: g, lWing, rWing, phase: i * 2.1, r: 4.5 + i * 1.4, baseY: 6.4 + i * 0.9, baseZ: 14.5 + i * 1.8 });
   }
 
-  // Dynamic articulated gangway (1.00 x 0.68 m) updated each frame from gangway_dock -> gangway_yacht
+  // Dynamic articulated gangway (1.00 x 1.08 m) updated each frame from gangway_dock -> gangway_yacht
   const gangwayGroup = new THREE.Group();
-  const gwDeckGeo = new THREE.BoxGeometry(1.0, 0.048, 0.68);
-  gwDeckGeo.translate(0.5, -0.024, 0);
-  const gwDeckMat = new THREE.MeshStandardMaterial({ color: 0xae885f, roughness: 0.63, metalness: 0.0 });
-  const gwRailGeo = new THREE.BoxGeometry(1.0, 0.032, 0.028);
-  gwRailGeo.translate(0.5, 0.02, 0.325);
-  const gwRailMat = new THREE.MeshStandardMaterial({ color: 0xb49a72, roughness: 0.27, metalness: 1.0 });
+  const gwDeckGeo = new THREE.BoxGeometry(1.0, 0.056, 1.08);
+  gwDeckGeo.translate(0.5, -0.028, 0);
+  const gwDeckMat = new THREE.MeshStandardMaterial({ color: 0xa87e52, roughness: 0.56, metalness: 0.02 });
+  const gwRailGeo = new THREE.BoxGeometry(1.0, 0.036, 0.032);
+  gwRailGeo.translate(0.5, 0.52, 0);
+  const gwPostGeo = new THREE.BoxGeometry(0.032, 0.52, 0.032);
+  const gwRailMat = new THREE.MeshStandardMaterial({ color: 0xc2a373, roughness: 0.26, metalness: 0.88 });
   const gwMesh = new THREE.Mesh(gwDeckGeo, gwDeckMat);
   gwMesh.castShadow = true;
   gwMesh.receiveShadow = true;
   const gwRailA = new THREE.Mesh(gwRailGeo, gwRailMat);
+  gwRailA.position.z = 0.51;
   const gwRailB = new THREE.Mesh(gwRailGeo, gwRailMat);
-  gwRailB.position.z = -0.65;
+  gwRailB.position.z = -0.51;
   gangwayGroup.add(gwMesh, gwRailA, gwRailB);
+  for (const px of [0.06, 0.50, 0.94]) {
+    for (const pz of [-0.51, 0.51]) {
+      const post = new THREE.Mesh(gwPostGeo, gwRailMat);
+      post.position.set(px, 0.26, pz);
+      gangwayGroup.add(post);
+    }
+  }
   scene.add(gangwayGroup);
-  disposables.push(gwDeckGeo, gwDeckMat, gwRailGeo, gwRailMat);
+  disposables.push(gwDeckGeo, gwDeckMat, gwRailGeo, gwPostGeo, gwRailMat);
 
   // Rigged metric-scale Bruce (height 0.42 m, burgundy #652C39 silk neckerchief)
   const bruce = createLivingBruce({ modelUrl: "./assets/models/bruce_rigged.glb", height: 0.42, scarf: true });

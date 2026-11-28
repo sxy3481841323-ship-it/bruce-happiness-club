@@ -63,11 +63,11 @@ def build_salon_seating(ctx, mats):
     b.add_cylinder(0.75, 0.70, -2.05, 0.12, 0.12, 0.04, segs=16)
     b.add_cylinder(1.55, 0.70, -2.05, 0.12, 0.12, 0.04, segs=16)
 
-    b = ctx.mb("TableAWalnutFrame", mats["rift_oak"])
-    b.add_box(1.15, 0.73, -2.05, 1.30, 0.06, 0.80)
+    b = ctx.mb("TableAWalnutFrame", mats["walnut_solid"])
+    b.add_box(1.15, 0.715, -2.05, 1.60, 0.04, 0.94)
 
-    b = ctx.mb("TableASmokedStone", mats["smoked_stone"])
-    b.add_rounded_box(1.15, 0.76, -2.05, 1.34, 0.04, 0.84, bevel=0.02)
+    b = ctx.mb("TableASmokedStone", mats["table_espresso"])
+    b.add_rounded_box(1.15, 0.75, -2.05, 1.68, 0.06, 1.02, bevel=0.025)
 
     # ---------------- TABLE B + CONCIERGE ----------------
     b = ctx.mb("TableB", mats["rift_oak"])
@@ -94,42 +94,49 @@ def build_salon_seating(ctx, mats):
                 [(0.0, 0.0), (0.09, 0.0), (0.11, 0.05), (0.10, 0.09), (0.0, 0.09)])
 
     # ---------------- SERVING TRAY ----------------
-    b = ctx.mb("TableATrayLeather", mats["cognac_suede"])
-    b.add_box(1.16, 0.772, -1.96, 0.84, 0.02, 0.48)
+    b = ctx.mb("TableATrayLeather", mats["tray_burgundy"])
+    b.add_box(1.16, 0.786, -1.96, 0.84, 0.012, 0.48)
 
+    # Hollow 4-bar brass tray rim so oxblood leather center stays uncovered
     b = ctx.mb("TableATrayBrass", mats["brass"])
-    b.add_box(1.16, 0.782, -1.96, 0.86, 0.006, 0.50)
+    b.add_box(1.16, 0.793, -2.20, 0.86, 0.022, 0.014)
+    b.add_box(1.16, 0.793, -1.72, 0.86, 0.022, 0.014)
+    b.add_box(0.737, 0.793, -1.96, 0.014, 0.022, 0.48)
+    b.add_box(1.583, 0.793, -1.96, 0.014, 0.022, 0.48)
 
     # ---------------- EVIAN RESERVE (sealed) ----------------
     b = ctx.mb("EvianBottles1F", mats["evian_flint_glass"])
-    b.add_lathe(0.90, 0.78, -2.06, [
+    b.add_lathe(0.90, 0.792, -2.06, [
         (0.0, 0.0), (0.044, 0.0), (0.044, 0.21),
         (0.030, 0.26), (0.018, 0.30), (0.018, 0.32), (0.0, 0.32)])
 
     b = ctx.mb("EvianCapsReserve1F", mats["evian_cap"])
-    b.add_cylinder(0.90, 1.10, -2.06, 0.020, 0.020, 0.025, segs=14)
+    b.add_cylinder(0.90, 1.112, -2.06, 0.020, 0.020, 0.025, segs=14)
 
     b = ctx.mb("EvianLabelsReserve1F", mats["evian_label"])
-    b.add_cylinder(0.90, 0.86, -2.06, 0.0455, 0.0455, 0.09, segs=18,
+    b.add_cylinder(0.90, 0.872, -2.06, 0.0455, 0.0455, 0.09, segs=18,
                    cap_top=False, cap_bot=False)
 
     # ---------------- EVIAN POUR (animatable) ----------------
     b = ctx.mb("EvianPourBottle1F", mats["evian_flint_glass"])
-    b.add_lathe(1.15, 0.78, -1.96, [
+    b.add_lathe(1.15, 0.792, -1.96, [
         (0.0, 0.0), (0.044, 0.0), (0.044, 0.21),
         (0.030, 0.26), (0.018, 0.30), (0.018, 0.32), (0.0, 0.32)])
 
     b = ctx.mb("EvianPourLabel1F", mats["evian_label"])
-    b.add_cylinder(1.15, 0.84, -1.96, 0.0455, 0.0455, 0.11, segs=18,
+    b.add_cylinder(1.15, 0.852, -1.96, 0.0455, 0.0455, 0.11, segs=18,
                    cap_top=False, cap_bot=False)
 
     b = ctx.mb("EvianPourCap1F", mats["evian_cap"])
-    b.add_cylinder(1.15, 1.095, -1.96, 0.020, 0.020, 0.030, segs=14)
+    b.add_cylinder(1.15, 1.107, -1.96, 0.020, 0.020, 0.030, segs=14)
 
     # ---------------- CRYSTAL BOWL ----------------
+    b = ctx.mb("CrystalBowlFoot1F", mats["brass"])
+    b.add_cylinder(1.44, 0.792, -1.92, 0.104, 0.104, 0.008, segs=24)
+
     b = ctx.mb("CrystalWaterBowl1F", mats["crystal_glass"])
-    b.add_lathe(1.44, 0.78, -1.92, [
+    b.add_lathe(1.44, 0.796, -1.92, [
         (0.0, 0.0), (0.10, 0.0), (0.135, 0.085), (0.0, 0.085)])
 
     b = ctx.mb("CrystalBowlWater1F", mats["water_meniscus"])
-    b.add_cylinder(1.44, 0.798, -1.92, 0.118, 0.118, 0.012, segs=20)
+    b.add_cylinder(1.44, 0.814, -1.92, 0.118, 0.118, 0.012, segs=20)

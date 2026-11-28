@@ -14,27 +14,43 @@ def build_media_fireplace(ctx, mats):
     bp.add_box(13.30, 0.40, -1.80, 1.94, 0.04, 9.84)
     bp.add_box(13.30, 1.365, -1.80, 1.98, 0.015, 9.92)
 
+    # Hearth wall with real recessed 4.50m x 1.16m open firebox (Z = -4.05..0.45, Y = 1.50..2.66)
     b = ctx.mb("FireplaceBreast", mats["verde_alpi"])
-    b.add_rounded_box(14.18, 5.10, -1.80, 0.85, 7.20, 10.00, bevel=0.04, uv_tile=0.0)
+    b.add_rounded_box(14.18, 5.68, -1.80, 0.85, 6.04, 10.00, bevel=0.04, uv_tile=0.0)
+    b.add_rounded_box(14.18, 2.08, -5.425, 0.85, 1.16, 2.75, bevel=0.03, uv_tile=0.0)
+    b.add_rounded_box(14.18, 2.08, 1.825, 0.85, 1.16, 2.75, bevel=0.03, uv_tile=0.0)
 
-    # firebox recess at Y = 1.54..2.52 (recessed cleanly behind animated flames X=13.78 so 0 Z-fighting!)
+    # Recessed 5-wall dark firebrick firebox behind the opening (X = 13.76..14.50)
     b = ctx.mb("FireboxRecess", mats["charcoal"])
-    b.add_box(14.14, 2.03, -1.80, 0.68, 0.98, 4.40)
-    bf = ctx.mb("FireplaceSurround", mats["brass"])
-    bf.add_box(13.70, 2.54, -1.80, 0.10, 0.06, 4.54)
-    bf.add_box(13.70, 1.52, -1.80, 0.10, 0.06, 4.54)
+    b.add_box(14.48, 2.08, -1.80, 0.08, 1.24, 4.60)
+    b.add_box(14.13, 2.68, -1.80, 0.74, 0.06, 4.60)
+    b.add_box(14.13, 1.49, -1.80, 0.74, 0.06, 4.60)
+    b.add_box(14.13, 2.08, -4.08, 0.74, 1.20, 0.06)
+    b.add_box(14.13, 2.08, 0.48, 0.74, 1.20, 0.06)
 
-    # embers + logs (X = 13.98, separated cleanly from animated flame ribbons X = 13.76)
+    bm = ctx.mb("FireplaceMantel", mats["travertine"])
+    bm.add_box(13.72, 2.72, -1.80, 0.14, 0.14, 4.90)
+    bm.add_box(13.72, 1.45, -1.80, 0.14, 0.12, 4.90)
+    bm.add_box(13.72, 2.08, -4.14, 0.14, 1.18, 0.18)
+    bm.add_box(13.72, 2.08, 0.54, 0.14, 1.18, 0.18)
+
+    bf = ctx.mb("FireplaceSurround", mats["brass"])
+    bf.add_box(13.75, 2.66, -1.80, 0.05, 0.035, 4.56)
+    bf.add_box(13.75, 1.50, -1.80, 0.05, 0.035, 4.56)
+    bf.add_box(13.75, 2.08, -4.06, 0.05, 1.16, 0.035)
+    bf.add_box(13.75, 2.08, 0.46, 0.05, 1.16, 0.035)
+
+    # embers + logs recessed inside open firebox chamber (X = 14.02..14.05, flames at X = 13.92)
     b = ctx.mb("FireplaceEmbers", mats["fire_ember"])
-    b.add_box(14.00, 1.62, -1.80, 0.44, 0.05, 4.00)
+    b.add_box(14.05, 1.56, -1.80, 0.46, 0.06, 4.05)
     for i in range(9):
         z = -3.45 + i * 0.41
-        b.add_sphere(13.98 + ((i % 2) * 0.04 - 0.02), 1.66, z, 0.14, 0.08, 0.14, rings=8, segs=12)
+        b.add_sphere(14.03 + ((i % 2) * 0.04 - 0.02), 1.61, z, 0.14, 0.08, 0.14, rings=8, segs=12)
 
     b = ctx.mb("FireplaceLogs", mats["charred_bark"])
     for i in range(6):
         z = -3.35 + i * 0.62
-        b.add_cylinder(13.98, 1.76, z - 0.35, 0.065, 0.058, 0.82, segs=10, rot_x=1.5708)
+        b.add_cylinder(14.02, 1.71, z - 0.35, 0.065, 0.058, 0.82, segs=10, rot_x=1.5708)
 
     # ------------------------------------------------------------------ #
     # 2. HI-FI TOWERS (Harman smoked-glass acoustic towers) at tower_x=13.05

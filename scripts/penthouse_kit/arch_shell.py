@@ -162,27 +162,27 @@ def build_arch_shell(ctx, mats):
     b.add_cylinder(-14.74, 11.2, 3.0, 0.025, 0.025, 0.4, segs=10)
 
     # ---------------- TERRACE CURTAIN WALL (Z = -16.0) ----------------
-    b = ctx.mb("CurtainMullions", mats["bronze_dark"])
-    for x in (-14.4, -11.0, -7.6, -4.2, -2.2, 4.6, 8.0, 11.4, 14.4):
-        b.add_box(x, 9.3, -16.0, 0.10, 18.6, 0.14)
-    b.add_box(0.0, 18.55, -16.0, 30.0, 0.10, 0.14)
-    b.add_box(0.0, 0.10, -16.0, 30.0, 0.10, 0.14)
+    b = ctx.mb("CurtainMullions", mats["window_frame"])
+    for x in (-14.75, -8.4, -2.2, 4.6, 9.8, 14.75):
+        b.add_box(x, 9.3, -16.0, 0.055, 18.6, 0.08)
+    b.add_box(0.0, 18.55, -16.0, 30.0, 0.07, 0.08)
+    b.add_box(0.0, 9.20, -16.0, 30.0, 0.06, 0.08)
+    b.add_box(0.0, 0.06, -16.0, 30.0, 0.06, 0.08)
 
     b = ctx.mb("ClearCurtainGlass", mats["glass"])
-    for x0, x1 in ((-14.4, -11.0), (-11.0, -7.6), (-7.6, -4.2), (-4.2, -2.2),
-                   (4.6, 8.0), (8.0, 11.4), (11.4, 14.4)):
+    for x0, x1 in ((-14.75, -8.4), (-8.4, -2.2), (4.6, 9.8), (9.8, 14.75)):
         cx = 0.5 * (x0 + x1)
-        sx = (x1 - x0) - 0.12
-        b.add_box(cx, 9.3, -16.0, sx, 18.2, 0.03)
+        sx = (x1 - x0) - 0.07
+        b.add_box(cx, 9.3, -16.0, sx, 18.2, 0.025)
 
-    b = ctx.mb("SlidingDoorFrames", mats["bronze_dark"])
-    b.add_box(-2.2, 9.3, -16.0, 0.08, 18.2, 0.10)
-    b.add_box(4.6, 9.3, -16.0, 0.08, 18.2, 0.10)
-    b.add_box(1.2, 18.2, -16.0, 6.8, 0.08, 0.10)
+    b = ctx.mb("SlidingDoorFrames", mats["window_frame"])
+    b.add_box(-2.2, 9.3, -16.0, 0.06, 18.2, 0.08)
+    b.add_box(4.6, 9.3, -16.0, 0.06, 18.2, 0.08)
+    b.add_box(1.2, 18.2, -16.0, 6.8, 0.06, 0.08)
 
     b = ctx.mb("TerraceThreshold", mats["marmorino"])
     b.add_box(0.0, 0.04, -15.85, 30.0, 0.08, 0.30, uv_tile=2.0)
 
     b = ctx.mb("SheerDrapery", mats["sheer_linen"])
-    for x in (-13.0, -9.6, 6.2, 9.6, 13.0):
-        b.add_box(x, 9.3, -15.7, 0.9, 18.0, 0.04, uv_tile=3.0)
+    for x in (-14.35, 14.35):
+        b.add_box(x, 9.3, -15.72, 0.55, 18.0, 0.04, uv_tile=3.0)
