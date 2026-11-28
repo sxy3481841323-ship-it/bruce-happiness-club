@@ -48,9 +48,22 @@ def build_arch_shell(ctx, mats):
         b.add_sphere(2.6 + 0.45 * math.cos(a), 14.35, -2.8 + 0.45 * math.sin(a),
                      0.14, 0.14, 0.14, rings=10, segs=14)
 
-    # ---------------- MAIN WALLS (chalk limestone) ----------------
+    # ---------------- MAIN WALLS (chalk limestone + East Salon Twin Portals) ----------------
+    # Keep central Fireplace/TV vertical feature wall (Z in [-7.0, +3.4]) & edge piers;
+    # open North Portal (Z in [-14.6, -7.0]) and South Portal (Z in [+3.4, +13.8]) into East Wing.
     b = ctx.mb("RightWallMarmorino", mats["marmorino"])
-    b.add_box(14.9, 9.3, -0.2, 0.30, 18.6, 32.0, uv_tile=4.0)
+    b.add_box(14.9, 9.3, -15.4, 0.30, 18.6, 1.6, uv_tile=3.0)
+    b.add_box(14.9, 9.3, -1.8, 0.30, 18.6, 10.4, uv_tile=4.0)
+    b.add_box(14.9, 9.3, 14.8, 0.30, 18.6, 2.0, uv_tile=3.0)
+    b.add_box(14.9, 13.70, -0.2, 0.30, 9.80, 32.0, uv_tile=4.0)
+
+    b = ctx.mb("EastPortalTrim", mats["rift_oak"])
+    for pz0, pz1 in ((-14.6, -7.0), (3.4, 13.8)):
+        pcz = 0.5 * (pz0 + pz1)
+        psz = pz1 - pz0
+        b.add_box(14.9, 8.70, pcz, 0.44, 0.24, psz + 0.16, uv_tile=2.0)
+        b.add_box(14.9, 4.40, pz0, 0.44, 8.80, 0.20, uv_tile=2.0)
+        b.add_box(14.9, 4.40, pz1, 0.44, 8.80, 0.20, uv_tile=2.0)
 
     b = ctx.mb("LeftWallMarmorino", mats["marmorino"])
     b.add_box(-14.9, 9.3, -0.2, 0.30, 18.6, 32.0, uv_tile=4.0)
@@ -69,11 +82,12 @@ def build_arch_shell(ctx, mats):
     b.add_box(13.62, 4.30, 15.4, 0.05, 8.60, 0.42)
 
     # ---------------- CELADON RECESSED BAYS ----------------
+    # Restricted to 2F (Y >= 9.3) over East portals so 1F portal openings remain unobstructed
     b = ctx.mb("RightCeladonBays", mats["celadon_plaster"])
     for z0, z1 in ((-12.5, -10.6), (8.2, 12.2)):
         cz = 0.5 * (z0 + z1)
         sz = z1 - z0
-        b.add_box(14.72, 9.3, cz, 0.06, 14.0, sz, uv_tile=3.0)
+        b.add_box(14.72, 13.7, cz, 0.06, 7.6, sz, uv_tile=3.0)
 
     b = ctx.mb("LeftRecesses", mats["celadon_plaster"])
     b.add_box(-14.72, 9.3, 10.5, 0.06, 14.0, 3.0, uv_tile=3.0)
@@ -87,8 +101,10 @@ def build_arch_shell(ctx, mats):
 
     # ---------------- RIFT-OAK PILASTERS + BRASS FILLETS ----------------
     b = ctx.mb("RightRiftOakStiles", mats["rift_oak"])
-    for z in (-13.4, -9.4, -6.2, 2.0, 6.4, 13.0):
+    for z in (-6.8, 3.2):
         b.add_box(14.62, 9.3, z, 0.07, 18.0, 0.42, uv_tile=2.0)
+    for z in (-13.4, -9.4, 6.4, 13.0):
+        b.add_box(14.62, 13.7, z, 0.07, 9.0, 0.42, uv_tile=2.0)
 
     b = ctx.mb("LeftRiftOakStiles", mats["rift_oak"])
     for z in (-13.4, -8.2, 3.4, 9.6, 13.0):
@@ -99,8 +115,10 @@ def build_arch_shell(ctx, mats):
         b.add_box(x, 13.7, 15.12, 0.42, 8.6, 0.07, uv_tile=2.0)
 
     b = ctx.mb("BrassStileFillets", mats["brass"])
-    for z in (-13.4, -9.4, -6.2, 2.0, 6.4, 13.0):
+    for z in (-6.8, 3.2):
         b.add_box(14.58, 9.3, z + 0.235, 0.025, 18.0, 0.025)
+    for z in (-13.4, -9.4, 6.4, 13.0):
+        b.add_box(14.58, 13.7, z + 0.235, 0.025, 9.0, 0.025)
     for z in (-13.4, -8.2, 3.4, 9.6, 13.0):
         b.add_box(-14.58, 9.3, z + 0.235, 0.025, 18.0, 0.025)
 

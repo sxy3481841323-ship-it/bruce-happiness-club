@@ -72,9 +72,12 @@ from penthouse_kit.tex_kitchen_surfaces import (
     make_alpine_granite_cliff_tex,
     make_smart_panel_tex,
     make_organic_dairy_label_tex,
+    make_prestige_wine_labels_tex,
+    make_aaa_snow_granite_mountain_tex,
 )
 from penthouse_kit.mod_south_kitchen import build_south_kitchen
 from penthouse_kit.mod_south_terrace_mountains import build_south_terrace_and_mountains
+from penthouse_kit.mod_east_piano_sport_wing import build_east_piano_sport_wing
 
 
 def build_duplex():
@@ -119,8 +122,14 @@ def build_duplex():
     tundra_grey_img = make_tundra_grey_floor_tex(1024)
     graphite_slate_img = make_platinum_slate_tex(512)
     alpine_granite_img = make_alpine_granite_cliff_tex(1024)
-    smart_panel_img = make_smart_panel_tex(1024, 704)
+    smart_panel_img = make_smart_panel_tex(1024, 680)
+    smart_panel_img.convert("RGB").save(
+        os.path.join(REPO_ROOT, "assets", "textures", "smart_panel.jpg"),
+        format="JPEG", quality=93, optimize=True,
+    )
     dairy_label_img = make_organic_dairy_label_tex(512)
+    prestige_wine_img = make_prestige_wine_labels_tex(1024, 512)
+    aaa_mountain_img = make_aaa_snow_granite_mountain_tex(2048, 1024)
 
     mats = {
         "oak": ctx.tex_mat("HerringboneOak", oak_img, roughness=0.44, metalness=0.04, quality=92),
@@ -199,6 +208,36 @@ def build_duplex():
         "steak_marbled": ctx.color_mat("DryAgedRibeyeMarbled", (0.52, 0.14, 0.15, 1.0), roughness=0.48, metalness=0.02),
         "wine_bottle": ctx.color_mat("VintageBordeauxGlass", (0.07, 0.16, 0.09, 1.0), roughness=0.14, metalness=0.12),
         "champagne_liquid": ctx.color_mat("BrutChampagneGold", (0.94, 0.84, 0.56, 0.82), roughness=0.06, metalness=0.08, alpha_blend=True),
+        # Batch 14 Expansion Materials
+        "obsidian_bezel": ctx.color_mat("JetObsidianBezel", (0.05, 0.06, 0.08, 1.0), roughness=0.22, metalness=0.55),
+        "wolf_red": ctx.color_mat("WolfCrimsonKnob", (0.72, 0.13, 0.16, 1.0), roughness=0.24, metalness=0.18),
+        "warm_grey_upper": ctx.color_mat("WarmGreyUpperFascia", (0.80, 0.78, 0.75, 1.0), roughness=0.52, metalness=0.04),
+        "racing_green": ctx.color_mat("ClubRacingGreenWool", (0.10, 0.27, 0.17, 1.0), roughness=0.84, metalness=0.02),
+        "ebony_piano": ctx.color_mat("ConcertEbonyLacquer", (0.04, 0.04, 0.05, 1.0), roughness=0.09, metalness=0.12),
+        "copper_cook": ctx.color_mat("HammeredCopperSkillet", (0.80, 0.45, 0.26, 1.0), roughness=0.22, metalness=0.88),
+        "saddle_tan": ctx.color_mat("EnglishSaddleTan", (0.58, 0.34, 0.18, 1.0), roughness=0.46, metalness=0.04),
+        "steel": ctx.color_mat("BrushedStainlessSteel", (0.78, 0.80, 0.84, 1.0), roughness=0.24, metalness=0.88),
+        "stainless": ctx.color_mat("HeavyApplianceSteel", (0.74, 0.77, 0.81, 1.0), roughness=0.26, metalness=0.86),
+        "charcoal_steel": ctx.color_mat("CharcoalArchitecturalSteel", (0.16, 0.18, 0.20, 1.0), roughness=0.38, metalness=0.72),
+        "limestone": ctx.color_mat("OutdoorSandstonePaver", (0.78, 0.75, 0.70, 1.0), roughness=0.74, metalness=0.02),
+        "basalt": ctx.color_mat("BasaltInfinityWeir", (0.15, 0.16, 0.18, 1.0), roughness=0.56, metalness=0.06),
+        "teak": ctx.color_mat("WeatheredPoolsideTeak", (0.46, 0.31, 0.19, 1.0), roughness=0.64, metalness=0.02),
+        "offwhite_cushion": ctx.color_mat("OutdoorSunbrellaLinen", (0.93, 0.90, 0.84, 1.0), roughness=0.84, metalness=0.01),
+        "conifer_dark": ctx.color_mat("AlpineEvergreenPine", (0.11, 0.22, 0.14, 1.0), roughness=0.88, metalness=0.01),
+        "cobalt": ctx.color_mat("GreekDairyCobaltCap", (0.10, 0.26, 0.62, 1.0), roughness=0.32, metalness=0.06),
+        "porcelain_white": ctx.color_mat("PorcelainDairyTub", (0.96, 0.96, 0.95, 1.0), roughness=0.24, metalness=0.02),
+        "red_apple": ctx.color_mat("HoneycrispAppleRed", (0.72, 0.12, 0.14, 1.0), roughness=0.32, metalness=0.02),
+        "herb_green": ctx.color_mat("OrchardLimeAvocado", (0.24, 0.48, 0.18, 1.0), roughness=0.52, metalness=0.02),
+        "lemon_gold": ctx.color_mat("AmalfiLemonGold", (0.92, 0.78, 0.18, 1.0), roughness=0.38, metalness=0.02),
+        "ivory": ctx.color_mat("PianoKeyIvory", (0.96, 0.94, 0.89, 1.0), roughness=0.22, metalness=0.04),
+        "black": ctx.color_mat("MatteEbonyWood", (0.07, 0.07, 0.08, 1.0), roughness=0.38, metalness=0.08),
+        "cream_wool": ctx.color_mat("SalonSilkWoolRug", (0.91, 0.87, 0.79, 1.0), roughness=0.90, metalness=0.01),
+        "black_leather": ctx.color_mat("ConcertAnilineLeather", (0.09, 0.09, 0.11, 1.0), roughness=0.36, metalness=0.06),
+        "velvet": ctx.color_mat("EquestrianVelvet", (0.10, 0.10, 0.13, 1.0), roughness=0.92, metalness=0.01),
+        "optic_yellow": ctx.color_mat("OpticTennisBallYellow", (0.82, 0.92, 0.18, 1.0), roughness=0.78, metalness=0.01),
+        "prestige_wine_labels": ctx.tex_mat("GrandCruWineLabels", prestige_wine_img, roughness=0.36, metalness=0.08, quality=92),
+        "alpine_lake": ctx.color_mat("AlpineFjordWater", (0.08, 0.36, 0.48, 0.88), roughness=0.06, metalness=0.20, emissive=(0.02, 0.11, 0.16), alpha_blend=True),
+        "aaa_mountain": ctx.tex_mat("AAAAlpineDolomite", aaa_mountain_img, roughness=0.84, metalness=0.02, quality=92, double_sided=True),
     }
 
     build_arch_shell(ctx, mats)
@@ -210,6 +249,7 @@ def build_duplex():
     build_entry_and_niches(ctx, mats)
     build_south_kitchen(ctx, mats)
     build_south_terrace_and_mountains(ctx, mats)
+    build_east_piano_sport_wing(ctx, mats)
 
     info = ctx.export_glb(OUT_GLB)
     for req in (
@@ -218,8 +258,10 @@ def build_duplex():
         "ConciergePager1F", "ConciergePager2F", "EvianBottles1F",
         "TerraceSofaSeat", "OceanVistaWater",
         "GrandEntryDoors", "SmartHomePanelScreen",
-        "FridgeDoorLeft", "FridgeDoorRight", "FridgeMilkBottles", "FridgeGreekYogurt",
-        "KitchenIslandStone", "KitchenFrenchGlass", "SouthPoolWater", "SouthGraniteCrags",
+        "FridgeDoorLeft", "FridgeDoorRight", "WolfRangeBody", "WolfRedKnobs",
+        "PrestigeWineBottles", "KitchenIslandStone", "KitchenFrenchGlass",
+        "DiningTableMarble", "pool_water", "mountain_massif",
+        "GrandPianoCase", "PuttingGreenTurf", "EquestrianTack",
     ):
         assert req in info["mesh_names"], f"Missing required mesh {req}"
     assert info["size_mb"] <= 15.0, f"GLB exceeds 15 MB cap: {info['size_mb']} MB"

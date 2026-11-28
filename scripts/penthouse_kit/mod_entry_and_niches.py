@@ -260,12 +260,17 @@ def build_entry_and_niches(ctx, mats):
         b.add_box(-14.56, 4.98, sz, 0.22, 0.10, 0.30)
 
     # ------------------------------------------------------------------
-    # 5. WHOLE-HOME SMART CONTROL WALL PANEL (Right next to Grand Entrance at Z=+2.10)
+    # 5. WHOLE-HOME SMART CONTROL WALL PANEL (High-Contrast Jet-Obsidian Bezel)
     # ------------------------------------------------------------------
-    b = ctx.mb("SmartHomePanelFrame", mats["platinum"])
-    b.add_rounded_box(-14.70, 3.65, 2.10, 0.09, 1.24, 1.78, bevel=0.025)
+    b = ctx.mb("SmartHomePanelFrame", mats["obsidian_bezel"])
+    b.add_rounded_box(-14.62, 3.75, 1.15, 0.14, 1.56, 2.28, bevel=0.03)
+    b = ctx.mb("SmartHomePanelBrassTrim", mats["brass"])
+    b.add_box(-14.55, 4.50, 1.15, 0.03, 0.04, 2.20)
+    b.add_box(-14.55, 3.00, 1.15, 0.03, 0.04, 2.20)
+    b.add_box(-14.55, 3.75, 0.06, 0.03, 1.52, 0.04)
+    b.add_box(-14.55, 3.75, 2.24, 0.03, 1.52, 0.04)
     b = ctx.mb("SmartHomePanelCove", mats["warm_led"])
-    b.add_box(-14.73, 3.65, 2.10, 0.02, 1.30, 1.84)
+    b.add_box(-14.70, 3.75, 1.15, 0.025, 1.62, 2.34)
     b = ctx.mb("SmartHomePanelScreen", mats["smart_panel"])
-    b.add_quad((-14.64, 3.12, 2.91), (-14.64, 3.12, 1.29),
-               (-14.64, 4.18, 1.29), (-14.64, 4.18, 2.91), uv_scale=(1.0, 1.0))
+    b.add_quad((-14.52, 3.03, 2.22), (-14.52, 3.03, 0.08),
+               (-14.52, 4.47, 0.08), (-14.52, 4.47, 2.22), uv_scale=(1.0, 1.0))

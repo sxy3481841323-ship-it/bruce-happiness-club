@@ -1,213 +1,146 @@
-from penthouse_kit.mod_south_fridge import build_south_french_fridge
+from .mod_south_fridge import build_south_fridge
+from .mod_south_dining import build_south_dining
+
+
+def _box(ctx, name, mat, cx, cy, cz, sx, sy, sz, rot=0.0):
+    b = ctx.mb(name, mat)
+    b.add_box(cx, cy, cz, sx, sy, sz, 0, rot)
+    return b
+
+
+def _cyl(ctx, name, mat, cx, y0, cz, r, h, segs=16, rx=0.0, rz=0.0):
+    b = ctx.mb(name, mat)
+    b.add_cylinder(cx, y0, cz, r, r, h, segs, rot_x=rx, rot_z=rz)
+    return b
 
 
 def build_south_kitchen(ctx, mats):
-    # ---------------- Architectural shell ----------------
-    b = ctx.mb("KitchenFloorGrey", mats["tundra_grey"])
-    b.add_box(0.0, -0.06, 22.1, 30.4, 0.12, 13.6, uv_tile=4.0)
-    b = ctx.mb("KitchenFloorInlay", mats["platinum"])
-    b.add_box(0.0, 0.015, 15.55, 27.2, 0.02, 0.08)
+    M = mats
+    # ---------- 1. Shell & Preserved Black French Triple-Bay Doors (Z=36.0) ----------
+    _box(ctx, "SouthKitchenFloor", M["tundra_grey"], 0, -0.07, 25.7, 30.4, 0.14, 20.6)
+    _box(ctx, "SouthKitchenCeiling", M["marmorino"], 0, 18.66, 25.7, 30.4, 0.12, 20.6)
+    for sx in (-14.9, 14.9):
+        _box(ctx, "SouthKitchenWall", M["marmorino"], sx, 9.3, 25.7, 0.24, 18.6, 20.6)
+        _box(ctx, "SouthKitchenBulkhead", M["warm_grey_upper"], sx, 7.8, 25.7, 0.28, 2.0, 20.6)
+    for cz in (15.5, 35.9):
+        _box(ctx, "SouthKitchenCove", M["warm_led"], 0, 18.55, cz, 30.0, 0.06, 0.12)
+    for cx in (-14.8, 14.8):
+        _box(ctx, "SouthKitchenCove", M["warm_led"], cx, 18.55, 25.7, 0.12, 0.06, 20.0)
 
-    b = ctx.mb("KitchenCeiling", mats["tundra_grey"])
-    b.add_box(0.0, 8.85, 22.1, 30.4, 0.25, 13.6, uv_tile=4.0)
-    b = ctx.mb("KitchenCeilingCove", mats["warm_led"])
-    for x in (-14.0, 14.0):
-        b.add_box(x, 8.70, 22.0, 0.10, 0.06, 12.0)
-    for z in (16.0, 28.0):
-        b.add_box(0.0, 8.70, z, 28.0, 0.06, 0.10)
+    zf = 36.0
+    for px in (-14.2, -9.47, -4.73, 0.0, 4.73, 9.47, 14.2):
+        _box(ctx, "KitchenFrenchPillar", M["charcoal"], px, 4.575, zf, 0.16, 9.05, 0.18)
+    for py in (0.05, 3.05, 6.05, 9.10):
+        _box(ctx, "KitchenFrenchRail", M["charcoal"], 0, py, zf, 28.6, 0.14, 0.18)
+    for i in range(6):
+        cx = -14.2 + 4.73 * (i + 0.5)
+        _box(ctx, "KitchenFrenchGlass", M["glass"], cx, 4.575, zf, 4.56, 8.90, 0.04)
 
-    b = ctx.mb("KitchenSideWalls", mats["graphite_slate"])
-    b.add_box(14.9, 4.42, 22.1, 0.30, 8.85, 13.6)
-    b.add_box(-14.9, 4.42, 22.1, 0.30, 8.85, 13.6)
-
-    # ---------------- South wall + French doors ----------------
-    b = ctx.mb("KitchenSouthStoneWall", mats["pietra_grey"])
-    b.add_box(-12.9, 4.42, 28.6, 4.2, 8.85, 0.40)
-    b.add_box(12.9, 4.42, 28.6, 4.2, 8.85, 0.40)
-    b.add_box(0.0, 8.38, 28.6, 21.8, 0.96, 0.40)
-
-    b = ctx.mb("KitchenFrenchFrames", mats["graphite_slate"])
-    b.add_box(0.0, 0.10, 28.6, 21.8, 0.10, 0.30)
-    b.add_box(0.0, 7.90, 28.6, 21.8, 0.10, 0.30)
-    for x in (-10.8, -3.6, 3.6, 10.8):
-        b.add_box(x, 4.0, 28.6, 0.14, 7.80, 0.30)
-    b.add_box(0.0, 6.20, 28.6, 21.6, 0.12, 0.28)
-    for x in (-8.4, -6.0, -1.2, 1.2, 6.0, 8.4):
-        b.add_box(x, 4.0, 28.6, 0.09, 7.70, 0.24)
-    # slid center bay panel frame
-    b.add_box(2.2, 4.0, 28.38, 7.1, 0.10, 0.22)
-    b.add_box(2.2, 7.85, 28.38, 7.1, 0.10, 0.22)
-    b.add_box(-1.35, 4.0, 28.38, 0.10, 7.75, 0.22)
-    b.add_box(5.75, 4.0, 28.38, 0.10, 7.75, 0.22)
-
-    b = ctx.mb("KitchenFrenchTrim", mats["platinum"])
-    b.add_box(0.0, 0.04, 28.6, 21.8, 0.08, 0.44)
-    b.add_box(-1.35, 3.60, 28.30, 0.06, 1.20, 0.10)
-    b.add_box(5.75, 3.60, 28.30, 0.06, 1.20, 0.10)
-
-    b = ctx.mb("KitchenFrenchGlass", mats["glass"])
-    b.add_box(-7.2, 4.0, 28.6, 7.1, 7.75, 0.04)
-    b.add_box(2.2, 4.0, 28.38, 7.1, 7.75, 0.04)
-    b.add_box(7.2, 4.0, 28.6, 7.1, 7.75, 0.04)
-
-    # ---------------- East tall wall ----------------
-    b = ctx.mb("KitchenTallUpperWall", mats["graphite_slate"])
-    b.add_box(13.72, 8.03, 22.0, 2.15, 1.54, 12.6)
-    b = ctx.mb("KitchenTallWallInlays", mats["platinum"])
-    b.add_box(13.72, 7.26, 22.0, 2.16, 0.05, 12.6)
-
-    # North bay: wine & champagne cellar
-    b = ctx.mb("KitchenWineCellarFrame", mats["graphite_slate"])
-    b.add_box(14.70, 3.69, 17.58, 0.10, 7.06, 3.47)
-    b.add_box(13.72, 7.22, 17.58, 2.10, 0.10, 3.47)
-    b.add_box(13.72, 0.16, 17.58, 2.10, 0.10, 3.47)
-    b.add_box(13.72, 3.69, 15.85, 2.10, 7.06, 0.10)
-    b.add_box(13.72, 3.69, 19.32, 2.10, 7.06, 0.10)
-    b = ctx.mb("KitchenWineCellarDoor", mats["glass_smoke"])
-    b.add_box(12.68, 3.69, 17.58, 0.05, 6.90, 3.30)
-    b = ctx.mb("KitchenWineCellarLight", mats["warm_led"])
-    for z in (16.0, 19.15):
-        b.add_box(14.60, 3.69, z, 0.05, 6.80, 0.06)
-    b = ctx.mb("KitchenWineShelves", mats["burgundy"])
-    for y in (1.2, 2.2, 3.2, 4.2, 5.2, 6.2):
-        b.add_box(13.72, y, 17.58, 1.90, 0.06, 3.30)
-    b = ctx.mb("KitchenWineBottles", mats["wine_bottle"])
-    for y in (1.2, 2.2, 3.2, 4.2, 5.2, 6.2):
-        for i in range(4):
-            z = 16.15 + i * 0.85
-            b.add_cylinder(13.72, y + 0.03, z, 0.10, 0.10, 0.82, segs=12)
-    b = ctx.mb("KitchenWineCaps", mats["platinum"])
-    for y in (1.2, 2.2, 3.2, 4.2, 5.2, 6.2):
-        for i in range(4):
-            z = 16.15 + i * 0.85
-            b.add_cylinder(13.72, y + 0.85, z, 0.055, 0.055, 0.06, segs=10)
-
-    # Center bay: fridge
-    build_south_french_fridge(ctx, mats)
-
-    # South bay: espresso & granola alcove
-    b = ctx.mb("KitchenSouthBase", mats["graphite_slate"])
-    b.add_box(13.72, 1.15, 26.40, 2.10, 2.30, 3.50)
-    b = ctx.mb("KitchenEspressoAlcove", mats["pietra_grey"])
-    b.add_box(13.72, 2.32, 26.40, 2.10, 0.10, 3.50)
-    b.add_box(14.70, 3.80, 26.40, 0.10, 2.90, 3.50)
-    b.add_box(13.72, 3.80, 24.70, 2.10, 2.90, 0.10)
-    b.add_box(13.72, 3.80, 28.10, 2.10, 2.90, 0.10)
-    b = ctx.mb("KitchenEspressoCove", mats["warm_led"])
-    b.add_box(13.72, 5.18, 26.40, 1.90, 0.05, 3.20)
-    b = ctx.mb("KitchenEspressoMachine", mats["graphite_slate"])
-    b.add_box(13.15, 2.86, 26.20, 0.96, 0.98, 1.15)
-    b = ctx.mb("KitchenEspressoChrome", mats["platinum"])
-    b.add_box(12.68, 2.86, 26.20, 0.06, 0.90, 1.05)
-    b.add_box(13.15, 3.42, 26.20, 0.70, 0.20, 0.70)
-    b = ctx.mb("KitchenEspressoLevers", mats["brass"])
-    b.add_box(12.72, 3.02, 26.20, 0.14, 0.06, 0.06)
-    b.add_box(12.65, 3.02, 26.20, 0.06, 0.06, 0.30)
-    b = ctx.mb("KitchenEspressoCup", mats["ceramic_white"])
-    b.add_cylinder(12.65, 2.34, 26.20, 0.10, 0.12, 0.16, segs=14)
-    b = ctx.mb("KitchenGranolaTray", mats["walnut_solid"])
-    b.add_box(13.05, 2.38, 27.35, 0.85, 0.08, 1.25)
-    b = ctx.mb("KitchenGranolaBars", mats["cognac_suede"])
-    for i in range(3):
-        b.add_box(13.05, 2.46, 26.95 + i * 0.35, 0.70, 0.08, 0.22)
-
-    # ---------------- West herb & prep gallery ----------------
-    b = ctx.mb("KitchenHerbCounter", mats["graphite_slate"])
-    b.add_box(-13.7, 1.10, 22.0, 2.0, 2.20, 9.6)
-    b = ctx.mb("KitchenHerbCounterTop", mats["pietra_grey"])
-    b.add_box(-13.65, 2.26, 22.0, 2.15, 0.14, 9.8)
-    b = ctx.mb("KitchenHerbSink", mats["graphite_slate"])
-    b.add_box(-13.6, 2.20, 22.0, 1.30, 0.14, 1.60)
-    b = ctx.mb("KitchenHerbFaucet", mats["platinum"])
-    b.add_cylinder(-13.6, 2.32, 22.0, 0.05, 0.05, 0.70, segs=12)
-    b.add_cylinder(-13.6, 3.02, 22.0, 0.05, 0.05, 0.55, segs=12, rot_x=1.5708)
-    b = ctx.mb("KitchenHerbPots", mats["terracotta"])
-    for i in range(5):
-        z = 18.2 + i * 1.9
-        b.add_cylinder(-13.6, 2.33, z, 0.30, 0.36, 0.42, segs=16)
-    b = ctx.mb("KitchenHerbFoliage", mats["olive_leaf"])
-    b_hb = ctx.mb("KitchenHerbFoliageBright", mats["olive_leaf_bright"])
-    for i in range(5):
-        z = 18.2 + i * 1.9
-        for k, (dx, dy, dz, rr) in enumerate((
-            (-0.10, 0.56, -0.10, 0.22), (0.12, 0.62, 0.08, 0.20),
-            (-0.04, 0.74, 0.12, 0.18), (0.10, 0.54, -0.12, 0.20),
-            (0.00, 0.84 + (i % 2) * 0.10, 0.00, 0.16),
-        )):
-            tgt = b if (k + i) % 2 == 0 else b_hb
-            tgt.add_sphere(-13.6 + dx, 2.33 + dy, z + dz, rr, rr * 1.2, rr, rings=7, segs=10)
-    b = ctx.mb("KitchenWestShelf", mats["pietra_grey"])
-    b.add_box(-14.1, 4.8, 22.0, 0.55, 0.10, 9.0)
-
-    # ---------------- Waterfall island ----------------
-    b = ctx.mb("KitchenIslandStone", mats["pietra_grey"])
-    b.add_rounded_box(3.2, 2.24, 19.4, 10.6, 0.16, 2.80, bevel=0.04)
-    b.add_box(-1.93, 1.16, 19.4, 0.34, 2.32, 2.80)
-    b.add_box(8.33, 1.16, 19.4, 0.34, 2.32, 2.80)
-    b = ctx.mb("KitchenIslandCore", mats["graphite_slate"])
-    b.add_box(3.2, 1.08, 19.85, 9.9, 2.16, 1.85)
-
-    # Island props
-    b = ctx.mb("KitchenTeppanyaki", mats["charcoal"])
-    b.add_box(5.8, 2.34, 19.6, 2.40, 0.04, 1.40)
-    b = ctx.mb("KitchenTeppanyakiBezel", mats["platinum"])
-    b.add_box(5.8, 2.33, 19.6, 2.48, 0.03, 1.48)
-    b = ctx.mb("KitchenSteakBoard", mats["walnut_solid"])
-    b.add_box(2.8, 2.38, 19.6, 1.65, 0.12, 1.25)
-    b = ctx.mb("KitchenRawSteaks", mats["steak_marbled"])
-    for x in (2.3, 2.8, 3.3):
-        b.add_box(x, 2.48, 19.6, 0.38, 0.08, 0.55)
-    b = ctx.mb("KitchenSaltBowl", mats["ceramic_white"])
-    b.add_cylinder(3.85, 2.44, 19.6, 0.14, 0.16, 0.10, segs=14)
-
-    b = ctx.mb("KitchenPourBottle", mats["wine_bottle"])
-    b.add_lathe(0.10, 2.32, 19.55,
-                [(0, 0), (0.12, 0), (0.12, 0.48), (0.055, 0.74), (0.045, 0.88), (0, 0.88)])
-    b = ctx.mb("KitchenPourFoil", mats["platinum"])
-    b.add_cylinder(0.10, 3.14, 19.55, 0.05, 0.05, 0.06, segs=10)
-
-    b = ctx.mb("KitchenWineDecanter", mats["crystal_glass"])
-    b.add_lathe(-0.75, 2.32, 19.50,
-                [(0, 0), (0.22, 0), (0.24, 0.18), (0.10, 0.42), (0.06, 0.60), (0, 0.60)])
-    b = ctx.mb("KitchenDecanterWine", mats["champagne_liquid"])
-    b.add_lathe(-0.75, 2.42, 19.50,
-                [(0, 0), (0.20, 0), (0.21, 0.14), (0.09, 0.34), (0, 0.34)])
-    b = ctx.mb("KitchenCoupes", mats["crystal_glass"])
-    for x in (-0.55, -1.15):
-        b.add_lathe(x, 2.32, 18.85,
-                    [(0, 0), (0.05, 0), (0.05, 0.10), (0.16, 0.22), (0.16, 0.26), (0, 0.26)])
-
-    b = ctx.mb("KitchenYogurtBowl", mats["ceramic_white"])
-    b.add_cylinder(1.2, 2.32, 18.55, 0.26, 0.26, 0.20, segs=16)
-    b = ctx.mb("KitchenBerriesBlue", mats["berry_blue"])
+    # ---------- 2. East Wall Extended Coffee & Breakfast Station (Z in [24.1..34.8]) ----------
+    _box(ctx, "CoffeeSurround", M["graphite_slate"], 13.55, 4.4, 29.45, 2.40, 8.8, 10.7)
+    _box(ctx, "CoffeeWarmUpper", M["warm_grey_upper"], 13.55, 7.65, 29.45, 2.44, 2.3, 10.7)
+    _box(ctx, "CoffeeNicheWalnut", M["walnut_fluted"], 13.10, 4.65, 29.45, 0.80, 3.2, 9.4)
+    _box(ctx, "CoffeeNicheLED", M["warm_led"], 12.68, 6.20, 29.45, 0.08, 0.06, 9.2)
+    _box(ctx, "CoffeeCounter", M["pietra_grey"], 13.45, 2.28, 29.45, 2.65, 0.16, 10.7)
+    _box(ctx, "CoffeeBacksplash", M["pietra_grey"], 14.62, 3.15, 29.45, 0.12, 1.75, 10.7)
+    _box(ctx, "KitchenEspressoMachine", M["steel"], 12.82, 2.74, 28.5, 0.92, 0.78, 0.78)
+    _cyl(ctx, "CoffeeGrinder", M["steel"], 12.85, 2.36, 30.1, 0.17, 0.62)
+    _cyl(ctx, "CoffeeKettle", M["charcoal"], 12.85, 2.36, 31.3, 0.15, 0.36)
     for i in range(4):
-        b.add_sphere(1.12 + i * 0.05, 2.50, 18.50 + (i % 2) * 0.08, 0.05, 0.05, 0.05, rings=6, segs=8)
-    b = ctx.mb("KitchenBerriesRed", mats["berry_red"])
+        _cyl(ctx, "CoffeeCup", M["porcelain_white"], 12.68, 2.36, 26.8 + 0.38 * i, 0.07, 0.12, 12)
+    for i in range(4):
+        _cyl(ctx, "KitchenGranolaJars", M["glass"], 13.0, 2.36, 32.1 + 0.52 * i, 0.16, 0.52, 14)
+
+    # ---------- 3. West Wall 60" Wolf Dual-Oven Red-Knob Gas Range & Flush Hood ----------
+    for cz in (16.4, 24.6):
+        _box(ctx, "WolfSideColumn", M["graphite_slate"], -13.55, 4.4, cz, 2.40, 8.8, 1.60)
+    _box(ctx, "WolfBacksplash", M["pietra_grey"], -14.66, 4.35, 20.5, 0.12, 4.2, 6.6)
+    _box(ctx, "WolfHoodCanopy", M["warm_grey_upper"], -13.45, 7.40, 20.5, 2.65, 2.20, 6.8)
+    _box(ctx, "WolfHoodLed", M["warm_led"], -13.45, 6.28, 20.5, 2.40, 0.05, 6.4)
+    _box(ctx, "WolfRangeBody", M["steel"], -13.55, 1.18, 20.5, 2.25, 2.36, 4.80)
+    for cz in (19.25, 21.75):
+        _box(ctx, "WolfOvenDoor", M["obsidian_bezel"], -12.41, 1.00, cz, 0.06, 1.45, 2.15)
+        _cyl(ctx, "WolfHandle", M["steel"], -12.30, 1.72, cz - 0.90, 0.04, 1.80, 10, rx=1.5708)
+    for i in range(6):
+        _box(ctx, "WolfGrate", M["charcoal"], -13.50, 2.40, 18.45 + 0.82 * i, 2.00, 0.07, 0.72)
+    _box(ctx, "WolfGriddle", M["steel"], -13.50, 2.40, 20.50, 2.00, 0.06, 0.90)
+    for i in range(8):
+        _cyl(ctx, "WolfRedKnobs", M["wolf_red"], -12.36, 2.12, 18.45 + 0.58 * i, 0.10, 0.16, 14, rz=1.5708)
+
+    # ---------- 4. West Wall 8-Estate Grand-Cru Wine Cellar (Open-Front Fluted Alcove) ----------
+    _box(ctx, "WineCellarBack", M["walnut_fluted"], -14.68, 4.4, 30.0, 0.24, 8.8, 9.6)
+    _box(ctx, "WineCellarTop", M["graphite_slate"], -13.45, 8.65, 30.0, 2.50, 0.30, 9.6)
+    _box(ctx, "WineCellarBot", M["graphite_slate"], -13.45, 0.45, 30.0, 2.50, 0.90, 9.6)
+    for cz in (25.25, 28.45, 31.65, 34.75):
+        _box(ctx, "WineCellarDivider", M["obsidian_bezel"], -13.45, 4.4, cz, 2.40, 8.2, 0.12)
+    for ry in (2.2, 4.0, 5.8, 7.4):
+        _box(ctx, "WineShelfOak", M["rift_oak"], -13.55, ry, 30.0, 1.90, 0.08, 9.2)
+    _box(ctx, "WineCellarLed", M["warm_led"], -14.48, 4.4, 30.0, 0.04, 7.8, 9.0)
+    pb = ctx.mb("PrestigeWineBottles", M["prestige_wine_labels"])
+    pn = ctx.mb("WineBottleNecks", M["wine_bottle"])
+    for r in range(4):
+        for c in range(8):
+            bz = 25.95 + 1.15 * c
+            by = 2.28 + r * 1.72 if r < 3 else 7.48
+            u0 = (c % 4) * 0.25 + 0.01
+            u1 = u0 + 0.23
+            v0 = ((r % 2) * 0.50) + 0.02
+            v1 = v0 + 0.46
+            p0 = (-12.96, by + 0.06, bz - 0.13)
+            p1 = (-12.96, by + 0.06, bz + 0.13)
+            p2 = (-12.96, by + 0.54, bz + 0.13)
+            p3 = (-12.96, by + 0.54, bz - 0.13)
+            pb.add_tri_raw(p0, p1, p2, (u0, v0), (u1, v0), (u1, v1), (1, 0, 0), (1, 0, 0), (1, 0, 0))
+            pb.add_tri_raw(p0, p2, p3, (u0, v0), (u1, v1), (u0, v1), (1, 0, 0), (1, 0, 0), (1, 0, 0))
+            pn.add_cylinder(-13.20, by, bz, 0.11, 0.11, 0.62, segs=12)
+            pn.add_cylinder(-13.20, by + 0.62, bz, 0.04, 0.04, 0.22, segs=10)
+    _box(ctx, "WineCellarGlass", M["glass"], -12.28, 4.5, 30.0, 0.04, 7.9, 9.2)
+
+    # ---------- 5. Zone 4A Center Smoked-Oak & Marble Island + Chimney Hood ----------
+    _box(ctx, "KitchenIslandOak", M["rift_oak"], 2.2, 1.14, 20.4, 11.0, 2.20, 3.12)
+    _box(ctx, "KitchenIslandStone", M["pietra_grey"], 2.2, 2.32, 20.4, 11.4, 0.18, 3.30)
+    for cx in (-3.4, 7.8):
+        _box(ctx, "KitchenIslandWaterfall", M["pietra_grey"], cx, 1.16, 20.4, 0.18, 2.34, 3.30)
+    for cx in (-1.2, 2.0, 5.2):
+        _box(ctx, "KitchenBarStoolsSeat", M["charcoal"], cx, 1.68, 17.85, 0.92, 0.16, 0.88)
+        _box(ctx, "KitchenBarStoolsBack", M["charcoal"], cx, 2.08, 17.46, 0.92, 0.64, 0.12)
+        for sx in (cx - 0.42, cx + 0.42):
+            _box(ctx, "KitchenBarStools", M["brass"], sx, 0.82, 17.85, 0.05, 1.62, 0.05)
+            _box(ctx, "KitchenBarStools", M["brass"], sx, 0.04, 17.85, 0.05, 0.05, 0.86)
+        _box(ctx, "KitchenBarStools", M["brass"], cx, 0.04, 17.44, 0.88, 0.05, 0.05)
+        _box(ctx, "KitchenBarStools", M["brass"], cx, 0.56, 17.85, 0.88, 0.04, 0.04)
+
+    # Suspended Brushed-Stainless Chimney Island Hood (Photo 3 style)
+    _box(ctx, "IslandRangeHood", M["steel"], 2.0, 13.4, 20.4, 2.4, 10.2, 1.3)
+    _box(ctx, "IslandRangeHoodCanopy", M["steel"], 2.0, 7.95, 20.4, 9.4, 0.30, 3.2)
+    for cx in (-2.3, 6.3):
+        for cz in (19.0, 21.8):
+            _cyl(ctx, "IslandHoodRod", M["steel"], cx, 8.10, cz, 0.035, 10.4, 8)
+    _box(ctx, "IslandHoodLed", M["warm_led"], 2.0, 7.78, 20.4, 8.9, 0.04, 2.8)
+
+    # Abundant Island Culinary Props & Cookware
+    _box(ctx, "KitchenSink", M["steel"], 1.8, 2.38, 20.5, 1.5, 0.08, 1.1)
+    ctx.mb("KitchenFaucet", M["steel"]).add_curved_tube(
+        [(1.8, 2.40, 21.15), (1.8, 3.15, 21.15), (1.8, 3.48, 20.80), (1.8, 3.22, 20.48)],
+        [0.045, 0.042, 0.038, 0.032], segs=10,
+    )
+    _box(ctx, "KitchenSteakBoard", M["rift_oak"], 2.8, 2.45, 19.6, 1.45, 0.09, 0.95)
     for i in range(3):
-        b.add_sphere(1.28 + i * 0.04, 2.50, 18.60 - (i % 2) * 0.06, 0.05, 0.05, 0.05, rings=6, segs=8)
+        _box(ctx, "KitchenRawSteaks", M["steak_marbled"], 2.35 + 0.42 * i, 2.52, 19.6, 0.34, 0.08, 0.24)
+    _cyl(ctx, "KitchenPepperMill", M["walnut_solid"], 3.85, 2.42, 19.55, 0.07, 0.44, 12)
+    _cyl(ctx, "KitchenSaltMill", M["porcelain_white"], 4.08, 2.42, 19.55, 0.07, 0.38, 12)
+    _cyl(ctx, "KitchenCopperSkillet", M["copper_cook"], -1.6, 2.42, 20.4, 0.46, 0.20, 18)
+    _cyl(ctx, "KitchenSkilletHandle", M["brass"], -1.1, 2.54, 20.4, 0.035, 0.65, 8, rz=1.42)
+    _cyl(ctx, "KitchenLimeBowl", M["porcelain_white"], 4.8, 2.46, 19.6, 0.38, 0.22, 16)
+    for lx, lz in ((4.68, 19.52), (4.88, 19.58), (4.78, 19.72), (4.82, 19.60)):
+        ctx.mb("KitchenLimes", M["herb_green"]).add_sphere(lx, 2.66, lz, 0.085, 0.075, 0.085, rings=8, segs=10)
+    _cyl(ctx, "KitchenPitcher", M["charcoal"], 6.0, 2.42, 19.8, 0.16, 0.56, 14)
+    for i in range(4):
+        _cyl(ctx, "KitchenCrystalStem", M["crystal_glass"], 5.2 + 0.32 * i, 2.42, 19.1, 0.07, 0.34, 12)
+    _cyl(ctx, "KitchenPourBottle", M["wine_bottle"], 0.10, 2.42, 19.55, 0.095, 0.56, 14)
+    _cyl(ctx, "KitchenPourFoil", M["brass"], 0.10, 2.98, 19.55, 0.055, 0.12, 12)
+    _cyl(ctx, "KitchenDecanterWine", M["crystal_glass"], -0.75, 2.42, 19.50, 0.22, 0.42, 16)
 
-    b = ctx.mb("KitchenBruceDish", mats["platinum"])
-    b.add_cylinder(-2.8, 0.02, 19.4, 0.38, 0.38, 0.16, segs=18)
-    b = ctx.mb("KitchenBruceDishInlay", mats["pietra_grey"])
-    b.add_cylinder(-2.8, 0.10, 19.4, 0.30, 0.30, 0.06, segs=18)
-
-    # Stools
-    for i, x in enumerate((-0.6, 1.9, 4.5, 7.0)):
-        b = ctx.mb("KitchenBarStoolLegs%d" % i, mats["graphite_slate"])
-        for dx, dz in ((-0.38, -0.38), (0.38, -0.38), (-0.38, 0.38), (0.38, 0.38)):
-            b.add_cylinder(x + dx, 0.0, 17.35 + dz, 0.05, 0.05, 1.60, segs=10)
-        b = ctx.mb("KitchenBarStoolRing%d" % i, mats["platinum"])
-        b.add_cylinder(x, 0.62, 17.35, 0.44, 0.44, 0.04, segs=18)
-        b = ctx.mb("KitchenBarStoolSeat%d" % i, mats["nordic_slate"])
-        b.add_rounded_box(x, 1.68, 17.35, 0.95, 0.22, 0.95, bevel=0.06)
-        b = ctx.mb("KitchenBarStoolBack%d" % i, mats["nordic_slate"])
-        b.add_rounded_box(x, 2.08, 17.75, 0.95, 0.55, 0.16, bevel=0.05)
-
-    # Linear pendant
-    b = ctx.mb("KitchenLinearPendant", mats["platinum"])
-    b.add_box(3.2, 5.85, 19.4, 8.20, 0.16, 0.26)
-    b = ctx.mb("KitchenPendantDiffuser", mats["warm_led"])
-    b.add_box(3.2, 5.76, 19.4, 8.00, 0.04, 0.20)
-    b = ctx.mb("KitchenPendantRods", mats["platinum"])
-    for x in (0.0, 6.4):
-        b.add_cylinder(x, 5.93, 19.4, 0.03, 0.03, 2.92, segs=8)
+    build_south_fridge(ctx, mats)
+    build_south_dining(ctx, mats)
+    return ctx

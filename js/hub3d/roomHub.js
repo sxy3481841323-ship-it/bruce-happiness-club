@@ -127,8 +127,15 @@ const DEFAULT_HUB_COPY = {
       "羊羔绒沙发和洞石茶几晒得好暖和，今天在一楼陪我丢球吧？",
     ],
     kitchen_greet: [
-      "欢迎步入南翼大理石灰开放厨房！站在 10.6 单位大岛台后方，抬眼越过壁炉和沙发直看大海，转身三联法式推拉门外就是无边泳池、BBQ亭与皑皑群山。",
-      "高柜墙里的 7.1 单位内嵌双门冰箱已经满载：牧场鲜奶、0% 无糖希腊酸奶、蓝莓牛油果和时令青菜一应俱全。",
+      "欢迎步入南翼炭灰大理石与烟熏橡木餐厨大厅！左有 60 寸 Wolf 红旋钮燃气灶与八大名庄酒窖，右有 7.8 单位双门冰箱与手冲咖啡吧，向南穿过中岛便是独立八座长桌正餐厅。",
+      "不锈钢烟囱油烟机悬在 11.2 单位中岛上方，透过多扇黑色法式落地门可以直接步入户外泳池，远眺雪冠山峦。",
+    ],
+    club_greet: [
+      "保留壁炉与电视垂直主墙，穿过两侧拱券门洞就来到东翼钢琴与绅士运动沙龙！",
+      "九尺黑檀木三角大钢琴敞开琴盖，角落铺开室内果岭推杆草坪、墨绿球包、交叉网球拍与英式马术鞍架。",
+    ],
+    pool_greet: [
+      "迈出黑色法式玻璃移门就是户外蓝绿无边恒温泳池！旁边备着燃气 BBQ 吧台和柚木躺椅，正望向冰湖与阿尔卑斯雪峰。",
     ],
     floor_2f_greet: [
       "欢迎登上二楼阳光阁楼！玻璃护栏外面视野超棒，还有我的丝绒窝～",
@@ -329,9 +336,17 @@ export function mountLivingRoomHub(container, opts = {}) {
             <span class="floor-pill-code">1F · SALON</span>
             <span class="floor-pill-name">挑空客厅</span>
           </button>
+          <button type="button" class="floor-pill" data-floor="club">
+            <span class="floor-pill-code">1F · CLUB</span>
+            <span class="floor-pill-name">琴房运动</span>
+          </button>
           <button type="button" class="floor-pill" data-floor="kitchen">
             <span class="floor-pill-code">1F · KITCHEN</span>
             <span class="floor-pill-name">山景餐厨</span>
+          </button>
+          <button type="button" class="floor-pill" data-floor="pool">
+            <span class="floor-pill-code">1F · POOL</span>
+            <span class="floor-pill-name">泳池庭院</span>
           </button>
           <button type="button" class="floor-pill" data-floor="terrace">
             <span class="floor-pill-code">1F · TERRACE</span>
@@ -341,9 +356,20 @@ export function mountLivingRoomHub(container, opts = {}) {
         <div class="hub3d-kitchen-dock" id="hub3d-kitchen-dock" role="toolbar" aria-label="山景厨房仪式互动">
           <button type="button" class="kitchen-dock-pill" data-kitchen-act="fridge">🚪 双门鲜食冰箱</button>
           <button type="button" class="kitchen-dock-pill" data-kitchen-act="espresso">☕ 晨间手冲·跑圈</button>
-          <button type="button" class="kitchen-dock-pill" data-kitchen-act="steak">🌿 迷迭香·牛排</button>
-          <button type="button" class="kitchen-dock-pill" data-kitchen-act="champagne">🥂 醒香槟·主厨台</button>
+          <button type="button" class="kitchen-dock-pill" data-kitchen-act="steak">🥩 Wolf 灶台·牛排</button>
+          <button type="button" class="kitchen-dock-pill" data-kitchen-act="champagne">🥂 岛台·主厨醒酒</button>
+          <button type="button" class="kitchen-dock-pill" data-kitchen-act="dining">🍽 长桌正餐宴厅</button>
           <button type="button" class="kitchen-dock-pill" data-kitchen-act="ocean">🌊 岛台回望看海</button>
+        </div>
+        <div class="hub3d-kitchen-dock" id="hub3d-pool-dock" role="toolbar" aria-label="户外泳池与雪山互动">
+          <button type="button" class="kitchen-dock-pill" data-pool-act="lounger">🏊 池畔躺椅小憩</button>
+          <button type="button" class="kitchen-dock-pill" data-pool-act="bbq">🔥 点燃户外 BBQ 炉</button>
+          <button type="button" class="kitchen-dock-pill" data-pool-act="alps">🏔 远眺雪峰冰湖</button>
+        </div>
+        <div class="hub3d-kitchen-dock" id="hub3d-club-dock" role="toolbar" aria-label="东翼琴房与运动沙龙">
+          <button type="button" class="kitchen-dock-pill" data-club-act="piano">🎹 演奏三角钢琴</button>
+          <button type="button" class="kitchen-dock-pill" data-club-act="golf">⛳ 果岭推杆练习</button>
+          <button type="button" class="kitchen-dock-pill" data-club-act="sport">🎾 网球与马术廊</button>
         </div>
         <aside class="hub3d-fridge-drawer" id="hub3d-fridge-drawer" role="dialog" aria-label="内嵌双门鲜食冰箱">
           <div class="fridge-drawer-head">
@@ -679,6 +705,7 @@ export function mountLivingRoomHub(container, opts = {}) {
   const sunnySkyTex = loadSrgbTex("./assets/textures/sky_sunset.jpg", false);
   const rainySkyTex = loadSrgbTex("./assets/textures/sky_rainy.jpg", false);
   const patronCardTex = loadSrgbTex("./assets/textures/patron_card.jpg", false);
+  const smartPanelTex = loadSrgbTex("./assets/textures/smart_panel.jpg", false);
   const flameTex = loadSrgbTex("./assets/textures/fireplace_flame.png", true);
   const oldMoneyTv = createOldMoneyTv();
   const terraceVista = createTerraceVista(scene);
@@ -737,7 +764,7 @@ export function mountLivingRoomHub(container, opts = {}) {
   scene.add(crystalRippleMesh);
 
   const initOv = getFloorOverview(activeFloor);
-  const camera = new THREE.PerspectiveCamera(48, 16 / 10, 0.2, 320);
+  const camera = new THREE.PerspectiveCamera(48, 16 / 10, 0.2, 480);
   if (Array.isArray(opts.restoreAnchor?.camPos)) camera.position.fromArray(opts.restoreAnchor.camPos);
   else camera.position.copy(initOv.cam);
 
@@ -1080,6 +1107,16 @@ export function mountLivingRoomHub(container, opts = {}) {
             obj.material = tvScreenMat;
             return;
           }
+          if (obj.name === "SmartHomePanelScreen") {
+            obj.castShadow = false;
+            obj.receiveShadow = false;
+            const screenMat = new THREE.MeshBasicMaterial({
+              map: smartPanelTex,
+              toneMapped: false,
+            });
+            obj.material?.dispose?.();
+            obj.material = screenMat;
+          }
           if (obj.name === "EntryPatronCard") {
             obj.castShadow = false;
             patronCardMesh = obj;
@@ -1166,7 +1203,9 @@ export function mountLivingRoomHub(container, opts = {}) {
     idle_happy: "BRUCE · 摇尾轻哼",
     idle_sulk: "BRUCE · 背身冷战中",
     floor_1f_greet: "BRUCE · 一楼阳光厅",
-    kitchen_greet: "BRUCE · 山景开放餐厨",
+    club_greet: "BRUCE · 钢琴与运动沙龙",
+    kitchen_greet: "BRUCE · 炭灰橡木餐厨 & 正餐大厅",
+    pool_greet: "BRUCE · 户外无边泳池 & BBQ",
     floor_2f_greet: "BRUCE · 二楼私享阁楼",
     terrace_greet: "BRUCE · 夕照观海露台",
     sunset_cuddle_lines: "TERRACE · 并肩慢时光",
@@ -1203,7 +1242,7 @@ export function mountLivingRoomHub(container, opts = {}) {
   let lastSpeechAt = 0;
   function sayBruce(categoryOrText, durationMs = 3800, customCue = "") {
     if (!speechEl || !speechLineEl || destroyed) return;
-    const pool = hubCopy?.thought_bubbles?.[categoryOrText];
+    const pool = hubCopy?.thought_bubbles?.[categoryOrText] || DEFAULT_HUB_COPY.thought_bubbles?.[categoryOrText];
     let text = "";
     if (Array.isArray(pool) && pool.length) {
       text = pickRandom(pool, "");
@@ -1253,11 +1292,15 @@ export function mountLivingRoomHub(container, opts = {}) {
       conciergeFloorLabelEl.textContent =
         activeFloor === "terrace"
           ? "HOUSE CONCIERGE · 1F OCEAN TERRACE"
-          : activeFloor === "kitchen"
-            ? "HOUSE CONCIERGE · 1F MOUNTAIN KITCHEN"
-            : activeFloor === "2f"
-              ? "HOUSE CONCIERGE · 2F LOFT"
-              : "HOUSE CONCIERGE · 1F SALON";
+          : activeFloor === "pool"
+            ? "HOUSE CONCIERGE · 1F POOL COURTYARD"
+            : activeFloor === "club"
+              ? "HOUSE CONCIERGE · 1F PIANO & SPORT"
+              : activeFloor === "kitchen"
+                ? "HOUSE CONCIERGE · 1F CULINARY HALL"
+                : activeFloor === "2f"
+                  ? "HOUSE CONCIERGE · 2F LOFT"
+                  : "HOUSE CONCIERGE · 1F SALON";
     }
     const hifiActive = sfx.isHifiOn();
     conciergeHifiBtn?.classList.toggle("is-active", hifiActive);
@@ -1399,7 +1442,7 @@ export function mountLivingRoomHub(container, opts = {}) {
       if (action === "smart-home") {
         setConciergeOpen(false);
         sfx.playConciergeBell();
-        flyCamera(new THREE.Vector3(-7.4, 4.2, 1.4), new THREE.Vector3(-14.6, 3.65, 2.1), 700, () => {
+        flyCamera(new THREE.Vector3(-8.4, 4.0, 3.0), new THREE.Vector3(-14.56, 3.75, 2.0), 700, () => {
           setSmartPanelOpen(true);
         });
       } else if (action === "water") {
@@ -1645,7 +1688,17 @@ export function mountLivingRoomHub(container, opts = {}) {
     if (greet && !activeActId && loadingEl.classList.contains("is-hidden")) {
       if (!sulking) bruce.triggerHappyHop();
       sayBruce(
-        fl === "terrace" ? "terrace_greet" : fl === "kitchen" ? "kitchen_greet" : fl === "2f" ? "floor_2f_greet" : "floor_1f_greet",
+        fl === "terrace"
+          ? "terrace_greet"
+          : fl === "pool"
+            ? "pool_greet"
+            : fl === "club"
+              ? "club_greet"
+              : fl === "kitchen"
+                ? "kitchen_greet"
+                : fl === "2f"
+                  ? "floor_2f_greet"
+                  : "floor_1f_greet",
         4400,
       );
     }
@@ -2758,13 +2811,13 @@ export function mountLivingRoomHub(container, opts = {}) {
       controls.update();
       const onBalconySide = activeFloor === "terrace" || controls.target.z < -15.4 || bruce.root.position.z < -15.4;
       if (onBalconySide) {
-        camera.position.x = THREE.MathUtils.clamp(camera.position.x, -15.0, 15.0);
+        camera.position.x = THREE.MathUtils.clamp(camera.position.x, -15.0, 28.6);
         camera.position.y = THREE.MathUtils.clamp(camera.position.y, 1.05, 14.5);
         camera.position.z = THREE.MathUtils.clamp(camera.position.z, -28.8, 14.8);
       } else {
-        camera.position.x = THREE.MathUtils.clamp(camera.position.x, -14.3, 14.0);
-        camera.position.y = THREE.MathUtils.clamp(camera.position.y, 1.4, 17.6);
-        camera.position.z = THREE.MathUtils.clamp(camera.position.z, -15.1, 27.6);
+        camera.position.x = THREE.MathUtils.clamp(camera.position.x, -14.4, 28.6);
+        camera.position.y = THREE.MathUtils.clamp(camera.position.y, 1.2, 17.6);
+        camera.position.z = THREE.MathUtils.clamp(camera.position.z, -15.1, 52.8);
       }
     }
 
@@ -2965,6 +3018,13 @@ export function mountLivingRoomHub(container, opts = {}) {
       startMorningEspresso: () => kitchenRituals.startMorningEspresso(),
       startHerbSteakPrep: () => kitchenRituals.startHerbSteakPrep(),
       startChampagneChefStage: () => kitchenRituals.startChampagneChefStage(),
+      focusDiningHall: () => kitchenRituals.focusDiningHall(),
+      playGrandPiano: () => kitchenRituals.playGrandPiano(),
+      practicePuttingGreen: () => kitchenRituals.practicePuttingGreen(),
+      inspectSportGallery: () => kitchenRituals.inspectSportGallery(),
+      enjoyPoolside: () => kitchenRituals.enjoyPoolside(),
+      igniteOutdoorBbq: () => kitchenRituals.igniteOutdoorBbq(),
+      gazeAlpinePeaks: () => kitchenRituals.gazeAlpinePeaks(),
       lookNorthToOcean: () => kitchenRituals.lookNorthToOcean(),
       openSmartPanel: () => setSmartPanelOpen(true),
       closeSmartPanel: () => setSmartPanelOpen(false),

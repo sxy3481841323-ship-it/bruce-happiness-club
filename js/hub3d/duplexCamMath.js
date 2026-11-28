@@ -40,7 +40,7 @@ const ATRIUM_LIFT_Y = 0.85;
  */
 
 /**
- * @type {{ '1f': FloorPreset, 'kitchen': FloorPreset, '2f': FloorPreset, 'terrace': FloorPreset }}
+ * @type {{ '1f': FloorPreset, 'club': FloorPreset, 'kitchen': FloorPreset, 'pool': FloorPreset, '2f': FloorPreset, 'terrace': FloorPreset }}
  */
 export const FLOOR_PRESETS = {
   '1f': {
@@ -51,29 +51,61 @@ export const FLOOR_PRESETS = {
     floorY: 0.04,
     brucePos: [1.2, 0.04, 2.6],
     bruceRot: -0.24,
-    walkBounds: { minX: -13.4, maxX: 11.6, minZ: -27.8, maxZ: 27.2 },
+    walkBounds: { minX: -13.4, maxX: 27.6, minZ: -27.8, maxZ: 52.0 },
     walkSpots: [
       [1.2, 2.6],
       [3.4, 4.0],
       [-0.8, 3.2],
       [3.2, 16.8],
-      [-1.35, -22.60]
+      [20.4, -3.5]
+    ]
+  },
+  'club': {
+    id: 'club',
+    label: '1F · 琴房运动',
+    camPos: [16.8, 5.2, -13.8],
+    target: [23.8, 2.3, 4.2],
+    floorY: 0.04,
+    brucePos: [20.4, 0.04, -3.5],
+    bruceRot: 0.55,
+    walkBounds: { minX: -13.4, maxX: 27.6, minZ: -27.8, maxZ: 52.0 },
+    walkSpots: [
+      [20.4, -3.5],
+      [18.8, -5.2],
+      [20.2, 9.4],
+      [25.6, 1.8]
     ]
   },
   'kitchen': {
     id: 'kitchen',
     label: '1F · 山景餐厨',
-    camPos: [-6.4, 4.5, 11.8],
-    target: [4.2, 3.2, 22.8],
+    camPos: [-5.6, 4.9, 16.4],
+    target: [3.2, 2.8, 24.4],
     floorY: 0.04,
     brucePos: [-2.4, 0.04, 17.6],
     bruceRot: 0.45,
-    walkBounds: { minX: -13.4, maxX: 11.6, minZ: -27.8, maxZ: 27.2 },
+    walkBounds: { minX: -13.4, maxX: 27.6, minZ: -27.8, maxZ: 52.0 },
     walkSpots: [
       [-2.4, 17.6],
       [10.2, 22.0],
-      [3.2, 22.2],
+      [3.2, 24.4],
       [-9.8, 22.0]
+    ]
+  },
+  'pool': {
+    id: 'pool',
+    label: '1F · 泳池庭院',
+    camPos: [-6.8, 5.4, 34.2],
+    target: [0.5, 2.2, 72.0],
+    floorY: 0.04,
+    brucePos: [5.4, 0.04, 42.4],
+    bruceRot: 0.15,
+    walkBounds: { minX: -13.8, maxX: 13.8, minZ: 36.2, maxZ: 52.0 },
+    walkSpots: [
+      [5.4, 42.4],
+      [-11.8, 42.6],
+      [7.8, 39.2],
+      [5.2, 48.2]
     ]
   },
   '2f': {

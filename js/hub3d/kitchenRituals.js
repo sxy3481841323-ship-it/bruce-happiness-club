@@ -32,6 +32,10 @@ export function createKitchenRituals({
   const champagneChefMeshes = [];
   const smartPanelMeshes = [];
   const grandEntryMeshes = [];
+  const pianoMeshes = [];
+  const golfMeshes = [];
+  const sportGalleryMeshes = [];
+  const poolMeshes = [];
 
   let fridgeOpenTarget = 0;
   let fridgeOpenAmount = 0;
@@ -40,27 +44,35 @@ export function createKitchenRituals({
   let zoomiesQueue = [];
 
   // Lighting tuned for South Pietra-Grey Island, 7.1 WU Fridge & Outdoor Pool/BBQ Courtyard
-  const kitchenPendantLight = new THREE.PointLight(0xffe6c4, 1.85, 26, 1.2);
-  kitchenPendantLight.position.set(3.2, 5.4, 19.4);
+  const kitchenPendantLight = new THREE.PointLight(0xffe6c4, 1.95, 34, 1.15);
+  kitchenPendantLight.position.set(2.2, 6.4, 24.4);
   scene.add(kitchenPendantLight);
 
-  const fridgeInteriorLight = new THREE.PointLight(0xebf6ff, 0.55, 16, 1.2);
-  fridgeInteriorLight.position.set(13.40, 4.10, 22.00);
+  const diningChandelierLight = new THREE.PointLight(0xffe2b8, 1.9, 26, 1.2);
+  diningChandelierLight.position.set(0.0, 7.2, 31.0);
+  scene.add(diningChandelierLight);
+
+  const fridgeInteriorLight = new THREE.PointLight(0xebf6ff, 0.55, 18, 1.2);
+  fridgeInteriorLight.position.set(13.40, 4.10, 19.90);
   scene.add(fridgeInteriorLight);
 
-  const southCourtyardPoolLight = new THREE.PointLight(0x74d8ff, 2.1, 28, 1.2);
-  southCourtyardPoolLight.position.set(5.0, 4.2, 37.25);
+  const pianoSalonLight = new THREE.PointLight(0xffe6c2, 1.85, 34, 1.15);
+  pianoSalonLight.position.set(22.4, 12.2, 0.8);
+  scene.add(pianoSalonLight);
+
+  const southCourtyardPoolLight = new THREE.PointLight(0x74d8ff, 2.3, 34, 1.15);
+  southCourtyardPoolLight.position.set(-3.6, 3.8, 46.5);
   scene.add(southCourtyardPoolLight);
 
-  const southCourtyardBbqLight = new THREE.PointLight(0xffbe7a, 1.8, 22, 1.25);
-  southCourtyardBbqLight.position.set(-12.2, 5.2, 36.2);
+  const southCourtyardBbqLight = new THREE.PointLight(0xffbe7a, 1.9, 24, 1.25);
+  southCourtyardBbqLight.position.set(11.4, 4.8, 41.2);
   scene.add(southCourtyardBbqLight);
 
-  // Scaled espresso extraction stream at (12.65, 3.00 -> 2.46, 26.20)
+  // Scaled espresso extraction stream at (12.82, 2.86 -> 2.40, 28.50)
   const espressoCurve = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(12.65, 3.00, 26.20),
-    new THREE.Vector3(12.65, 2.74, 26.20),
-    new THREE.Vector3(12.65, 2.46, 26.20),
+    new THREE.Vector3(12.82, 2.86, 28.50),
+    new THREE.Vector3(12.82, 2.62, 28.50),
+    new THREE.Vector3(12.82, 2.40, 28.50),
   ]);
   const espressoStreamGeo = new THREE.TubeGeometry(espressoCurve, 12, 0.020, 8, false);
   const espressoStreamMat = new THREE.MeshBasicMaterial({
@@ -126,17 +138,17 @@ export function createKitchenRituals({
   let pendingWineBottle = [];
 
   function collectMesh(obj) {
-    if (/^FridgeDoorLeft|^FridgeHandleLeft/i.test(obj.name)) {
+    if (/^FridgeDoorLeft|^FridgeDoorInsetLeft|^FridgeHandle.*Left/i.test(obj.name)) {
       pendingFridgeLeft.push(obj);
       fridgeDoorMeshes.push(obj);
-    } else if (/^FridgeDoorRight|^FridgeHandleRight/i.test(obj.name)) {
+    } else if (/^FridgeDoorRight|^FridgeDoorInsetRight|^FridgeHandle.*Right/i.test(obj.name)) {
       pendingFridgeRight.push(obj);
       fridgeDoorMeshes.push(obj);
-    } else if (/^Fridge/i.test(obj.name)) {
+    } else if (/^Fridge|^BioFresh/i.test(obj.name)) {
       fridgeDoorMeshes.push(obj);
-    } else if (/^KitchenEspresso|^KitchenGranola/i.test(obj.name)) {
+    } else if (/^KitchenEspresso|^Coffee|^KitchenGranola/i.test(obj.name)) {
       espressoMeshes.push(obj);
-    } else if (/^KitchenHerb|^KitchenSteakBoard|^KitchenRawSteaks|^KitchenSaltBowl/i.test(obj.name)) {
+    } else if (/^Wolf|^KitchenSteakBoard|^KitchenRawSteaks/i.test(obj.name)) {
       steakHerbMeshes.push(obj);
     } else if (/^KitchenPourBottle|^KitchenPourFoil/i.test(obj.name)) {
       pendingWineBottle.push(obj);
@@ -144,41 +156,49 @@ export function createKitchenRituals({
     } else if (/^KitchenDecanterWine/i.test(obj.name)) {
       decanterWineMesh = obj;
       champagneChefMeshes.push(obj);
-    } else if (/^KitchenWine|^KitchenCoupes|^KitchenTeppanyaki/i.test(obj.name)) {
+    } else if (/^Kitchen|^PrestigeWineBottles|^DiningTableMarble/i.test(obj.name)) {
       champagneChefMeshes.push(obj);
     } else if (/^SmartHomePanel/i.test(obj.name)) {
       smartPanelMeshes.push(obj);
     } else if (/^GrandEntryDoors|^GrandEntryDoor|^GrandEntryPulls/i.test(obj.name)) {
       grandEntryMeshes.push(obj);
+    } else if (/^GrandPiano|^Piano(OpenLid|Bench)/i.test(obj.name)) {
+      pianoMeshes.push(obj);
+    } else if (/^Putting(GreenTurf|Pin|Flag)|^GolfTourBag/i.test(obj.name)) {
+      golfMeshes.push(obj);
+    } else if (/^TennisDisplay|^EquestrianTack|^DressageSaddle/i.test(obj.name)) {
+      sportGalleryMeshes.push(obj);
+    } else if (/^pool_water|^lounge_|^bbq_/i.test(obj.name)) {
+      poolMeshes.push(obj);
     }
   }
 
   function attachPivots(roomRoot) {
     if (pendingFridgeLeft.length) {
       fridgeLeftDoorPivot = new THREE.Group();
-      fridgeLeftDoorPivot.position.set(12.65, 3.70, 19.45);
+      fridgeLeftDoorPivot.position.set(12.35, 4.05, 16.05);
       roomRoot.add(fridgeLeftDoorPivot);
       pendingFridgeLeft.forEach((m) => {
         fridgeLeftDoorPivot.add(m);
-        m.position.set(-12.65, -3.70, -19.45);
+        m.position.set(-12.35, -4.05, -16.05);
       });
     }
     if (pendingFridgeRight.length) {
       fridgeRightDoorPivot = new THREE.Group();
-      fridgeRightDoorPivot.position.set(12.65, 3.70, 24.55);
+      fridgeRightDoorPivot.position.set(12.35, 4.05, 23.75);
       roomRoot.add(fridgeRightDoorPivot);
       pendingFridgeRight.forEach((m) => {
         fridgeRightDoorPivot.add(m);
-        m.position.set(-12.65, -3.70, -24.55);
+        m.position.set(-12.35, -4.05, -23.75);
       });
     }
     if (pendingWineBottle.length) {
       kitchenWineBottlePivot = new THREE.Group();
-      kitchenWineBottlePivot.position.set(0.10, 2.76, 19.55);
+      kitchenWineBottlePivot.position.set(0.10, 2.70, 19.55);
       roomRoot.add(kitchenWineBottlePivot);
       pendingWineBottle.forEach((m) => {
         kitchenWineBottlePivot.add(m);
-        m.position.set(-0.10, -2.76, -19.55);
+        m.position.set(-0.10, -2.70, -19.55);
       });
     }
     pendingFridgeLeft = [];
@@ -186,10 +206,15 @@ export function createKitchenRituals({
     pendingWineBottle = [];
   }
 
+  const poolDockEl = stageEl?.querySelector("#hub3d-pool-dock");
+  const clubDockEl = stageEl?.querySelector("#hub3d-club-dock");
+
   function setDockVisibility(floorId) {
-    const show = floorId === "kitchen" || fridgeOpenTarget > 0.5;
-    dockEl?.classList.toggle("is-visible", show);
-    document.body.classList.toggle("is-kitchen-floor", show);
+    const showK = floorId === "kitchen" || fridgeOpenTarget > 0.5;
+    dockEl?.classList.toggle("is-visible", showK);
+    poolDockEl?.classList.toggle("is-visible", floorId === "pool");
+    clubDockEl?.classList.toggle("is-visible", floorId === "club");
+    document.body.classList.toggle("is-kitchen-floor", showK || floorId === "pool" || floorId === "club");
     if (floorId !== "kitchen" && fridgeOpenTarget < 0.5) {
       fridgeDrawerEl?.classList.remove("is-open");
     }
@@ -330,6 +355,94 @@ export function createKitchenRituals({
     return courtyardLightsOn;
   }
 
+  function focusDiningHall() {
+    sfx.playTap();
+    flyCamera(
+      new THREE.Vector3(-8.2, 4.6, 22.8),
+      new THREE.Vector3(1.2, 2.3, 33.6),
+      800,
+    );
+    walkBruceTo(0.8, 28.0, { silent: true });
+    sayBruce("穿过备餐岛台就是独立长形正餐宴会厅，八张羊羔绒餐椅围着整块炭灰大理石餐桌，正对黑色法式落地门外的无边泳池与阿尔卑斯雪峰。", 5200, "DINING · 独立山景长桌正餐厅");
+  }
+
+  function playGrandPiano() {
+    sfx.playConciergeBell();
+    later(() => sfx.playSuccess?.(), 180);
+    const r = stageEl.getBoundingClientRect();
+    spawnFxParticles(r.width * 0.5, r.height * 0.48, "note", 14);
+    flyCamera(
+      new THREE.Vector3(16.4, 4.5, -11.4),
+      new THREE.Vector3(22.4, 2.6, -6.8),
+      780,
+    );
+    walkBruceTo(18.8, -5.2, { silent: true });
+    later(() => bruce.triggerHappyHop?.(), 650);
+    sayBruce("掀开九尺黑檀木三角大钢琴琴盖，泛音落在人字拼橡木地板上，本汪坐在长凳旁帮你翻乐谱～", 5000, "CLUB · 黑檀木三角钢琴");
+  }
+
+  function practicePuttingGreen() {
+    sfx.playTap();
+    const r = stageEl.getBoundingClientRect();
+    spawnFxParticles(r.width * 0.52, r.height * 0.54, "gold", 12);
+    flyCamera(
+      new THREE.Vector3(17.4, 4.2, 5.2),
+      new THREE.Vector3(24.0, 1.0, 10.6),
+      780,
+    );
+    walkBruceTo(19.8, 9.4, { silent: true });
+    sayBruce("在室内墨绿果岭轻推一杆，真皮高尔夫球包里 7 支锻铁与推杆随时候命，旁边的壁龛陈列着网球拍与英式马鞍。", 4800, "CLUB · 果岭推杆 & 高尔夫包");
+  }
+
+  function inspectSportGallery() {
+    sfx.playTap();
+    flyCamera(
+      new THREE.Vector3(21.2, 4.3, 1.4),
+      new THREE.Vector3(28.3, 2.5, 0.8),
+      780,
+    );
+    walkBruceTo(25.2, 1.2, { silent: true });
+    sayBruce("东翼长廊陈列着交叉碳素网球拍、亮黄网球篮，以及手工鞍匠托架上的干邑色英式马鞍与高筒马靴。", 4800, "CLUB · 网球 & 马术收藏长廊");
+  }
+
+  function enjoyPoolside() {
+    sfx.playGlassPour();
+    const r = stageEl.getBoundingClientRect();
+    spawnFxParticles(r.width * 0.45, r.height * 0.55, "water", 14);
+    flyCamera(
+      new THREE.Vector3(-8.6, 3.6, 40.4),
+      new THREE.Vector3(-2.4, 1.2, 56.0),
+      820,
+    );
+    walkBruceTo(-11.8, 43.2, { silent: true });
+    sayBruce("跨出法式推拉门就是户外蓝绿无边恒温泳池，柚木躺椅旁支着遮阳伞，水光映着冰湖与积雪险峰。", 5000, "POOL · 无边泳池与柚木躺椅");
+  }
+
+  function igniteOutdoorBbq() {
+    sfx.playTap();
+    const r = stageEl.getBoundingClientRect();
+    spawnFxParticles(r.width * 0.6, r.height * 0.5, "warm", 14);
+    toggleCourtyardLights(true);
+    flyCamera(
+      new THREE.Vector3(4.2, 3.9, 37.0),
+      new THREE.Vector3(11.4, 2.0, 41.2),
+      780,
+    );
+    walkBruceTo(7.4, 39.2, { silent: true });
+    sayBruce("开启户外不锈钢燃气 BBQ 烧烤吧台！傍晚风一吹过花坛迷迭香，就可以把肋眼端到泳池畔现烤了。", 5000, "COURTYARD · 户外 BBQ 炉台");
+  }
+
+  function gazeAlpinePeaks() {
+    sfx.playConciergeBell();
+    flyCamera(
+      new THREE.Vector3(0.0, 5.2, 46.8),
+      new THREE.Vector3(0.0, 12.0, 118.0),
+      900,
+    );
+    walkBruceTo(0.8, 40.6, { silent: true });
+    sayBruce("站在无边泳池畔远望，翡翠冰湖尽头是两座险峻的阿尔卑斯白云石雪峰，夕阳正洒满冰川雪脊。", 5200, "ALPINE · 雪冠险峰与冰湖");
+  }
+
   function handleRaycastHit(hitObj) {
     if (smartPanelMeshes.includes(hitObj)) {
       onOpenSmartPanel?.();
@@ -341,7 +454,7 @@ export function createKitchenRituals({
         new THREE.Vector3(-14.7, 3.8, -3.6),
         740,
       );
-      sayBruce("铸铜灰云石双开大门旁就是全屋智能中控屏，点一下屏幕或顶部入口就能总控灯光、壁炉、哈曼与泳池。", 4400, "FOYER · 双开入户大门");
+      sayBruce("铸铜灰云石双开大门旁就是深邃黑曜石全屋智能中控屏，点一下屏幕就能总控灯光、壁炉、哈曼与泳池。", 4400, "FOYER · 双开入户大门");
       return true;
     }
     if (fridgeDoorMeshes.includes(hitObj)) {
@@ -360,6 +473,23 @@ export function createKitchenRituals({
       startChampagneChefStage();
       return true;
     }
+    if (pianoMeshes.includes(hitObj)) {
+      playGrandPiano();
+      return true;
+    }
+    if (golfMeshes.includes(hitObj)) {
+      practicePuttingGreen();
+      return true;
+    }
+    if (sportGalleryMeshes.includes(hitObj)) {
+      inspectSportGallery();
+      return true;
+    }
+    if (poolMeshes.includes(hitObj)) {
+      if (/^bbq_/i.test(hitObj.name)) igniteOutdoorBbq();
+      else enjoyPoolside();
+      return true;
+    }
     return false;
   }
 
@@ -371,7 +501,28 @@ export function createKitchenRituals({
       else if (act === "espresso") startMorningEspresso();
       else if (act === "steak") startHerbSteakPrep();
       else if (act === "champagne") startChampagneChefStage();
+      else if (act === "dining") focusDiningHall();
       else if (act === "ocean") lookNorthToOcean();
+    });
+  });
+
+  poolDockEl?.querySelectorAll("[data-pool-act]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const act = btn.getAttribute("data-pool-act");
+      if (act === "lounger") enjoyPoolside();
+      else if (act === "bbq") igniteOutdoorBbq();
+      else if (act === "alps") gazeAlpinePeaks();
+    });
+  });
+
+  clubDockEl?.querySelectorAll("[data-club-act]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const act = btn.getAttribute("data-club-act");
+      if (act === "piano") playGrandPiano();
+      else if (act === "golf") practicePuttingGreen();
+      else if (act === "sport") inspectSportGallery();
     });
   });
 
@@ -516,6 +667,13 @@ export function createKitchenRituals({
     startMorningEspresso,
     startHerbSteakPrep,
     startChampagneChefStage,
+    focusDiningHall,
+    playGrandPiano,
+    practicePuttingGreen,
+    inspectSportGallery,
+    enjoyPoolside,
+    igniteOutdoorBbq,
+    gazeAlpinePeaks,
     lookNorthToOcean,
     toggleCourtyardLights,
     handleRaycastHit,
@@ -526,6 +684,10 @@ export function createKitchenRituals({
       ...champagneChefMeshes,
       ...smartPanelMeshes,
       ...grandEntryMeshes,
+      ...pianoMeshes,
+      ...golfMeshes,
+      ...sportGalleryMeshes,
+      ...poolMeshes,
     ],
     getState: () => ({
       fridgeOpen: fridgeOpenTarget > 0.5,
